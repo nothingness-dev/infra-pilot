@@ -64,3 +64,38 @@ There are no callbacks, plugins, executors, or authorization inputs here. An
 absent authorization mechanism can never grant permission. Output availability
 will only affect preparation readiness. Execution dependencies remain explicit
 and unavailable throughout Stage 1.
+
+## Preparation behavior
+
+Call `workflow.prepare_request(request, inputs=None)` to receive a
+`PreparationResult`. Its `to_dict()` output contains collected information,
+missing fields, structured errors, a candidate plan when applicable, and explicit
+`execution_performed: false` and `execution_authorized: false` indicators.
+
+Each invocation records `received` first in `state_history`, followed by:
+
+| State | Meaning |
+| --- | --- |
+| `needs_information` | Required local brief fields are missing; no plan yet. |
+| `blocked` | Invalid/unsupported input, or an unavailable preparation dependency. |
+| `plan_prepared` | Complete brief and applicable external references were supplied. |
+
+Validation errors take priority over missing fields, which take priority over
+dependency checks. Valid complete briefs keep a structured candidate plan even
+when dependencies block preparation. Invalid or incomplete briefs return no plan.
+The provider output reference is needed for both operations; inspection also
+needs a triage output reference. These are local preparation dependencies, not
+assertions about how Liara or triage must work. Missing inputs never produce
+synthetic snapshots or diagnoses. Setup does not require or use triage results.
+
+Even `plan_prepared` lists unavailable **execution** dependencies: provider
+capability/requirement validation, authorization validation, and an executor.
+Those do not block the preparation state; they prevent any interpretation that
+the plan is ready to execute. The module cannot accept approval or execute steps.
+Steps are descriptions, not executable tasks, and make no API-capability claims.
+Applicable service requirements, exact plan/region choices, and costs remain
+unresolved until the provider module and user supply them.
+
+No state is persisted. To resolve missing information or dependencies, submit a
+new request/input set with the same caller-managed request ID. Previous results
+and caller-owned mappings are not modified. No state means running or succeeded.
