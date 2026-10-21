@@ -53,3 +53,26 @@ may be stale; do not interpret preparation readiness as production usability.
 The team must specify freshness requirements and an explicit externally supplied
 policy before freshness checks are added; those checks will need a controlled
 clock in tests. Execution and authorization remain absent.
+
+## Workflow outcomes and compatibility
+
+`prepare_request` validates applicable dependency envelopes before declaring
+`plan_prepared`. `pending`, `failed`, missing, and unavailable inputs all use the
+existing `blocked` preparation state, with distinct structured error codes.
+Malformed or mismatched metadata, unknown versions/states, and unusable references
+also block. Invalid references are omitted from the returned candidate plan.
+The serialized dependencies expose recognized `reported_state`, `provenance`,
+and `contract_version`; invalid values are not copied into the output.
+
+The local briefs, states, precedence of request validation, candidate-plan
+behavior, lack of persistence, and permanent execution/authorization flags are
+reused from Stage 1. Setup still needs only a provider result; inspection needs
+both provider and triage results. No result is fetched or interpreted.
+
+**Intentional safety change:** the legacy constructor remains callable, but a
+bare `available=True`/reference pair is now blocked with
+`dependency_metadata_required`. It must be accompanied by the associated versioned
+metadata to become preparation-ready. Legacy unavailable inputs remain blocked
+with their supplied reason. Original Stage 1 behavior tests are retained, with
+ready fixtures upgraded to include the new metadata. Passing these fixtures
+demonstrates local structural compatibility only, not real teammate integration.

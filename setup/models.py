@@ -49,6 +49,9 @@ class Dependency:
     available: bool
     reason: str
     output_reference: str | None = None
+    reported_state: str | None = None
+    provenance: str | None = None
+    contract_version: str | None = None
 
     def to_dict(self) -> dict:
         return {**asdict(self), "phase": self.phase.value}

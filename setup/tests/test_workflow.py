@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from setup.integration import DependencyInput, PreparationInputs
 from setup.models import DependencyPhase, OperationRequest, WorkflowState
+from setup.tests.fixtures import mock_result
 from setup.workflow import prepare_request
 
 
@@ -22,16 +23,16 @@ def inspection_request():
     })
 
 
-def ready_inputs():
+def ready_inputs(request):
     return PreparationInputs(
-        provider=DependencyInput(True, output_reference="mock:provider-output"),
-        triage=DependencyInput(True, output_reference="mock:triage-output"),
+        provider=mock_result(request, "provider"),
+        triage=mock_result(request, "triage"),
     )
 
 
 class RequestPreparationTests(unittest.TestCase):
     def test_complete_setup_returns_a_structured_proposed_plan(self):
-        result = prepare_request(setup_request(), ready_inputs())
+        result = prepare_request(setup_request(), ready_inputs(setup_request()))
         self.assertEqual(result.state, WorkflowState.PLAN_PREPARED)
         self.assertEqual(result.state_history, (WorkflowState.RECEIVED, WorkflowState.PLAN_PREPARED))
         self.assertEqual(result.plan.collected_information["service_name"], "mock-app")
@@ -43,7 +44,7 @@ class RequestPreparationTests(unittest.TestCase):
         self.assertNotIn("budget", result.plan.collected_information)
 
     def test_complete_inspection_carries_references_without_inventing_diagnosis(self):
-        result = prepare_request(inspection_request(), ready_inputs())
+        result = prepare_request(inspection_request(), ready_inputs(inspection_request()))
         self.assertEqual(result.state, WorkflowState.PLAN_PREPARED)
         refs = {item.key: item.output_reference for item in result.plan.dependencies}
         self.assertEqual(refs["provider_output"], "mock:provider-output")
@@ -53,7 +54,7 @@ class RequestPreparationTests(unittest.TestCase):
 
     def test_setup_does_not_require_triage(self):
         result = prepare_request(setup_request(), PreparationInputs(
-            provider=ready_inputs().provider,
+            provider=ready_inputs(setup_request()).provider,
             triage=DependencyInput(False, reason="Mock triage unavailable"),
         ))
         self.assertEqual(result.state, WorkflowState.PLAN_PREPARED)
@@ -90,7 +91,7 @@ class RequestPreparationTests(unittest.TestCase):
 
     def test_explicit_dependency_failure_surfaces_its_reason(self):
         result = prepare_request(inspection_request(), PreparationInputs(
-            provider=ready_inputs().provider,
+            provider=ready_inputs(inspection_request()).provider,
             triage=DependencyInput(False, reason="Mock triage module unavailable"),
         ))
         self.assertEqual(result.state, WorkflowState.BLOCKED)
@@ -99,7 +100,7 @@ class RequestPreparationTests(unittest.TestCase):
         self.assertEqual(result.errors[0].field, "dependencies.triage_output")
 
     def test_ready_plan_still_has_unavailable_execution_dependencies(self):
-        result = prepare_request(inspection_request(), ready_inputs())
+        result = prepare_request(inspection_request(), ready_inputs(inspection_request()))
         execution = [d for d in result.plan.dependencies if d.phase == DependencyPhase.EXECUTION]
         self.assertEqual({d.key for d in execution}, {
             "provider_capability_validation", "authorization_validation", "operation_executor",
@@ -125,7 +126,7 @@ class RequestPreparationTests(unittest.TestCase):
         details = dict(setup_request().details)
         original = copy.deepcopy(details)
         request = setup_request(MappingProxyType(details))
-        inputs = ready_inputs()
+        inputs = ready_inputs(request)
         original_inputs = copy.deepcopy(inputs)
         first = prepare_request(request, inputs)
         second = prepare_request(request, inputs)
@@ -142,7 +143,7 @@ class RequestPreparationTests(unittest.TestCase):
         request = inspection_request()
         blocked = prepare_request(request)
         before = blocked.to_dict()
-        prepared = prepare_request(request, ready_inputs())
+        prepared = prepare_request(request, ready_inputs(request))
         self.assertEqual(prepared.state, WorkflowState.PLAN_PREPARED)
         self.assertEqual(blocked.to_dict(), before)
 
@@ -150,8 +151,8 @@ class RequestPreparationTests(unittest.TestCase):
         # Fail immediately on common network, file, or process side effects.
         # This exercises real workflow code; no workflow behavior is mocked.
         cases = (
-            (setup_request(), ready_inputs()),
-            (inspection_request(), ready_inputs()),
+            (setup_request(), ready_inputs(setup_request())),
+            (inspection_request(), ready_inputs(inspection_request())),
             (inspection_request(), None),
             (setup_request({}), None),
             (OperationRequest("mock-request", "delete_service"), None),
