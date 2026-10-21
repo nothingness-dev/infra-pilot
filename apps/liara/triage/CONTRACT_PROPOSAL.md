@@ -121,3 +121,28 @@ Potential future contract extensions, **not implemented or agreed**:
 
 Any such extension requires team review. Task 2 neither changes Raham's adapter
 nor assumes new Liara capabilities. See `DIAGNOSIS_ENGINE.md` for current limits.
+
+## Task 3 approval boundary proposal (DRAFT)
+
+The existing six models and Task 2 engine are unchanged. Approval metadata on
+`ActionProposal` is advisory and cannot authorize any operation.
+
+New module-local interfaces are proposed for team review, not shared schema or
+provider changes: `ActionIntent` wraps an exact service identifier, canonical
+operation, validated parameters, and optional untrusted proposal metadata;
+`ApprovalRequest` tracks immutable action/actor/expiration bindings;
+`GateDecision` reports permission without execution. `IdentityBoundary` supplies
+verified authentication and current service/action permissions, and
+`ApprovalStore` supplies an atomic state-plus-audit transaction.
+
+Proposed flow: trusted setup workflow maps a reviewed operation to `ActionIntent`,
+requests approval under verified identity, records an explicit authorized decision,
+then a future trusted provider execution adapter calls `ApprovalGate.authorize`
+immediately before any actual operation. It must dispatch only the returned
+canonical operation/parameters. Neither an Agent flag, frontend approval, request
+ID, nor a previously returned decision is a bearer execution permission.
+
+These interfaces remain **internal DRAFTS requiring team approval**. They are
+**NOT official Liara API schemas**, and no setup, provider, infrastructure, or
+other teammate files are modified. No real executor or authentication backend
+is supplied. See `APPROVAL_POLICY.md` before proposing integration.

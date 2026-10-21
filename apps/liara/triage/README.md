@@ -1,9 +1,10 @@
-# InfraPilot triage: contracts and diagnosis
+# InfraPilot triage: contracts, diagnosis, and approval gate
 
 The module contains Pydantic v2 data contracts, a deterministic diagnosis engine,
-and automated tests. Python 3.11+ is required. There are no Liara requests,
-credentials, Approval Policy decisions, action execution, LLM integration,
-server, or frontend.
+a separate fail-closed Approval Policy and authorization gate, and automated
+tests. Python 3.11+ is required. There are no Liara requests, credentials,
+infrastructure execution, LLM integration, API server, or frontend. Production
+authentication, permissions, and durable approval storage are not implemented.
 
 These are **internal DRAFT contracts**, pending team approval. They are **NOT
 official Liara API schemas**. See [CONTRACT_PROPOSAL.md](CONTRACT_PROPOSAL.md).
@@ -106,3 +107,26 @@ See [DIAGNOSIS_ENGINE.md](DIAGNOSIS_ENGINE.md) for supported scenarios, ranking,
 approval metadata, limitations, and the unchanged Task 1 contract boundary.
 The full test command above runs the original 56 contract cases and all new
 diagnostic tests. No API, workflow, or frontend integration is required to run it.
+
+## Approval and authorization (Task 3)
+
+Task 2 proposal labels remain advisory. Task 3 independently validates canonical
+action types and parameters and requires verified identities and target-specific
+permissions. The original models and diagnosis behavior remain unchanged.
+
+```python
+from infrapilot_triage import ActionIntent, ApprovalGate
+
+intent = ActionIntent(service_id="example-service", action_type="restart_service")
+gate = ApprovalGate()  # No trusted dependencies configured: always fails closed.
+assert not gate.authorize(intent).allowed
+```
+
+A trusted server composition root must supply `IdentityBoundary`, `ActionPolicy`,
+and atomic approval/audit storage. Do not substitute user IDs or Agent text for
+authentication. Requesting/granting approval does not itself authorize execution.
+All decisions concern permission only; no infrastructure operation is performed.
+
+See [APPROVAL_POLICY.md](APPROVAL_POLICY.md) for the lifecycle, trust boundaries,
+canonical parameter schemas, audits, tests, integration proposal, and limitations.
+The full pytest command runs Task 1, Task 2, and Task 3 together.

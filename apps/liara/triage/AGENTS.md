@@ -25,12 +25,16 @@
   evidence-based diagnosis, report generation, recommendations, and tests.
 - Preserve the six Task 1 schemas and all existing tests. Document proposed
   contract extensions separately; do not silently change adapter/UI interfaces.
-- No Approval Policy, infrastructure execution, LLM integration, API server,
-  frontend, Liara API calls, keys, or secrets belong in Task 2. Recommendation
-  approval flags are static metadata, not permission to execute anything.
-- Do not merge either feature PR or start Task 3 without a separate explicit
-  user request. Task 2 uses feature/liara-diagnosis-engine, based on Task 1
-  unless the foundation has already been merged into main.
+- Task 3 explicitly authorizes independent action classification, approval state
+  management, a fail-closed authorization gate, structured audits, and tests.
+  Use feature/liara-approval-policy based on the intact diagnosis branch.
+- Keep shared schemas and the original 130 tests unchanged. Agent-provided risk
+  and approval flags never grant authorization. Authentication and target ACLs
+  must come from a trusted integration boundary, never a caller-supplied actor ID.
+- No infrastructure execution, real authentication integration, LLM integration,
+  API server, frontend, Liara API calls, keys, or secrets belong in Task 3.
+- Do not merge any PR or start the API/real execution integration. Push only the
+  current task's feature branch and preserve all existing dependency branches.
 - Contracts are internal DRAFTS, require team approval before final integration,
   and are NOT official Liara API schemas.
 
@@ -42,4 +46,4 @@ Set-Location -LiteralPath 'C:\git\shared\infra-pilot\apps\liara\triage'
 ```
 
 See `README.md` for module-local environment and dependency setup. Preserve
-the existing Task 1 functionality while developing Task 2.
+the existing contract and diagnosis functionality while developing Task 3.
