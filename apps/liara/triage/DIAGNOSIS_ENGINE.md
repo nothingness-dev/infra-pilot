@@ -84,6 +84,10 @@ These are static per-recommendation labels, not a generalized Approval Policy.
 There is no executor, provider operation registry, restart, scaling API, or secret
 handling implementation here.
 
+Task 3 adds a separate `ApprovalGate`; it never trusts these Agent recommendation
+labels for authorization. See `APPROVAL_POLICY.md`. Diagnosis itself remains
+unchanged and cannot grant approval or execute actions.
+
 ## Integration boundary and dependencies
 
 The six Task 1 schemas, dependencies, and original 56 tests remain unchanged.
