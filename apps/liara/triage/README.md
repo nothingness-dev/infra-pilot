@@ -1,8 +1,9 @@
-# InfraPilot triage: Task 1
+# InfraPilot triage: contracts and diagnosis
 
-Setayesh's module currently contains Pydantic v2 data contracts and automated tests.
-Python 3.11+ is required. There are no Liara requests, credentials, diagnosis
-algorithms, approval decisions, action execution, server, or frontend.
+The module contains Pydantic v2 data contracts, a deterministic diagnosis engine,
+and automated tests. Python 3.11+ is required. There are no Liara requests,
+credentials, Approval Policy decisions, action execution, LLM integration,
+server, or frontend.
 
 These are **internal DRAFT contracts**, pending team approval. They are **NOT
 official Liara API schemas**. See [CONTRACT_PROPOSAL.md](CONTRACT_PROPOSAL.md).
@@ -79,3 +80,29 @@ Dependencies use compatible major-version ranges rather than a lock file.
 Installing them requires access to a Python package index or a pre-populated cache.
 Do not copy `.venv`, `.tmp`, pytest caches, bytecode, or generated `*.egg-info` into
 the teammates' shared repository.
+
+## Diagnosing a snapshot
+
+```python
+from infrapilot_triage import DiagnosisThresholds, LogEntry, ServiceSnapshot, diagnose
+
+# Synthetic example, not an observation of a real service.
+snapshot = ServiceSnapshot(
+    service_id="example-service",
+    status="unhealthy",
+    data_source="mock",
+    http_status=500,
+    logs=[LogEntry(message="PostgreSQL connection refused", level="error")],
+)
+report = diagnose(snapshot)
+assert report.hypotheses[0].hypothesis_id == "database_connection_failure"
+assert all(action.status == "not_executed" for action in report.actions)
+
+# Optional local heuristic configuration; these are not provider limits.
+report = diagnose(snapshot, thresholds=DiagnosisThresholds(high_cpu_percent=90))
+```
+
+See [DIAGNOSIS_ENGINE.md](DIAGNOSIS_ENGINE.md) for supported scenarios, ranking,
+approval metadata, limitations, and the unchanged Task 1 contract boundary.
+The full test command above runs the original 56 contract cases and all new
+diagnostic tests. No API, workflow, or frontend integration is required to run it.
