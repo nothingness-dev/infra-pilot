@@ -2,6 +2,7 @@
 
 import json
 
+from setup.completion import complete_request
 from setup.integration import (
     CONTRACT_VERSION, DependencyInput, PreparationInputs, ResultMetadata, request_fingerprint,
 )
@@ -41,6 +42,7 @@ def main() -> None:
         "service_target": "mock-target-not-a-real-service",
         "goal": "Prepare a review of mock external output references",
     })
+    inspection_inputs = mock_inputs(mock_inspection)
     cases = (
         ("complete_mock_setup", mock_setup, mock_inputs(mock_setup)),
         ("incomplete_mock_request", OperationRequest("mock-incomplete-1", "setup_service", {
@@ -50,16 +52,43 @@ def main() -> None:
         ("unavailable_mock_provider", mock_setup, PreparationInputs(
             provider=DependencyInput(False, reason="MOCK: provider module is unavailable"),
         )),
-        ("complete_mock_inspection", mock_inspection, mock_inputs(mock_inspection)),
+        ("complete_mock_inspection", mock_inspection, inspection_inputs),
+        ("pending_mock_triage", mock_inspection, PreparationInputs(
+            provider=inspection_inputs.provider,
+            triage=mock_result(mock_inspection, "triage", "pending"),
+        )),
+        ("failed_mock_provider", mock_setup, PreparationInputs(
+            provider=mock_result(mock_setup, "provider", "failed"),
+        )),
+        ("missing_mock_triage", mock_inspection, PreparationInputs(
+            provider=inspection_inputs.provider,
+        )),
     )
+    scenarios = [
+        {"name": name, "result": prepare_request(request, inputs).to_dict()}
+        for name, request, inputs in cases
+    ]
+    partial = OperationRequest(mock_setup.request_id, mock_setup.operation, {
+        "service_name": mock_setup.details["service_name"],
+    })
+    completed = complete_request(partial, {
+        "service_kind": mock_setup.details["service_kind"], "goal": mock_setup.details["goal"],
+    }, mock_inputs(mock_setup))
+    changed = complete_request(mock_inspection, {
+        "service_target": "mock-other-target-not-a-real-service",
+    }, inspection_inputs)
+    scenarios.extend((
+        {"name": "completed_mock_request", "result": completed.preparation.to_dict()},
+        {"name": "changed_target_rejects_old_mock_results", "result": changed.preparation.to_dict()},
+    ))
     print(json.dumps({
         "mock_data": True,
+        "contract_status": "module-local proposal",
+        "verified_teammate_compatibility": False,
+        "freshness_evaluated": False,
         "notice": "Offline mock data only. No real outputs, capability checks, authorization, "
                   "or execution. No plan, region, target, or cost defaults are inferred.",
-        "scenarios": [
-            {"name": name, "result": prepare_request(request, inputs).to_dict()}
-            for name, request, inputs in cases
-        ],
+        "scenarios": scenarios,
     }, indent=2))
 
 

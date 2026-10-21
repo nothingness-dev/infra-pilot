@@ -1,4 +1,4 @@
-# Provisional Liara setup module — Stage 1
+# Provisional Liara setup module — Stages 1–2
 
 Fatima owns this isolated, framework-independent Python 3 module. Its models
 are **local proposals awaiting team agreement**, not approved shared contracts
@@ -49,14 +49,18 @@ remaining operational choices is deferred to the future provider handoff.
 
 `integration.py` accepts data-only `PreparationInputs`: `provider` and `triage`
 each contain a `DependencyInput`. An available input must identify an external
-output by a nonblank opaque `output_reference`; an unavailable input must give
-a nonblank `reason`. An omitted input is unavailable. These constructors reject
-malformed internal integration data with `ValueError`.
+output by an opaque `output_reference` and provide associated `ResultMetadata`;
+an unavailable input must give a nonblank `reason`. An omitted input is
+unavailable. Existing constructors still reject malformed core fields with
+`ValueError`; metadata, association, state, and reference-format failures become
+structured workflow errors. See [INTEGRATION.md](INTEGRATION.md) for the complete
+provisional grammar and the intentional change to legacy available inputs.
 
 Roham owns the actual provider outputs, capability checks, snapshots, logs,
 authentication, and adapters. Setayesh owns diagnosis and action-proposal
 schemas and all authorization decisions. This module only carries references
-to those future outputs; it does not fetch, parse, certify, or synthesize them.
+to those future outputs; it does not fetch, parse, certify, or synthesize their
+payloads. It validates coordination metadata only.
 The team must agree on reference resolution, freshness, request association,
 and payload compatibility before real integration. Caller-supplied availability
 and references are not trusted evidence of capability or authorization.
@@ -64,7 +68,8 @@ and references are not trusted evidence of capability or authorization.
 There are no callbacks, plugins, executors, or authorization inputs here. An
 absent authorization mechanism can never grant permission. Output availability
 will only affect preparation readiness. Execution dependencies remain explicit
-and unavailable throughout Stage 1.
+and unavailable throughout both preparation stages. Freshness and authenticity
+are not evaluated; no real teammate compatibility has been established.
 
 ## Preparation behavior
 
@@ -79,13 +84,15 @@ Each invocation records `received` first in `state_history`, followed by:
 | --- | --- |
 | `needs_information` | Required local brief fields are missing; no plan yet. |
 | `blocked` | Invalid/unsupported input, or an unavailable preparation dependency. |
-| `plan_prepared` | Complete brief and applicable external references were supplied. |
+| `plan_prepared` | Complete brief and structurally compatible, associated external references were supplied. |
 
 Validation errors take priority over missing fields, which take priority over
 dependency checks. Valid complete briefs keep a structured candidate plan even
 when dependencies block preparation. Invalid or incomplete briefs return no plan.
 The provider output reference is needed for both operations; inspection also
-needs a triage output reference. These are local preparation dependencies, not
+needs a triage output reference. Each ready result must pass the local version,
+request, full-brief fingerprint, producer, state, and provenance checks.
+These are local preparation dependencies, not
 assertions about how Liara or triage must work. Missing inputs never produce
 synthetic snapshots or diagnoses. Setup does not require or use triage results.
 
@@ -98,8 +105,12 @@ Applicable service requirements, exact plan/region choices, and costs remain
 unresolved until the provider module and user supply them.
 
 No state is persisted. To resolve missing information or dependencies, submit a
-new request/input set with the same caller-managed request ID. Previous results
-and caller-owned mappings are not modified. No state means running or succeeded.
+new request/input set with the same caller-managed request ID, or use
+`completion.complete_request(request, additional_information, inputs=None)`.
+The completion helper returns the updated `.request` and `.preparation`, keeping
+identity and operation fixed and rechecking any supplied dependency metadata.
+Previous results and caller-owned mappings are not modified. No state means
+running or succeeded.
 
 ## Files and offline example
 
@@ -109,24 +120,32 @@ setup/
   __init__.py
   models.py
   integration.py
+  completion.py
   validation.py
   workflow.py
   tests/
     __init__.py
+    fixtures.py
     test_models.py
     test_integration.py
     test_validation.py
     test_workflow.py
+    test_result_association.py
+    test_integrated_workflow.py
+    test_completion.py
   examples/
     __init__.py
     offline_demo.py
   README.md
+  INTEGRATION.md
 ```
 
-The runnable example prints JSON for five clearly labeled mock scenarios:
+The existing runnable example prints JSON for ten clearly labeled mock scenarios:
 complete setup, incomplete input, unsupported operation, unavailable provider,
-and complete inspection. `mock:` references are invented labels, not real
-provider snapshots, diagnoses, proposals, or approved actions. The mock service
+complete inspection, pending triage, failed provider, missing triage, incremental
+request completion, and a changed target rejecting old results. `mock:` references
+are invented labels, not real provider snapshots, diagnoses, proposals, or
+approved actions. The mock service
 kind is not a claim about supported Liara services. No credentials are used.
 
 Python 3.14.8 was available during implementation; tests use `unittest` with no
@@ -136,12 +155,17 @@ operations, explicit and absent dependencies, preparation-only execution flags,
 JSON output, resubmission, and caller input preservation. A behavioral guard
 raises on common socket, file, or process APIs during preparation. This is an
 offline module test, not a substitute for future integration/security testing.
-No provider API, diagnosis, authorization, UI, or deployment check is included.
+Stage 1's verified baseline was 25 passing tests. Stage 2 has 42 passing tests,
+retaining all original behavior tests with request-bound ready fixtures. The demo
+explicitly labels its contracts provisional, its data mocked, and real teammate
+compatibility and freshness unverified. No provider API, diagnosis, authorization,
+UI, or deployment check is included.
 
 ## Branch ancestry and handoff
 
-The inspected checkout and its configured `origin` had no commits or branches
-with an existing implementation. No base commit or team-wide stack was assumed.
+At the start of Stage 1, the inspected checkout and its configured `origin` had
+no commits or branches with an existing implementation. No base commit or
+team-wide stack was assumed.
 The provisional Python/unittest configuration applies only to this module.
 
 1. `feat/liara-fatima-setup-foundation` was created while history was empty,
@@ -162,19 +186,45 @@ git diff feat/liara-fatima-setup-foundation...feat/liara-fatima-setup-request-fl
 
 All Stage 1 files are within `setup/`. No protected files, shared contracts,
 manifests, root configuration, teammate modules, or shared CI were needed or
-changed. There is no existing shared test/lint configuration to run. Nothing
-has been pushed, merged, published, or deployed.
+changed. There is no existing shared test/lint configuration to run. The two
+Stage 1 branches were subsequently pushed at the user's request. Stage 2 remains
+local; no merge, publication, or deployment is part of this work.
 
-Before Stage 2 integration, agree with Roham and Setayesh on operation names,
+Before real teammate integration, agree with Roham and Setayesh on operation names,
 local required fields, preparation-state/error semantics, dependency readiness,
 and the opaque external reference format and its resolution, request binding,
 freshness, and schema validation. The local rule requiring a provider reference
 for setup and both references for inspection is also provisional. No
 `DiagnosisReport`, `ActionProposal`, or authorization schema is defined here.
 
-Stage 2 can use those agreements to connect Fatima's request collection and
-preparation flow to teammate-owned outputs, then add the corresponding UI when
-scheduled. Provider integration, diagnosis, approval policy, real operations,
-and deployment remain outside this module's Stage 1 work. No shared-file change
-is currently necessary or proposed; future shared-contract promotion requires
+Stage 2 prepares the isolated coordination path using provisional fixtures; it
+does not implement real teammate integration. Provider integration, diagnosis,
+approval policy, real operations, UI, and deployment remain outside these stages.
+No shared-file change is currently necessary or proposed; future shared-contract promotion requires
 team agreement and the appropriate owner's change.
+
+## Stage 2 verified base and local checks
+
+`feat/liara-fatima-setup-integration` starts at verified Stage 1 request-flow tip
+`f30e3f0d65ad95d2c606dd1e3117cb1b81c097b0`. The initial worktree was clean, with
+one worktree and only the two advertised Stage 1 remote branches. No applicable
+`AGENTS.md`, root README, approved contracts, or team decisions were present.
+All Stage 2 implementation, tests, fixtures, demo edits, and documentation remain
+under `setup/`; no shared configuration or dependency installation was needed.
+
+Run the two commands at the top of this document from the repository root.
+Review whitespace, file scope, and the complete Stage 2 changes with:
+
+```powershell
+git diff --check f30e3f0d65ad95d2c606dd1e3117cb1b81c097b0 HEAD
+git diff --name-only f30e3f0d65ad95d2c606dd1e3117cb1b81c097b0 HEAD
+git diff f30e3f0d65ad95d2c606dd1e3117cb1b81c097b0 HEAD
+git log --reverse --oneline f30e3f0d65ad95d2c606dd1e3117cb1b81c097b0..HEAD
+```
+
+The smallest next backend stage is agreement on the coordination envelope and
+sanitized example outputs from both teammates, followed by offline compatibility
+tests and minimal in-memory translation of those agreed outputs inside `setup/`.
+See [INTEGRATION.md](INTEGRATION.md) for the specific unresolved decisions. No
+real calls, diagnosis, approval decisions, execution, UI, or deployment should be
+added as part of this Stage 2 handoff.

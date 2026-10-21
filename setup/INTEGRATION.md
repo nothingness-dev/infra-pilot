@@ -102,3 +102,24 @@ target, goal, service kind, or optional choice invalidates old associations;
 identical updates keep them compatible. The helper cannot grant permission or
 perform an operation. Newly associated results must come from the caller; the
 module never silently rebinds old metadata to an edited request.
+
+## Decisions and blockers before real integration
+
+| Owner | Decisions or evidence needed |
+| --- | --- |
+| Roham | Actual provider result/reference format and version; producer identity; snapshot/capability output association; readiness/failure semantics; freshness requirements and reference resolution. |
+| Setayesh | Actual triage result/reference format and version; diagnosis/proposal request and target association; readiness/failure semantics and freshness; a separate interface for teammate-owned authorization validation in a later stage. |
+| Both teammates and Fatima | Operation/identity fields, preparation-state semantics, required dependency slots, provenance labels, binding canonicalization or an agreed alternative, and which request edits invalidate which results. |
+
+No approved contracts, validated real output fixtures, authenticity mechanism,
+reference resolver, or agreed freshness policy are available in this checkout.
+These block claims of real integration or production compatibility. The local
+fingerprint and reference grammar may need replacement after team agreement;
+they have not been published into `contracts/` or `shared/`.
+
+No protected-file change is necessary for this stage. If the team later chooses
+shared contracts, their owner must publish them and Fatima's module can consume
+them read-only. The next backend step is obtaining the agreed schemas and
+sanitized fixtures, then verifying a small offline translation path. It does not
+require a provider adapter, diagnosis logic, approval policy, or execution path
+inside this module.
