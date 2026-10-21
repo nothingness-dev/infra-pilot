@@ -2,6 +2,7 @@
 
 import json
 
+from setup.application import submit_request, supply_information
 from setup.completion import complete_request
 from setup.integration import (
     CONTRACT_VERSION, DependencyInput, PreparationInputs, ResultMetadata, request_fingerprint,
@@ -80,6 +81,19 @@ def main() -> None:
     scenarios.extend((
         {"name": "completed_mock_request", "result": completed.preparation.to_dict()},
         {"name": "changed_target_rejects_old_mock_results", "result": changed.preparation.to_dict()},
+    ))
+    # Application calls use public request information only, without teammate fixtures.
+    public_incomplete = submit_request({
+        "request_id": "mock-application-1", "operation": "inspect_service", "details": {},
+    })
+    public_completed = supply_information(public_incomplete["request"], dict(mock_inspection.details))
+    public_control_rejected = submit_request({
+        **public_completed["request"], "execution_authorized": True,
+    })
+    scenarios.extend((
+        {"name": "application_missing_information", "result": public_incomplete},
+        {"name": "application_complete_without_teammates", "result": public_completed},
+        {"name": "application_rejects_public_authorization", "result": public_control_rejected},
     ))
     print(json.dumps({
         "mock_data": True,
