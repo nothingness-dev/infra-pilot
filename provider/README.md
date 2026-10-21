@@ -21,6 +21,8 @@ Live-client tests mock HTTP transport; redirect tests exercise urllib's real
 redirect handler with a mocked HTTPS transport. Mock-client tests reject socket
 access and opener construction. Tests cover credentials, all required status
 codes, connection/read timeouts, malformed responses, secrets, and offline flows.
+Regression tests also use the real `http.client.HTTPResponse` parser with an
+in-memory socket to verify complete/truncated fixed-length and chunked bodies.
 
 ## Live client
 
@@ -53,8 +55,10 @@ also lists `https://api.liara.ir`; callers can explicitly configure the HTTPS
 base URL appropriate to their account/region. Redirects are returned as errors,
 so configure the final service URL directly.
 
-`ProviderConfig` is frozen. It accepts a plain string token and immediately
-wraps it in `SecretStr`. A live token must be nonempty, printable ASCII without
+`ProviderConfig` and its `SecretStr` credential are immutable. The client's
+`config` property is read-only; construct a new client to change credentials or
+switch between live and mock mode. Configuration accepts a plain string token
+and immediately wraps it in `SecretStr`. A live token must be nonempty, printable ASCII without
 whitespace; pass the token alone, without a `Bearer ` prefix. The base URL must
 use HTTPS, without embedded credentials, a query, or a fragment. The timeout
 must be positive and finite. Invalid configuration raises a fixed-message
@@ -157,8 +161,12 @@ HTTP failures retain the status code; transport failures have no HTTP status.
 There are no automatic retries. `retryable` is a hint for a caller's bounded
 retry policy, not a promise of success. The `timeout` applies to socket
 operations rather than an overall wall-clock deadline. Responses are closed
-and reads are limited to 4 MiB plus one byte for overflow detection. Empty 200,
-non-finite JSON values and malformed project shapes are rejected. The internal
+and reads are limited to 4 MiB plus one byte for overflow detection. Oversized
+declared lengths are rejected before reading; bodies shorter than their declared
+`Content-Length` are rejected, and chunked framing takes precedence over that
+header. Empty 200, non-finite JSON values (including exponent overflow such as
+`1e999`) and malformed project shapes are rejected. `HEAD` succeeds without
+reading or parsing a response body. The internal
 transport supports JSON payloads and URL-encoded query parameters for future
 adapters; only `ping()` and `list_projects()` are public provider operations.
 
@@ -174,6 +182,9 @@ adapters; only `ping()` and `list_projects()` are public provider operations.
 - The adapter emits no logs or console output. Exceptions retain fixed messages,
   discarding caller-supplied messages, remote error bodies and transport text.
   Their `args`, `str`, `repr`, and structured errors contain no raw diagnostics.
+  Implicit exception context is suppressed so `logging.exception()` cannot
+  render a previous transport error containing a token. Do not explicitly chain
+  provider exceptions to raw transport errors with `raise ... from raw_error`.
 - Exact occurrences of the configured token in decoded success data, including
   nested values and dictionary keys, are redacted before results are returned.
 - TLS verification uses urllib's default HTTPS behavior. Redirects are blocked,
