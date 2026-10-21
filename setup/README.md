@@ -15,6 +15,7 @@ No installation or dependency manifest is needed. Run from the repository root:
 
 ```powershell
 python -B -m unittest discover -s setup/tests -t . -v
+python -B -m setup.examples.offline_demo
 ```
 
 `models.py` defines local request, missing-information, plan, dependency, error,
@@ -99,3 +100,81 @@ unresolved until the provider module and user supply them.
 No state is persisted. To resolve missing information or dependencies, submit a
 new request/input set with the same caller-managed request ID. Previous results
 and caller-owned mappings are not modified. No state means running or succeeded.
+
+## Files and offline example
+
+```text
+setup/
+  .gitignore
+  __init__.py
+  models.py
+  integration.py
+  validation.py
+  workflow.py
+  tests/
+    __init__.py
+    test_models.py
+    test_integration.py
+    test_validation.py
+    test_workflow.py
+  examples/
+    __init__.py
+    offline_demo.py
+  README.md
+```
+
+The runnable example prints JSON for five clearly labeled mock scenarios:
+complete setup, incomplete input, unsupported operation, unavailable provider,
+and complete inspection. `mock:` references are invented labels, not real
+provider snapshots, diagnoses, proposals, or approved actions. The mock service
+kind is not a claim about supported Liara services. No credentials are used.
+
+Python 3.14.8 was available during implementation; tests use `unittest` with no
+installation, network access, or shared discovery configuration. The suite
+covers both supported operations, malformed and incomplete input, unsupported
+operations, explicit and absent dependencies, preparation-only execution flags,
+JSON output, resubmission, and caller input preservation. A behavioral guard
+raises on common socket, file, or process APIs during preparation. This is an
+offline module test, not a substitute for future integration/security testing.
+No provider API, diagnosis, authorization, UI, or deployment check is included.
+
+## Branch ancestry and handoff
+
+The inspected checkout and its configured `origin` had no commits or branches
+with an existing implementation. No base commit or team-wide stack was assumed.
+The provisional Python/unittest configuration applies only to this module.
+
+1. `feat/liara-fatima-setup-foundation` was created while history was empty,
+   before the root commit `6671839` (models and scoped module foundation).
+   Its second commit/tip is `9c6e722` (data-only integration inputs).
+   This branch has **no base commit**; no commit was created on `main`.
+2. `feat/liara-fatima-setup-request-flow` was created at `9c6e722`, the latest
+   foundation commit. Validation, preparation behavior, tests, and the example
+   build on that foundation. It includes the foundation history and must be
+   reviewed as a dependent branch, not an independent changeset.
+
+Inspect the exact local commits with:
+
+```powershell
+git log --reverse --oneline feat/liara-fatima-setup-request-flow
+git diff feat/liara-fatima-setup-foundation...feat/liara-fatima-setup-request-flow -- setup/
+```
+
+All Stage 1 files are within `setup/`. No protected files, shared contracts,
+manifests, root configuration, teammate modules, or shared CI were needed or
+changed. There is no existing shared test/lint configuration to run. Nothing
+has been pushed, merged, published, or deployed.
+
+Before Stage 2 integration, agree with Roham and Setayesh on operation names,
+local required fields, preparation-state/error semantics, dependency readiness,
+and the opaque external reference format and its resolution, request binding,
+freshness, and schema validation. The local rule requiring a provider reference
+for setup and both references for inspection is also provisional. No
+`DiagnosisReport`, `ActionProposal`, or authorization schema is defined here.
+
+Stage 2 can use those agreements to connect Fatima's request collection and
+preparation flow to teammate-owned outputs, then add the corresponding UI when
+scheduled. Provider integration, diagnosis, approval policy, real operations,
+and deployment remain outside this module's Stage 1 work. No shared-file change
+is currently necessary or proposed; future shared-contract promotion requires
+team agreement and the appropriate owner's change.
