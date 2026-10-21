@@ -1,4 +1,4 @@
-"""Internal draft contracts for InfraPilot's diagnosis module."""
+"""Draft contracts and deterministic diagnostics for InfraPilot."""
 
 from .schemas import (
     ActionProposal,
@@ -13,12 +13,15 @@ from .schemas import (
     ServiceSnapshot,
     ServiceStatus,
 )
+from .engine import diagnose
+from .symptoms import DiagnosisThresholds
 
 __all__ = [
     "ActionProposal",
     "DataSource",
     "DiagnosticHypothesis",
     "DiagnosisReport",
+    "DiagnosisThresholds",
     "Evidence",
     "EvidenceKind",
     "LogEntry",
@@ -26,4 +29,5 @@ __all__ = [
     "RiskLevel",
     "ServiceSnapshot",
     "ServiceStatus",
+    "diagnose",
 ]
