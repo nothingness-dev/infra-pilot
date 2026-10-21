@@ -21,9 +21,16 @@
   or other generated artifacts between workspaces. Create a fresh local virtual
   environment when needed.
 - Task 1 consists only of draft schemas, validation, packaging, documentation,
-  and tests. Do not start Task 2 without a separate explicit request. No diagnosis
-  algorithm, Approval Policy, infrastructure execution, API server, frontend,
-  Liara API calls, keys, or secrets belong in Task 1.
+  and tests. Task 2 explicitly authorizes deterministic symptom extraction,
+  evidence-based diagnosis, report generation, recommendations, and tests.
+- Preserve the six Task 1 schemas and all existing tests. Document proposed
+  contract extensions separately; do not silently change adapter/UI interfaces.
+- No Approval Policy, infrastructure execution, LLM integration, API server,
+  frontend, Liara API calls, keys, or secrets belong in Task 2. Recommendation
+  approval flags are static metadata, not permission to execute anything.
+- Do not merge either feature PR or start Task 3 without a separate explicit
+  user request. Task 2 uses feature/liara-diagnosis-engine, based on Task 1
+  unless the foundation has already been merged into main.
 - Contracts are internal DRAFTS, require team approval before final integration,
   and are NOT official Liara API schemas.
 
@@ -35,4 +42,4 @@ Set-Location -LiteralPath 'C:\git\shared\infra-pilot\apps\liara\triage'
 ```
 
 See `README.md` for module-local environment and dependency setup. Preserve
-the existing Task 1 functionality during Git integration.
+the existing Task 1 functionality while developing Task 2.

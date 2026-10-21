@@ -9,7 +9,7 @@ permissions, raw API payload shapes, or action capabilities are asserted here.
 ```text
 Raham's Liara adapter and observability
     -> ServiceSnapshot
-    -> Setayesh's diagnosis (future task)
+    -> deterministic diagnose(snapshot) (Task 2)
     -> DiagnosisReport containing Evidence, ranked DiagnosticHypothesis,
        and ActionProposal
     -> Fatima's UI and operations workflow
@@ -17,8 +17,9 @@ Raham's Liara adapter and observability
 
 Raham owns collecting and normalizing actual observations. Setayesh owns diagnosis
 and, in a later task, approval policy. Fatima owns presenting the report and the
-operations workflow. This package defines only data contracts; constructing a
-model makes no request, diagnosis, approval decision, or infrastructure change.
+operations workflow. Constructing a contract model makes no request, diagnosis,
+approval decision, or infrastructure change. Task 2 adds a separate, explicit
+`diagnose(snapshot)` function which produces reports from the supplied snapshot.
 
 ## Proposed field meanings
 
@@ -45,6 +46,7 @@ model makes no request, diagnosis, approval decision, or infrastructure change.
   in [0, 1], and supporting `evidence_ids`. References must resolve within the
   enclosing report. Empty references are representable; a future diagnosis
   producer must explain any lack of supporting observations in `limitations`.
+  The Task 2 engine emits only hypotheses with nonempty supporting references.
   Confidence represents producer confidence, not an independently calibrated
   probability.
 - `ActionProposal` has `action_id`, `title`, `description`, `risk_level`
@@ -84,7 +86,8 @@ a team decision.
    metadata; extend the draft by agreement if needed.
 4. How should collection failures and partial availability be communicated to
    diagnosis beyond null values? The future report producer must populate missing
-   information and limitations from available context; this package infers none.
+   information and limitations from available context. Models infer no missing
+   observations; the Task 2 engine reports availability from the supplied snapshot.
 5. Confirm confidence ranking and UI wording, including an empty hypothesis list
    when diagnosis lacks sufficient observations. Confirm how mock data is labeled.
 6. Agree on risk classification and approval policy in a later task. Who supplies
@@ -95,3 +98,26 @@ a team decision.
 Any collection limits, retention, schema versioning, and error envelopes remain
 integration decisions. No teammate's module or shared repository is modified by
 this proposal.
+
+## Task 2 compatibility and proposed extensions
+
+The six Task 1 models and their fields/validation remain unchanged. The public
+Python additions are `diagnose(snapshot, *, thresholds=None)` and the separate
+local configuration object `DiagnosisThresholds`. Internal extraction/rule
+dataclasses are not adapter or UI transport schemas.
+
+Reports keep the original evidence, hypothesis, and action structure. Fixed
+recommendation metadata supplies risk and approval flags; an Approval Policy
+and execution lifecycle are still separate future work.
+
+Potential future contract extensions, **not implemented or agreed**:
+
+- An optional memory allocation limit, to distinguish high absolute RAM usage
+  from memory pressure relative to available capacity.
+- Log window, truncation/completeness, and per-observation timestamps, to assess
+  freshness and reconcile apparently contradictory indicators.
+- Structured metric/log pointers on Evidence, if the UI needs to navigate back
+  to the adapter's source observation rather than displaying a description.
+
+Any such extension requires team review. Task 2 neither changes Raham's adapter
+nor assumes new Liara capabilities. See `DIAGNOSIS_ENGINE.md` for current limits.
