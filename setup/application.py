@@ -7,6 +7,7 @@ It remains subject to domain association checks and cannot authorize execution.
 
 from dataclasses import replace
 
+from .completion import complete_request
 from .integration import PreparationInputs
 from .models import OperationRequest, PreparationResult, StructuredError, WorkflowState
 from .validation import validate_request
@@ -69,3 +70,23 @@ def submit_request(payload: object, *, dependency_inputs: PreparationInputs | No
     request, errors = _decode_request(payload)
     result = prepare_request(request, None if errors else dependency_inputs)
     return _response(result, request, errors)
+
+
+def supply_information(
+    request_payload: object,
+    additional_information: object,
+    *,
+    dependency_inputs: PreparationInputs | None = None,
+) -> dict:
+    """Complete details on a previous request snapshot, preserving its identity.
+
+    Return the same preparation representation as submit_request. The caller
+    retains the accepted request; this interface has no session or persistence.
+    Additional information is a detail mapping, not a full request or response.
+    All supplied dependency inputs are rechecked against the updated brief.
+    """
+    request, errors = _decode_request(request_payload)
+    if errors:
+        return _response(prepare_request(request), request, errors)
+    completed = complete_request(request, additional_information, dependency_inputs)
+    return _response(completed.preparation, completed.request)

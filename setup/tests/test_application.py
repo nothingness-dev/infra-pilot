@@ -2,7 +2,7 @@ import copy
 import json
 import unittest
 
-from setup.application import submit_request
+from setup.application import submit_request, supply_information
 from setup.integration import PreparationInputs
 from setup.models import OperationRequest
 from setup.tests.fixtures import mock_result
@@ -16,7 +16,7 @@ def inspection_payload():
     }
 
 
-class ApplicationSubmissionTests(unittest.TestCase):
+class ApplicationBoundaryTests(unittest.TestCase):
     def assert_json_preparation(self, result):
         self.assertEqual(json.loads(json.dumps(result, allow_nan=False)), result)
         self.assertFalse(result["execution_performed"])
@@ -142,6 +142,88 @@ class ApplicationSubmissionTests(unittest.TestCase):
         self.assertEqual(payload, before)
         self.assertEqual(second["request"], before)
         self.assertEqual(first["request"]["details"]["goal"], before["details"]["goal"])
+
+    def test_incremental_completion_keeps_identity_and_reports_remaining_information(self):
+        original = {"request_id": "mock-public-request", "operation": "inspect_service", "details": {}}
+        first = submit_request(json.loads(json.dumps(original)))
+        second = supply_information(first["request"], {"service_target": "mock-target"})
+        self.assertEqual(second["state"], "needs_information")
+        self.assertEqual([item["field"] for item in second["missing_information"]], ["details.goal"])
+        third = supply_information(second["request"], {"goal": "Review mock context"})
+        self.assertEqual(third["state"], "blocked")
+        self.assertTrue(third["plan"]["proposed_steps"])
+        self.assertFalse(third["missing_information"])
+        for result in (first, second, third):
+            self.assertEqual(result["request"]["request_id"], original["request_id"])
+            self.assertEqual(result["request"]["operation"], original["operation"])
+            self.assert_json_preparation(result)
+        self.assertEqual(original["details"], {})
+
+    def test_malformed_completion_input_and_public_control_fields_are_structured_errors(self):
+        payload = inspection_payload()
+        request = OperationRequest(**payload)
+        internal = PreparationInputs(mock_result(request), mock_result(request, "triage"))
+        additions = (None, [], True, "not-an-object", {"goal": []}, {"service_target": None},
+                     {"request_id": "other-id"}, {"operation": "setup_service"},
+                     {"provider": {"available": True}}, {"dependency_inputs": {"ready": True}},
+                     {"execution_authorized": True}, {"execution_performed": True}, {5: "value"})
+        for values in additions:
+            with self.subTest(additional_information=values):
+                result = supply_information(payload, values, dependency_inputs=internal)
+                self.assertEqual(result["state"], "blocked")
+                self.assertTrue(result["errors"])
+                self.assertEqual(result["request_id"], payload["request_id"])
+                self.assertIsNone(result["plan"])
+                self.assert_json_preparation(result)
+        for original in (None, [], {**payload, "approved": True}, {**payload, "details": 5}):
+            with self.subTest(original=original):
+                result = supply_information(original, {"goal": "Corrected goal"})
+                self.assertEqual(result["state"], "blocked")
+                self.assertTrue(result["errors"])
+                self.assert_json_preparation(result)
+        no_identity = supply_information({}, {"goal": "Cannot invent identity"})
+        self.assertEqual(no_identity["state"], "needs_information")
+        self.assertIsNone(no_identity["request"])
+        self.assert_json_preparation(no_identity)
+
+    def test_completion_rechecks_internal_dependency_associations(self):
+        payload = inspection_payload()
+        request = OperationRequest(**payload)
+        internal = PreparationInputs(mock_result(request), mock_result(request, "triage"))
+        original_inputs = copy.deepcopy(internal)
+        prepared = submit_request(payload, dependency_inputs=internal)
+        unchanged = supply_information(prepared["request"], {}, dependency_inputs=internal)
+        changed = supply_information(prepared["request"], {"service_target": "mock-other-target"},
+                                     dependency_inputs=internal)
+        self.assertEqual(prepared["state"], "plan_prepared")
+        self.assertEqual(unchanged["state"], "plan_prepared")
+        self.assertEqual(changed["state"], "blocked")
+        self.assertEqual({error["code"] for error in changed["errors"]}, {"dependency_request_mismatch"})
+        self.assertEqual(len(changed["errors"]), 2)
+        self.assertEqual(changed["request"]["request_id"], payload["request_id"])
+        self.assertEqual(changed["request"]["operation"], payload["operation"])
+        self.assertEqual(changed["request"]["details"]["service_target"], "mock-other-target")
+        self.assertEqual(internal, original_inputs)
+        for result in (prepared, unchanged, changed):
+            self.assert_json_preparation(result)
+
+    def test_completion_snapshots_and_results_are_detached_from_caller_inputs(self):
+        payload = inspection_payload()
+        additions = {"goal": "Prepare another mock review"}
+        before_payload, before_additions = copy.deepcopy(payload), copy.deepcopy(additions)
+        result = supply_information(payload, additions)
+        self.assertEqual(result["request"]["details"]["goal"], additions["goal"])
+        self.assertEqual(payload, before_payload)
+        self.assertEqual(additions, before_additions)
+        self.assert_json_preparation(result)
+        result["request"]["details"]["goal"] = "changed"
+        result["collected_information"]["goal"] = "changed again"
+        self.assertEqual(payload, before_payload)
+        self.assertEqual(additions, before_additions)
+        invalid_internal = submit_request(payload, dependency_inputs={"provider": {"available": True}})
+        self.assertEqual(invalid_internal["state"], "blocked")
+        self.assertEqual(invalid_internal["errors"][0]["code"], "invalid_dependency_input")
+        self.assert_json_preparation(invalid_internal)
 
 
 if __name__ == "__main__":
