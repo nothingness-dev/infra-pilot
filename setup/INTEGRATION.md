@@ -76,3 +76,29 @@ metadata to become preparation-ready. Legacy unavailable inputs remain blocked
 with their supplied reason. Original Stage 1 behavior tests are retained, with
 ready fixtures upgraded to include the new metadata. Passing these fixtures
 demonstrates local structural compatibility only, not real teammate integration.
+
+## Completing missing information
+
+Stage 1 already revalidated explicitly resubmitted requests. Its concrete gap
+was the lack of an incremental merge operation that preserves established
+identity and gives the caller the resulting request for further completion.
+`completion.complete_request(request, additional_information, inputs=None)`
+fills that gap, using the existing validator and workflow rather than a second
+state machine. It returns `RequestCompletion(request, preparation)`.
+
+`additional_information` patches detail fields only. The original ID and
+operation are retained; attempts to pass envelope fields as details are rejected
+by existing validation. Unknown or wrongly typed detail values remain errors.
+The helper can replace incorrect known detail values and returns remaining
+missing information. Invalid non-mapping additions return a structured error;
+if the original has no usable identity/operation/details mapping, the returned
+request is `None` and ordinary preparation explains the original problem.
+
+Use the returned `.request` for another completion and `.preparation.to_dict()`
+for the structured preparation outcome. Valid string-valued details are copied,
+and caller inputs are not modified. No state or dependency results are cached.
+Any supplied results are checked against the entire merged brief. Changing a
+target, goal, service kind, or optional choice invalidates old associations;
+identical updates keep them compatible. The helper cannot grant permission or
+perform an operation. Newly associated results must come from the caller; the
+module never silently rebinds old metadata to an edited request.
