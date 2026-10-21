@@ -20,6 +20,9 @@ class LiaraProviderException(Exception):
         status = self.default_http_status if http_status is None else http_status
         self.http_status = status if type(status) is int and 100 <= status <= 599 else None
         super().__init__(self.default_message)
+        # logging.exception renders implicit context, which may contain a raw
+        # urllib error even when this exception's own message is sanitized.
+        self.__suppress_context__ = True
 
     def to_error(self) -> StructuredError:
         return StructuredError(self.code, self.default_message, self.http_status, self.retryable)

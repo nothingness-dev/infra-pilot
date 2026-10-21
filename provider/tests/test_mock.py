@@ -41,6 +41,14 @@ class MockClientTests(unittest.TestCase):
         self.assertTrue(client.list_projects().is_mock)
         self.assertEqual(config, replace(client.config, is_mock=False))
 
+    def test_client_mode_cannot_be_reassigned_after_transport_creation(self):
+        client = MockLiaraClient()
+        with self.assertRaises(AttributeError):
+            client.config = ProviderConfig("private-token")
+        self.assertTrue(client.config.is_mock)
+        self.assertTrue(client.ping().data.connected)
+        self.assertTrue(client.list_projects().is_mock)
+
     def test_named_failures_and_http_statuses_are_structured(self):
         cases = (
             ("unauthorized", "AUTHENTICATION_ERROR", 401, False),

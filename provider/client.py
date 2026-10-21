@@ -3,6 +3,7 @@
 import errno
 import http.client
 import json
+import math
 import socket
 import time
 import urllib.error
@@ -46,6 +47,13 @@ def _reject_json_constant(value: str) -> None:
     raise ValueError("Non-finite JSON numbers are not supported.")
 
 
+def _finite_json_float(value: str) -> float:
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError("Non-finite JSON numbers are not supported.")
+    return number
+
+
 class LiaraClient:
     """Read-only public adapter. Network failures are results, never raw errors."""
 
@@ -54,10 +62,15 @@ class LiaraClient:
     def __init__(self, config: ProviderConfig) -> None:
         if not isinstance(config, ProviderConfig):
             raise ValueError("config must be a ProviderConfig.")
-        self.config = config
+        self._config = config
         self._failure_mode = None
         # Do not change urllib's process-global opener; mock construction is offline.
         self._opener = None if config.is_mock else urllib.request.build_opener(_NoRedirects())
+
+    @property
+    def config(self) -> ProviderConfig:
+        """Keep credentials and live/mock mode tied to the original transport."""
+        return self._config
 
     def ping(self) -> ProviderResult[ProviderStatus]:
         """Check project access and report UTC time and monotonic latency.
@@ -126,6 +139,8 @@ class LiaraClient:
                 return self._failure(InvalidRequestError())
             query = urlencode(params, doseq=True) if params else ""
             body = None if payload is None else json.dumps(payload, allow_nan=False).encode("utf-8")
+            if self.config.is_mock:
+                return self._mock_request(method.upper(), endpoint)
             request = urllib.request.Request(
                 self.config.base_url + endpoint + ("?" + query if query else ""),
                 data=body, method=method.upper(),
@@ -137,19 +152,34 @@ class LiaraClient:
             )
         except (TypeError, ValueError, RecursionError):
             return self._failure(InvalidRequestError())
-        if self.config.is_mock:
-            return self._mock_request(method.upper(), endpoint)
         try:
             with self._opener.open(request, timeout=self.config.timeout) as response:
                 status = response.status
                 if not 200 <= status < 300:
                     return self._failure(_http_exception(status))
+                if method.upper() == "HEAD":
+                    return ProviderResult(True, is_mock=False)
+                expected_length = None
+                length_header = response.headers.get("Content-Length")
+                chunked = response.headers.get("Transfer-Encoding", "").strip().lower() == "chunked"
+                if length_header is not None and not chunked:
+                    value = length_header.strip()
+                    if not value.isascii() or not value.isdecimal():
+                        return self._failure(InvalidResponseError())
+                    expected_length = int(value)
+                    if expected_length > self.MAX_RESPONSE_BYTES:
+                        return self._failure(InvalidResponseError())
                 raw = response.read(self.MAX_RESPONSE_BYTES + 1)
-                if len(raw) > self.MAX_RESPONSE_BYTES:
+                if len(raw) > self.MAX_RESPONSE_BYTES or (
+                    expected_length is not None and len(raw) != expected_length
+                ):
                     return self._failure(InvalidResponseError())
                 if not raw and status in (204, 205):
                     return ProviderResult(True, is_mock=False)
-                data = json.loads(raw.decode("utf-8"), parse_constant=_reject_json_constant)
+                data = json.loads(
+                    raw.decode("utf-8"), parse_constant=_reject_json_constant,
+                    parse_float=_finite_json_float,
+                )
                 return ProviderResult(True, self._redact(data), is_mock=False)
         except urllib.error.HTTPError as error:
             # Deliberately do not read the remote error body or stringify the error.

@@ -3,6 +3,7 @@ import http.client
 import io
 import json
 import logging
+import math
 import socket
 import unittest
 import urllib.error
@@ -25,6 +26,16 @@ from provider.exceptions import InvalidRequestError
 TOKEN = "private-liara-token-DO-NOT-PRINT"
 
 
+class MemorySocket:
+    """Feed real HTTP parsing without allowing any socket operations."""
+
+    def __init__(self, raw):
+        self.raw = raw
+
+    def makefile(self, *args, **kwargs):
+        return io.BytesIO(self.raw)
+
+
 class ClientTests(unittest.TestCase):
     def setUp(self):
         self.opener = MagicMock()
@@ -37,6 +48,7 @@ class ClientTests(unittest.TestCase):
     def response(self, data=None, *, raw=None, status=200):
         response = MagicMock()
         response.status = status
+        response.headers = Message()
         response.read.return_value = json.dumps(data).encode() if raw is None else raw
         self.opener.open.return_value.__enter__.return_value = response
         self.opener.open.side_effect = None
@@ -53,7 +65,7 @@ class ClientTests(unittest.TestCase):
         self.assertIsNone(result.error)
         self.assertFalse(result.is_mock)
         self.assertFalse(result.data.is_mock)
-        self.assertEqual(datetime.fromisoformat(result.data.timestamp).utcoffset(), timedelta(0))
+        self.assertEqual(datetime.fromisoformat(result.data.timestamp.replace("Z", "+00:00")).utcoffset(), timedelta(0))
         request = self.opener.open.call_args.args[0]
         self.assertEqual(request.full_url, "https://api.iran.liara.ir/v1/projects")
         self.assertEqual(request.get_method(), "GET")
@@ -209,8 +221,114 @@ class ClientTests(unittest.TestCase):
                 self.client.ping()
         self.assertEqual(output.getvalue(), "")
 
+    def http_response(self, body, headers=b"", *, method="GET"):
+        response = http.client.HTTPResponse(MemorySocket(
+            b"HTTP/1.1 200 OK\r\n" + headers + b"\r\n" + body,
+        ), method=method)
+        response.begin()
+        self.opener.open.return_value = response
+        return response
+
+    def test_truncated_http_response_cannot_report_connected(self):
+        body = b'{"projects": []}'
+        response = self.http_response(body, b"Content-Length: 100\r\n")
+        result = self.client.ping()
+        self.assertFalse(result.success)
+        self.assertFalse(result.data.connected)
+        self.assertEqual(result.error.code, "INVALID_RESPONSE")
+        self.assertTrue(response.closed)
+
+    def test_complete_content_length_and_chunked_responses_succeed(self):
+        body = b'{"projects": []}'
+        responses = (
+            (body, b"Content-Length: " + str(len(body)).encode() + b"\r\n"),
+            (format(len(body), "x").encode() + b"\r\n" + body + b"\r\n0\r\n\r\n", b"Transfer-Encoding: chunked\r\n"),
+            (body, b""),
+        )
+        for raw, headers in responses:
+            with self.subTest(headers=headers):
+                response = self.http_response(raw, headers)
+                self.assertTrue(self.client.list_projects().success)
+                self.assertTrue(response.closed)
+
+    def test_declared_oversized_or_malformed_length_is_rejected(self):
+        for length in (b"999999999", b"invalid", b"-1", b"1, 2"):
+            with self.subTest(length=length):
+                response = self.http_response(b'{"projects": []}', b"Content-Length: " + length + b"\r\n")
+                result = self.client.list_projects()
+                self.assertFalse(result.success)
+                self.assertEqual(result.error.code, "INVALID_RESPONSE")
+                self.assertTrue(response.closed)
+
+    def test_incomplete_chunked_body_is_rejected_and_closed(self):
+        body = b'{"projects": []}'
+        response = self.http_response(
+            format(len(body), "x").encode() + b"\r\n" + body + b"\r\n",
+            b"Transfer-Encoding: chunked\r\n",
+        )
+        result = self.client.list_projects()
+        self.assertFalse(result.success)
+        self.assertEqual(result.error.code, "INVALID_RESPONSE")
+        self.assertTrue(response.closed)
+
+    def test_chunked_response_uses_transfer_framing_over_content_length(self):
+        body = b'{"projects": []}'
+        response = self.http_response(
+            format(len(body), "x").encode() + b"\r\n" + body + b"\r\n0\r\n\r\n",
+            b"Transfer-Encoding: chunked\r\nContent-Length: 999999999\r\n",
+        )
+        self.assertTrue(self.client.list_projects().success)
+        self.assertTrue(response.closed)
+
+    def test_float_overflow_is_rejected_and_finite_numbers_are_preserved(self):
+        for value in (b"1e999", b"-1e999"):
+            with self.subTest(value=value):
+                self.response(raw=b'{"projects": [{"size": ' + value + b"}]}")
+                result = self.client.list_projects()
+                self.assertFalse(result.success)
+                self.assertEqual(result.error.code, "INVALID_RESPONSE")
+        self.response(raw=b'{"projects": [{"size": 1e100}]}')
+        result = self.client.list_projects()
+        self.assertTrue(result.success)
+        self.assertTrue(math.isfinite(result.data[0]["size"]))
+        json.dumps(asdict(result), allow_nan=False)
+
+    def test_head_requests_succeed_without_attempting_to_parse_a_body(self):
+        response = self.http_response(b"", b"Content-Length: 100\r\n", method="HEAD")
+        result = self.client._request("HEAD", "/v1/projects")
+        self.assertTrue(result.success)
+        self.assertIsNone(result.data)
+        self.assertTrue(response.closed)
+
 
 class CredentialAndExceptionTests(unittest.TestCase):
+    def test_secret_cannot_be_changed_after_config_validation(self):
+        secret = SecretStr(TOKEN)
+        config = ProviderConfig(secret)
+        for mutate in (
+            lambda: setattr(secret, "_SecretStr__value", "changed"),
+            lambda: delattr(secret, "_SecretStr__value"),
+            lambda: secret.__init__("changed"),
+        ):
+            with self.assertRaises(AttributeError):
+                mutate()
+            self.assertEqual(config.api_key.get_secret_value(), TOKEN)
+
+    def test_exception_logging_suppresses_secret_in_implicit_context(self):
+        output = io.StringIO()
+        logger = logging.Logger("provider-traceback-test")
+        logger.addHandler(logging.StreamHandler(output))
+        for exception in (AuthenticationError, TimeoutError, NetworkError):
+            try:
+                try:
+                    raise OSError(TOKEN)
+                except OSError:
+                    raise exception(TOKEN)
+            except LiaraProviderException:
+                logger.exception("Provider failure")
+        self.assertNotIn(TOKEN, output.getvalue())
+        self.assertIn("AuthenticationError", output.getvalue())
+
     def test_config_and_secret_are_safe_to_format_log_and_convert(self):
         config = ProviderConfig(TOKEN)
         output = io.StringIO()

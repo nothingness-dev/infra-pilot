@@ -16,9 +16,17 @@ class SecretStr:
     __slots__ = ("__value",)
 
     def __init__(self, value: str) -> None:
+        if hasattr(self, "_SecretStr__value"):
+            raise AttributeError("SecretStr is immutable.")
         if not isinstance(value, str):
             raise ValueError("The API key must be a string.")
-        self.__value = value
+        object.__setattr__(self, "_SecretStr__value", value)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        raise AttributeError("SecretStr is immutable.")
+
+    def __delattr__(self, name: str) -> None:
+        raise AttributeError("SecretStr is immutable.")
 
     def get_secret_value(self) -> str:
         return self.__value
