@@ -19,9 +19,30 @@ python -B -m unittest discover -s setup/tests -t . -v
 
 `models.py` defines local request, missing-information, plan, dependency, error,
 and preparation-state proposals. JSON representations detach collected values
-from result objects. Dataclasses are frozen, with string-only request details;
-runtime request validation will be handled by this module, separately from
-Roham's future provider capability validation.
+from result objects. Dataclasses are frozen, with string-only request details.
+`validation.validate_request()` checks local inputs separately from Roham's
+future provider capability validation.
+
+## Provisional request briefs
+
+| Operation | Required details | Optional details |
+| --- | --- | --- |
+| `setup_service` | `service_name`, `service_kind`, `goal` | `plan`, `region`, `budget` |
+| `inspect_service` | `service_target`, `goal` | none |
+
+Each `OperationRequest` also requires a nonblank string `request_id` and an
+exact supported `operation`. Required details are a local planning convention,
+not a claim about Liara's API requirements or supported service types. A complete
+brief is sufficient for local workflow preparation, never for deployment.
+
+Detail values must be strings. Blank required strings produce structured missing
+information. Wrong types, blank optional values, and unknown detail names produce
+structured errors; unknown operations produce `unsupported_operation`. Unknown
+operations are not mapped to setup or guessed from natural language. Values are
+preserved verbatim, including nonblank whitespace. No target, plan, region,
+budget, cost, or provider-specific parameter is inferred. Optional choices may
+remain absent: determining applicable provider requirements and requesting any
+remaining operational choices is deferred to the future provider handoff.
 
 ## Integration proposals requiring agreement
 
