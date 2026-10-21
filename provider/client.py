@@ -1,4 +1,4 @@
-"""Liara HTTP client using only Python's standard library."""
+"""Liara HTTP and offline clients using only Python's standard library."""
 
 import errno
 import http.client
@@ -8,6 +8,7 @@ import time
 import urllib.error
 import urllib.request
 from collections.abc import Mapping
+from dataclasses import replace
 from datetime import datetime, timezone
 from typing import Any
 from urllib.parse import urlencode, urlsplit
@@ -54,10 +55,9 @@ class LiaraClient:
         if not isinstance(config, ProviderConfig):
             raise ValueError("config must be a ProviderConfig.")
         self.config = config
-        if config.is_mock:
-            raise ValueError("Mock transport is not available in this adapter stage.")
-        # Do not change urllib's process-global opener.
-        self._opener = urllib.request.build_opener(_NoRedirects())
+        self._failure_mode = None
+        # Do not change urllib's process-global opener; mock construction is offline.
+        self._opener = None if config.is_mock else urllib.request.build_opener(_NoRedirects())
 
     def ping(self) -> ProviderResult[ProviderStatus]:
         """Check project access and report UTC time and monotonic latency.
@@ -137,6 +137,8 @@ class LiaraClient:
             )
         except (TypeError, ValueError, RecursionError):
             return self._failure(InvalidRequestError())
+        if self.config.is_mock:
+            return self._mock_request(method.upper(), endpoint)
         try:
             with self._opener.open(request, timeout=self.config.timeout) as response:
                 status = response.status
@@ -171,6 +173,40 @@ class LiaraClient:
             return self._failure(InvalidRequestError())
         except (http.client.HTTPException, ValueError, RecursionError):
             return self._failure(InvalidResponseError())
+
+    def _mock_request(self, method: str, endpoint: str) -> ProviderResult:
+        if self._failure_mode == "timeout":
+            return self._failure(TimeoutError())
+        if isinstance(self._failure_mode, int):
+            return self._failure(_http_exception(self._failure_mode))
+        if method != "GET" or endpoint != "/v1/projects":
+            return self._failure(ResourceNotFoundError())
+        projects = [] if self._failure_mode == "empty" else [
+            {"_id": "mock-project-001", "project_id": "infrapilot-api", "type": "python", "status": "running"},
+            {"_id": "mock-project-002", "project_id": "infrapilot-web", "type": "next", "status": "running"},
+        ]
+        return ProviderResult(True, self._redact({"projects": projects}), is_mock=True)
+
+
+class MockLiaraClient(LiaraClient):
+    """Always offline, even when passed a live config.
+
+    failure_mode accepts 'empty', 'timeout', 'unauthorized', 'forbidden',
+    'rate_limit', 'not_found', 'unavailable', or an HTTP error status (400-599).
+    """
+
+    def __init__(self, config: ProviderConfig | None = None, *, failure_mode: str | int | None = None) -> None:
+        modes = {"unauthorized": 401, "forbidden": 403, "rate_limit": 429, "not_found": 404, "unavailable": 503}
+        if isinstance(failure_mode, str):
+            failure_mode = modes.get(failure_mode, failure_mode)
+        if failure_mode not in (None, "empty", "timeout") and not (
+            type(failure_mode) is int and 400 <= failure_mode <= 599
+        ):
+            raise ValueError("Unsupported mock failure mode.")
+        if config is not None and not isinstance(config, ProviderConfig):
+            raise ValueError("config must be a ProviderConfig.")
+        super().__init__(replace(config, is_mock=True) if config is not None else ProviderConfig("", is_mock=True))
+        self._failure_mode = failure_mode
 
 
 # Both names appear in the task and are supported as the same public API.
