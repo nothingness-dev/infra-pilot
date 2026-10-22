@@ -9,8 +9,12 @@ import tarfile
 
 def main() -> None:
     module = Path(__file__).resolve().parents[1]
-    if module != Path(r"C:\git\shared\infra-pilot\apps\liara\triage").resolve():
-        raise RuntimeError("Use the canonical InfraPilot module")
+    root = module.parents[2]
+    actual_root = Path(subprocess.check_output(
+        ["git", "rev-parse", "--show-toplevel"], cwd=root, text=True,
+    ).strip()).resolve()
+    if actual_root != root or not (module / "src/infrapilot_triage/collection_context.py").is_file():
+        raise RuntimeError("Use this checkout's InfraPilot triage module")
     directory = module / ".tmp/collection_context_sources"
     directory.mkdir(parents=True, exist_ok=True)
     manifest = {}
