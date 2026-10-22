@@ -1,0 +1,34 @@
+{
+  "pull_request": 12,
+  "revision": "66655e6f21b70717948122bc521b72f54b9d91a8",
+  "fixtures": {
+    "empty.json": {
+      "source_path": "provider/examples/fixtures/context_v02/empty.json",
+      "sha256": "6bc8d062eeb39e817b93d95c4d610216d587cd8a652c0135ba9556138ff66d8a"
+    },
+    "exported.json": {
+      "source_path": "provider/examples/fixtures/context_v02/exported.json",
+      "sha256": "f74940596e48f4e2fd9d2395802bc44084ceb866751f85a6297180af7992a1d6"
+    },
+    "not_collected.json": {
+      "source_path": "provider/examples/fixtures/context_v02/not_collected.json",
+      "sha256": "bd9114b6c8e4e7319dba6160d7d69573a867f746c0e06cf4ac48b4e17e3aa775"
+    },
+    "partial_failure.json": {
+      "source_path": "provider/examples/fixtures/context_v02/partial_failure.json",
+      "sha256": "dc288f388a1e6a6d2c54e6a8db4cd9de90f61de14c7c0b7a1242ae4d69ee740b"
+    },
+    "partial_logs.json": {
+      "source_path": "provider/examples/fixtures/context_v02/partial_logs.json",
+      "sha256": "8532442b0fe7658cd1a5f3d5c19396bda2228aa6ad958530228fb81797e42a0b"
+    },
+    "unavailable.json": {
+      "source_path": "provider/examples/fixtures/context_v02/unavailable.json",
+      "sha256": "284de876129ac708d3e425f26ea1d4aa5354df7fcfb2e0b0f35539b6deb7441f"
+    },
+    "withheld.json": {
+      "source_path": "provider/examples/fixtures/context_v02/withheld.json",
+      "sha256": "27f6dffc552d7b51abdd4d8aa03afd74f4889645eb65e4fcf2179da7a9c0c627"
+    }
+  }
+}

@@ -1,0 +1,4 @@
+# Preserve verified Provider fixture bytes and reproducible JSON on Windows.
+tests/fixtures/provider_context_v02/*.json text eol=lf
+examples/context_v02/*.json text eol=lf
+TASK05B_COMPATIBILITY_REVIEW.md text eol=lf
