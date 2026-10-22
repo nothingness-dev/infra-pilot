@@ -1,9 +1,13 @@
-# InfraPilot: executable offline Mock backend
+# InfraPilot: executable offline Mock backend workflows
 
-This integration branch assembles the existing Provider, Triage and Setup into
+This repository assembles the existing Provider, Triage and Setup into
 one **explicitly Mock** Python flow. The actual Provider collector/normalizer,
 Triage diagnosis engine and Setup companion/presentation execute in-process.
 It needs no Liara account, token, external API, listener or infrastructure tool.
+
+The [request-to-approval workflow](integration/WORKFLOW.md) adds request intake,
+information completion, preparation, actual evidence/diagnosis, action review,
+and a separate explicit Mock approval example. It has no UI or executor.
 
 ## Setup and run
 
@@ -62,6 +66,26 @@ opt-in, invalid arguments/scenario/service; exit 130 means interruption.
 arguments are not echoed. Ordinary errors produce fixed JSON codes and no raw
 exception diagnostics.
 
+## Connected request and approval journey
+
+Use the same environment; no new dependencies or credentials are required:
+
+```powershell
+.\.venv\Scripts\python.exe -B -m integration.workflow_demo --mock --scenario complete_information
+.\.venv\Scripts\python.exe -B -m integration.workflow_demo --mock --scenario approved_not_executed
+$LASTEXITCODE  # 4: approved in Mock, infrastructure execution remains blocked
+```
+
+The first command completes missing information, collects actual Mock evidence,
+diagnoses once and reviews an observational recommendation (exit 0). The second
+also exercises a separate operator-selected Mock approval. It does not invent a
+restart recommendation, consume authorization, or claim that the service was
+repaired. The existing `integration.mock_backend` command is unchanged.
+
+See [all 19 scenarios, safe output, Python API and exits](integration/WORKFLOW.md),
+including partial collection, missing data, unmapped actions, rejection,
+expiration and missing identity/permissions.
+
 ## Tests
 
 Run the assembled checkout, without temporary source copies:
@@ -70,14 +94,18 @@ Run the assembled checkout, without temporary source copies:
 .\.venv\Scripts\python.exe -B -m pytest -p no:cacheprovider -q
 ```
 
-Verified result: **661 passed**, one existing Starlette/HTTPX TestClient
+The merged Mock integration baseline passed **661 tests**, with one existing Starlette/HTTPX TestClient
 deprecation warning, no skipped tests. This includes 119 Provider tests, 99 Setup
 tests, 416 Triage tests, nine Provider cross-module QA tests and 18 new integration
-tests. The integration tests also run the real CLI for every supported scenario.
+tests. Its integration tests also run the real CLI for every supported scenario.
 Installation and all 661 tests were also verified in a fresh tracked-source
 archive with a separate new virtual environment, without Git objects or QA
 scratch copies. Installed imports and the Mock flow also worked outside that
 checkout directory. See [verification evidence](integration/VERIFICATION.md).
+
+The request-to-approval continuation adds 30 behavioral/CLI tests. The current
+suite passed **691 tests**; see the separately recorded
+[workflow verification](integration/WORKFLOW_VERIFICATION.md).
 
 Provider remains usable and testable with the standard library alone:
 
@@ -91,13 +119,14 @@ packages. Optional historical QA commands and their separate results are in the
 
 ## Scope and next steps
 
-The current executable profile is `infrapilot-mock-backend/1`. Existing shared
+The executable profiles are `infrapilot-mock-backend/1` and the opt-in
+`infrapilot-request-approval/1-mock`. Existing shared
 schemas and the Provider/Triage/Setup contextual proposals keep their original
 Draft/proposal labels. No contextual HTTP route or production trust backend is
 enabled. Both existing diagnosis and approval behavior are preserved.
 
-Next work is a UI over this verified Mock output, then separately reviewed real
-read-only collection, trusted service/account identity and ACLs, durable current
+Remaining backend work includes separately reviewed real read-only collection,
+trusted service/account identity and ACLs, durable current
 associations/approval/audit storage, and freshness/replay policies. A future
 infrastructure executor is a separate task. CPU/RAM units, application health and
 log-window semantics remain unverified; missing telemetry stays null/unknown.
@@ -105,4 +134,4 @@ log-window semantics remain unverified; missing telemetry stays null/unknown.
 See [architecture and trust boundaries](integration/README.md),
 [exact selected source revisions](integration/SOURCE_REVISIONS.json), and
 [the Incident UI proposal](https://github.com/nothingness-dev/infra-pilot/pull/15).
-This branch does not implement that UI or merge any open PR.
+Neither profile implements that UI or performs infrastructure execution.
