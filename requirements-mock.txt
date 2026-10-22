@@ -1,0 +1,3 @@
+-c constraints-mock.txt
+-e ./apps/liara/triage
+-e .[test]
