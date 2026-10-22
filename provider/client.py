@@ -12,7 +12,7 @@ from collections.abc import Mapping
 from dataclasses import replace
 from datetime import datetime, timezone
 from typing import Any
-from urllib.parse import urlencode, urlsplit
+from urllib.parse import unquote, urlencode, urlsplit
 
 from .exceptions import (
     ApiUnavailableError, AuthenticationError, InvalidRequestError,
@@ -20,6 +20,8 @@ from .exceptions import (
     ResourceNotFoundError, TimeoutError,
 )
 from .models import ProviderConfig, ProviderResult, ProviderStatus
+from .fixtures import mock_payload
+from .observability import ObservabilityMixin
 
 
 class _NoRedirects(urllib.request.HTTPRedirectHandler):
@@ -54,7 +56,7 @@ def _finite_json_float(value: str) -> float:
     return number
 
 
-class LiaraClient:
+class LiaraClient(ObservabilityMixin):
     """Read-only public adapter. Network failures are results, never raw errors."""
 
     MAX_RESPONSE_BYTES = 4 * 1024 * 1024
@@ -64,6 +66,7 @@ class LiaraClient:
             raise ValueError("config must be a ProviderConfig.")
         self._config = config
         self._failure_mode = None
+        self._failure_modes = {}
         # Do not change urllib's process-global opener; mock construction is offline.
         self._opener = None if config.is_mock else urllib.request.build_opener(_NoRedirects())
 
@@ -140,7 +143,7 @@ class LiaraClient:
             query = urlencode(params, doseq=True) if params else ""
             body = None if payload is None else json.dumps(payload, allow_nan=False).encode("utf-8")
             if self.config.is_mock:
-                return self._mock_request(method.upper(), endpoint)
+                return self._mock_request(method.upper(), endpoint, params=params)
             request = urllib.request.Request(
                 self.config.base_url + endpoint + ("?" + query if query else ""),
                 data=body, method=method.upper(),
@@ -204,39 +207,71 @@ class LiaraClient:
         except (http.client.HTTPException, ValueError, RecursionError):
             return self._failure(InvalidResponseError())
 
-    def _mock_request(self, method: str, endpoint: str) -> ProviderResult:
-        if self._failure_mode == "timeout":
-            return self._failure(TimeoutError())
-        if isinstance(self._failure_mode, int):
-            return self._failure(_http_exception(self._failure_mode))
-        if method != "GET" or endpoint != "/v1/projects":
+    def _mock_request(self, method: str, endpoint: str, *, params=None) -> ProviderResult:
+        capability, name = None, None
+        if endpoint == "/v1/projects":
+            capability = "projects"
+        elif endpoint.startswith("/v1/projects/"):
+            parts = endpoint[len("/v1/projects/"):].split("/", 1)
+            name = unquote(parts[0])
+            suffix = "" if len(parts) == 1 else "/" + parts[1]
+            capability = {"": "service", "/logs": "logs", "/metrics/summary": "metrics", "/releases": "releases"}.get(suffix)
+        if method != "GET" or capability is None:
             return self._failure(ResourceNotFoundError())
-        projects = [] if self._failure_mode == "empty" else [
-            {"_id": "mock-project-001", "project_id": "infrapilot-api", "type": "python", "status": "running"},
-            {"_id": "mock-project-002", "project_id": "infrapilot-web", "type": "next", "status": "running"},
-        ]
-        return ProviderResult(True, self._redact({"projects": projects}), is_mock=True)
+        params = params or {}
+        if capability == "logs" and (
+            not isinstance(params.get("since"), str) or not params["since"].strip()
+        ):
+            return self._failure(InvalidRequestError())
+        if capability == "releases" and any(
+            type(params.get(key)) is not int or params[key] < 1 for key in ("page", "count")
+        ):
+            return self._failure(InvalidRequestError())
+        mode = self._failure_modes.get(capability, self._failure_mode)
+        if mode == "timeout":
+            return self._failure(TimeoutError())
+        if isinstance(mode, int):
+            return self._failure(_http_exception(mode))
+        payload = mock_payload(capability, name, params, mode)
+        return ProviderResult(True, self._redact(payload), is_mock=True)
 
 
 class MockLiaraClient(LiaraClient):
     """Always offline, even when passed a live config.
 
-    failure_mode accepts 'empty', 'timeout', 'unauthorized', 'forbidden',
-    'rate_limit', 'not_found', 'unavailable', or an HTTP error status (400-599).
+    failure_mode accepts 'empty', 'missing', 'invalid_response', 'timeout',
+    'unauthorized', 'forbidden', 'rate_limit', 'not_found', 'unavailable', or an
+    HTTP error status (400-599). failure_modes supplies per-capability overrides.
     """
 
-    def __init__(self, config: ProviderConfig | None = None, *, failure_mode: str | int | None = None) -> None:
-        modes = {"unauthorized": 401, "forbidden": 403, "rate_limit": 429, "not_found": 404, "unavailable": 503}
-        if isinstance(failure_mode, str):
-            failure_mode = modes.get(failure_mode, failure_mode)
-        if failure_mode not in (None, "empty", "timeout") and not (
-            type(failure_mode) is int and 400 <= failure_mode <= 599
-        ):
-            raise ValueError("Unsupported mock failure mode.")
+    def __init__(
+        self, config: ProviderConfig | None = None, *, failure_mode: str | int | None = None,
+        failure_modes: Mapping[str, str | int | None] | None = None,
+    ) -> None:
+        failure_mode = self._normalize_mode(failure_mode)
+        if failure_modes is not None and not isinstance(failure_modes, Mapping):
+            raise ValueError("failure_modes must be a capability mapping.")
+        overrides = {}
+        for key, mode in (failure_modes or {}).items():
+            if key not in ("projects", "service", "logs", "metrics", "releases"):
+                raise ValueError("Unknown mock capability.")
+            overrides[key] = self._normalize_mode(mode)
         if config is not None and not isinstance(config, ProviderConfig):
             raise ValueError("config must be a ProviderConfig.")
         super().__init__(replace(config, is_mock=True) if config is not None else ProviderConfig("", is_mock=True))
         self._failure_mode = failure_mode
+        self._failure_modes = overrides
+
+    @staticmethod
+    def _normalize_mode(failure_mode):
+        modes = {"unauthorized": 401, "forbidden": 403, "rate_limit": 429, "not_found": 404, "unavailable": 503}
+        if isinstance(failure_mode, str):
+            failure_mode = modes.get(failure_mode, failure_mode)
+        if failure_mode not in (None, "empty", "timeout", "missing", "invalid_response") and not (
+            type(failure_mode) is int and 400 <= failure_mode <= 599
+        ):
+            raise ValueError("Unsupported mock failure mode.")
+        return failure_mode
 
 
 # Both names appear in the task and are supported as the same public API.
