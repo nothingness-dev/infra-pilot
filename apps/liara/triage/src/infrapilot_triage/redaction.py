@@ -17,7 +17,7 @@ _AUTHORIZATION = re.compile(
 )
 _ASSIGNMENT = re.compile(
     r'''(?i)(["']?\b(?:api[_-]?key|access[_-]?token|refresh[_-]?token|password|secret)\b["']?\s*[:=]\s*)'''
-    r'''(?:"[^"\r\n]*"|'[^'\r\n]*'|[^\s,;]+)'''
+    r'''(?:"(?:\\.|[^"\\\r\n])*"|'(?:\\.|[^'\\\r\n])*'|[^\s,;]+)'''
 )
 _URL_CREDENTIALS = re.compile(r"(?i)(\b[a-z][a-z0-9+.-]*://)[^\s/@:]+:[^\s/@]+@")
 _TOKEN = re.compile(
