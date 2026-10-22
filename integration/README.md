@@ -1,5 +1,10 @@
 # Mock backend integration profile
 
+Current non-UI continuation: [request-to-approval workflow](WORKFLOW.md), using
+the same installed environment and original component implementations. The
+baseline was merged through PR #16; its original source-selection record below
+remains intact as historical provenance.
+
 Profile: **`infrapilot-mock-backend/1`**, offline only. The shared contextual
 contracts remain proposals; this profile chooses a concrete, reversible Mock
 composition without claiming a production transport or finalized shared API.
@@ -227,7 +232,11 @@ Python 3.11/3.12/3.14 or Linux test run.
 
 ## Remaining work
 
-The next product step is a UI over this verified Mock output. The Incident
+The connected non-UI request/approval journey is now available through
+`python -B -m integration.workflow_demo --mock`. It retains existing component
+contracts, uses explicit isolated Mock approval composition, and leaves
+authorization consumption and execution disabled. See [WORKFLOW.md](WORKFLOW.md).
+The Incident
 contract in PR #15 remains a proposal; no shell, browser components, rendering
 or frontend build is part of this backend delivery.
 

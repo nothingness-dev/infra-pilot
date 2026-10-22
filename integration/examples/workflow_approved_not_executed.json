@@ -1,0 +1,800 @@
+{
+  "authorization_consumed": false,
+  "collection_scenario": "exported",
+  "collection_status": "complete",
+  "contract_version": "infrapilot-request-approval/1-mock",
+  "error_code": null,
+  "execution": {
+    "blockers": [
+      "production_authentication_and_target_acl_not_integrated",
+      "durable_approval_and_workflow_binding_storage_not_integrated",
+      "provider_capability_validation_not_integrated",
+      "real_operation_execution_not_implemented"
+    ],
+    "execution_authorized": false,
+    "execution_performed": false,
+    "state": "execution_disabled"
+  },
+  "execution_authorized": false,
+  "execution_performed": false,
+  "mode": "mock",
+  "post_action_evaluation": "not_performed",
+  "production_readiness": "unresolved",
+  "remediation_verified": false,
+  "stage": "approval",
+  "stages": {
+    "action_review": {
+      "relationship": "reviewed_observation_recommendation_mapping",
+      "result": {
+        "approval_reason": "approval_not_required",
+        "binding": {
+          "canonical_action": {
+            "action_type": "refresh_observations",
+            "fingerprint": "8318c767a18f5ddfa77fa07c1bd7372c3b83a47c205302ddbd2633addcfc993a",
+            "parameters": {},
+            "policy_version": "triage-approval-v1",
+            "service_id": "MOCK-service"
+          },
+          "diagnosis_binding": "sha256:5e2cffe77dc9870ef0b9b3c6f47c9193b8f22d81eb9fc84a8c790fe0449f295f",
+          "proposal_id": "collect_observability",
+          "request_fingerprint": "sha256:38e737b0e1f67b6f17508d1bd13bb5a49c2368f0d81193df52a82cf97ee1b1a0",
+          "request_id": "MOCK-workflow-request"
+        },
+        "execution": {
+          "blockers": [
+            "production_authentication_and_target_acl_not_integrated",
+            "durable_approval_and_workflow_binding_storage_not_integrated",
+            "provider_capability_validation_not_integrated",
+            "real_operation_execution_not_implemented"
+          ],
+          "execution_authorized": false,
+          "execution_performed": false,
+          "state": "execution_disabled"
+        },
+        "execution_authorized": false,
+        "execution_performed": false,
+        "policy_decision": {
+          "action": {
+            "action_type": "refresh_observations",
+            "fingerprint": "8318c767a18f5ddfa77fa07c1bd7372c3b83a47c205302ddbd2633addcfc993a",
+            "parameters": {},
+            "policy_version": "triage-approval-v1",
+            "service_id": "MOCK-service"
+          },
+          "allowed": true,
+          "category": "low_risk_operation",
+          "reason": "classified",
+          "requires_approval": false
+        },
+        "state": "policy_decision_returned"
+      }
+    },
+    "collection": {
+      "collection_context": {
+        "capabilities": [
+          {
+            "availability": "available",
+            "capability": "service",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "deployment",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "logs",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "metrics",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          }
+        ],
+        "collection_finished_at": "2026-10-22T00:00:00+00:00",
+        "collection_started_at": "2026-10-22T00:00:00+00:00",
+        "contract_version": "provider-collection-context/0.2-draft",
+        "data_source": "mock",
+        "limitations": [
+          "HEALTH_STATUS_UNVERIFIED",
+          "APPLICATION_HTTP_NOT_MEASURED",
+          "CPU_RAM_UNITS_UNVERIFIED",
+          "SOURCE_TIMESTAMPS_UNVERIFIED",
+          "LOG_WINDOW_COMPLETENESS_UNVERIFIED",
+          "DEPLOYMENT_RELEASE_FIELDS_NOT_IN_DRAFT",
+          "LOG_TIME_AND_LEVEL_UNVERIFIED"
+        ],
+        "log_export": {
+          "exported": 1,
+          "received": 1,
+          "state": "exported",
+          "withheld": 0
+        },
+        "service_id": "MOCK-service",
+        "snapshot_digest": "sha256:b2c860ea8cf0d4dcf52d23b74fd66d0f7a0e661309b50f7a35cb6b6186e11d9a"
+      },
+      "snapshot": {
+        "cpu_usage_percent": null,
+        "data_source": "mock",
+        "http_status": null,
+        "logs": [
+          {
+            "level": "unknown",
+            "message": "Synthetic application started",
+            "timestamp": null
+          }
+        ],
+        "ram_usage_mib": null,
+        "response_time_ms": null,
+        "service_id": "MOCK-service",
+        "status": "unknown",
+        "timestamp": null
+      }
+    },
+    "inspection": {
+      "authorization_consumed": false,
+      "execution_authorized": false,
+      "execution_performed": false,
+      "integration_profile": "infrapilot-mock-backend/1",
+      "mode": "mock",
+      "presentation": {
+        "authorization_consumed": false,
+        "collection_context": {
+          "capabilities": [
+            {
+              "availability": "available",
+              "capability": "service",
+              "collected_at": "2026-10-22T00:00:00+00:00",
+              "error_code": null,
+              "http_status": null,
+              "retryable": null
+            },
+            {
+              "availability": "available",
+              "capability": "deployment",
+              "collected_at": "2026-10-22T00:00:00+00:00",
+              "error_code": null,
+              "http_status": null,
+              "retryable": null
+            },
+            {
+              "availability": "available",
+              "capability": "logs",
+              "collected_at": "2026-10-22T00:00:00+00:00",
+              "error_code": null,
+              "http_status": null,
+              "retryable": null
+            },
+            {
+              "availability": "available",
+              "capability": "metrics",
+              "collected_at": "2026-10-22T00:00:00+00:00",
+              "error_code": null,
+              "http_status": null,
+              "retryable": null
+            }
+          ],
+          "collection_finished_at": "2026-10-22T00:00:00+00:00",
+          "collection_started_at": "2026-10-22T00:00:00+00:00",
+          "contract_version": "provider-collection-context/0.2-draft",
+          "data_source": "mock",
+          "limitations": [
+            "HEALTH_STATUS_UNVERIFIED",
+            "APPLICATION_HTTP_NOT_MEASURED",
+            "CPU_RAM_UNITS_UNVERIFIED",
+            "SOURCE_TIMESTAMPS_UNVERIFIED",
+            "LOG_WINDOW_COMPLETENESS_UNVERIFIED",
+            "DEPLOYMENT_RELEASE_FIELDS_NOT_IN_DRAFT",
+            "LOG_TIME_AND_LEVEL_UNVERIFIED"
+          ],
+          "log_export": {
+            "exported": 1,
+            "received": 1,
+            "state": "exported",
+            "withheld": 0
+          },
+          "service_id": "MOCK-service",
+          "snapshot_digest": "sha256:b2c860ea8cf0d4dcf52d23b74fd66d0f7a0e661309b50f7a35cb6b6186e11d9a"
+        },
+        "companion_binding": "sha256:5fa79c86b5fb18ab8ec94cdf40caffc7c0232e5df9e8bd8b2db30eb9f5354a23",
+        "contract_version": "setup-collection-companion/1-proposal",
+        "diagnosis": {
+          "association": {
+            "contract_version": "setup-integration-v1",
+            "operation": "inspect_service",
+            "provenance": "mock",
+            "request_fingerprint": "sha256:38e737b0e1f67b6f17508d1bd13bb5a49c2368f0d81193df52a82cf97ee1b1a0",
+            "request_id": "MOCK-workflow-request",
+            "source": "provider",
+            "state": "ready"
+          },
+          "binding": "sha256:5e2cffe77dc9870ef0b9b3c6f47c9193b8f22d81eb9fc84a8c790fe0449f295f",
+          "contract_version": "setup-integration-v1",
+          "execution_authorized": false,
+          "execution_performed": false,
+          "freshness_evaluated": false,
+          "output_reference": "mock:collection-exported",
+          "provenance_verified": false,
+          "report": {
+            "actions": [
+              {
+                "action_id": "collect_observability",
+                "description": "Ask the observability adapter for available missing metrics, health details, and relevant logs; do not invent unavailable values.",
+                "requires_approval": false,
+                "risk_level": "low",
+                "status": "not_executed",
+                "title": "Collect missing observations"
+              }
+            ],
+            "data_source": "mock",
+            "evidence": [
+              {
+                "description": "Reported service status: unknown.",
+                "evidence_id": "service-status",
+                "kind": "status"
+              },
+              {
+                "description": "Log entry 1 (unknown): \"Synthetic application started\"",
+                "evidence_id": "log-0001",
+                "kind": "log"
+              }
+            ],
+            "hypotheses": [],
+            "limitations": [
+              "Confidence scores are deterministic heuristics, not calibrated probabilities.",
+              "This report uses one supplied snapshot; it does not establish causality or verify data provenance.",
+              "Configured heuristic thresholds: CPU >= 85 %, RAM >= 1024 MiB, response time >= 1000 ms.",
+              "Log window and completeness are unknown; supplied entries may be partial or historical.",
+              "RAM usage is an absolute MiB value; memory limit and utilization are unavailable.",
+              "Mock observations cannot establish the state of a real service."
+            ],
+            "missing_information": [
+              "Service health is unknown.",
+              "HTTP status is unavailable.",
+              "CPU usage measurement is unavailable.",
+              "RAM usage measurement is unavailable.",
+              "Response time measurement is unavailable.",
+              "Snapshot timestamp is unavailable; observation freshness cannot be assessed."
+            ],
+            "service_id": "MOCK-service",
+            "summary": "Insufficient failure evidence to identify a cause from the supplied observations."
+          },
+          "request_fingerprint": "sha256:38e737b0e1f67b6f17508d1bd13bb5a49c2368f0d81193df52a82cf97ee1b1a0",
+          "request_id": "MOCK-workflow-request",
+          "snapshot": {
+            "cpu_usage_percent": null,
+            "data_source": "mock",
+            "http_status": null,
+            "logs": [
+              {
+                "level": "unknown",
+                "message": "Synthetic application started",
+                "timestamp": null
+              }
+            ],
+            "ram_usage_mib": null,
+            "response_time_ms": null,
+            "service_id": "MOCK-service",
+            "status": "unknown",
+            "timestamp": null
+          }
+        },
+        "display": {
+          "collection_errors": [],
+          "collection_state": "no_component_error_reported",
+          "freshness_evaluated": false,
+          "logs": {
+            "availability": "available",
+            "display_state": "exported",
+            "exported": 1,
+            "received": 1,
+            "state": "exported",
+            "withheld": 0
+          },
+          "provenance_verified": false,
+          "sanitizer_policy_revision": null,
+          "source_claim": "mock"
+        },
+        "execution": {
+          "blockers": [
+            "production_authentication_and_target_acl_not_integrated",
+            "durable_approval_and_workflow_binding_storage_not_integrated",
+            "provider_capability_validation_not_integrated",
+            "real_operation_execution_not_implemented"
+          ],
+          "execution_authorized": false,
+          "execution_performed": false,
+          "state": "execution_disabled"
+        },
+        "execution_authorized": false,
+        "execution_performed": false,
+        "production_readiness": "unresolved",
+        "request_fingerprint": "sha256:38e737b0e1f67b6f17508d1bd13bb5a49c2368f0d81193df52a82cf97ee1b1a0",
+        "request_id": "MOCK-workflow-request",
+        "snapshot": {
+          "cpu_usage_percent": null,
+          "data_source": "mock",
+          "http_status": null,
+          "logs": [
+            {
+              "level": "unknown",
+              "message": "Synthetic application started",
+              "timestamp": null
+            }
+          ],
+          "ram_usage_mib": null,
+          "response_time_ms": null,
+          "service_id": "MOCK-service",
+          "status": "unknown",
+          "timestamp": null
+        },
+        "source_evidence": {
+          "association": {
+            "contract_version": "setup-integration-v1",
+            "operation": "inspect_service",
+            "provenance": "mock",
+            "request_fingerprint": "sha256:38e737b0e1f67b6f17508d1bd13bb5a49c2368f0d81193df52a82cf97ee1b1a0",
+            "request_id": "MOCK-workflow-request",
+            "source": "provider",
+            "state": "ready"
+          },
+          "output_reference": "mock:collection-exported"
+        },
+        "state": "diagnosis_associated"
+      },
+      "production_readiness": "unresolved",
+      "scenario": "exported",
+      "status": "complete",
+      "triage_preview": {
+        "authorization_granted": false,
+        "contract_version": "triage-contextual-diagnosis/0.2-draft",
+        "correlation": {
+          "collection_context_digest": "sha256:055c4bdac3a497190faebc6380c62dce198595c1493bd8c85c530d1bad198e79",
+          "collection_ref": "MOCK-collection-exported",
+          "service_binding_ref": "MOCK-fixture-binding",
+          "service_id": "MOCK-service",
+          "snapshot_digest": "sha256:b2c860ea8cf0d4dcf52d23b74fd66d0f7a0e661309b50f7a35cb6b6186e11d9a"
+        },
+        "execution_performed": false,
+        "integration_status": "mock_preview_only",
+        "limitations": [
+          "INTERNAL DRAFT proposal; no contextual HTTP route or approved shared contract exists.",
+          "MOCK-only preview. Caller IDs/digests do not verify service/project identity or retained collection association.",
+          "Trusted backend resolution, retained full-envelope verification and current Setup binding checks remain unavailable here."
+        ],
+        "provenance_verified": false,
+        "trusted_mapping_verified": false
+      }
+    },
+    "intake": {
+      "collected_information": {
+        "goal": "Review this synthetic service collection",
+        "service_target": "MOCK-service"
+      },
+      "errors": [
+        {
+          "code": "dependency_unavailable",
+          "field": "dependencies.provider_output",
+          "message": "No external output was supplied; the module does not fetch or fabricate it."
+        },
+        {
+          "code": "dependency_unavailable",
+          "field": "dependencies.triage_output",
+          "message": "No external output was supplied; the module does not fetch or fabricate it."
+        }
+      ],
+      "execution_authorized": false,
+      "execution_performed": false,
+      "missing_information": [],
+      "plan": {
+        "collected_information": {
+          "goal": "Review this synthetic service collection",
+          "service_target": "MOCK-service"
+        },
+        "dependencies": [
+          {
+            "available": false,
+            "contract_version": null,
+            "key": "provider_output",
+            "output_reference": null,
+            "phase": "preparation",
+            "provenance": null,
+            "reason": "No external output was supplied; the module does not fetch or fabricate it.",
+            "reported_state": null
+          },
+          {
+            "available": false,
+            "contract_version": null,
+            "key": "triage_output",
+            "output_reference": null,
+            "phase": "preparation",
+            "provenance": null,
+            "reason": "No external output was supplied; the module does not fetch or fabricate it.",
+            "reported_state": null
+          },
+          {
+            "available": false,
+            "contract_version": null,
+            "key": "provider_capability_validation",
+            "output_reference": null,
+            "phase": "execution",
+            "provenance": null,
+            "reason": "Roham's provider capability and requirement validation is outside this preparation module.",
+            "reported_state": null
+          },
+          {
+            "available": false,
+            "contract_version": null,
+            "key": "authorization_validation",
+            "output_reference": null,
+            "phase": "execution",
+            "provenance": null,
+            "reason": "Setayesh's authorization mechanism is unavailable here; no permission is inferred.",
+            "reported_state": null
+          },
+          {
+            "available": false,
+            "contract_version": null,
+            "key": "operation_executor",
+            "output_reference": null,
+            "phase": "execution",
+            "provenance": null,
+            "reason": "This preparation module has no real operation executor.",
+            "reported_state": null
+          }
+        ],
+        "execution_authorized": false,
+        "execution_performed": false,
+        "missing_information": [],
+        "operation": "inspect_service",
+        "proposed_steps": [
+          {
+            "dependency_keys": [],
+            "description": "Review the collected user intent and constraints.",
+            "key": "review_brief"
+          },
+          {
+            "dependency_keys": [
+              "provider_output"
+            ],
+            "description": "Review the external provider output reference.",
+            "key": "review_provider_output"
+          },
+          {
+            "dependency_keys": [
+              "triage_output"
+            ],
+            "description": "Review the external triage output reference; diagnosis remains triage-owned.",
+            "key": "review_triage_output"
+          },
+          {
+            "dependency_keys": [
+              "provider_capability_validation"
+            ],
+            "description": "Have the provider module confirm capabilities, applicable requirements, remaining user choices, and any cost information before execution.",
+            "key": "resolve_provider_requirements"
+          },
+          {
+            "dependency_keys": [
+              "authorization_validation"
+            ],
+            "description": "Refer the completed request to the teammate-owned authorization mechanism.",
+            "key": "obtain_authorization_validation"
+          },
+          {
+            "dependency_keys": [
+              "provider_capability_validation",
+              "authorization_validation",
+              "operation_executor"
+            ],
+            "description": "Hand off only after separate capability and authorization validation; no executor exists in this module.",
+            "key": "future_execution_handoff"
+          }
+        ],
+        "request_id": "MOCK-workflow-request"
+      },
+      "request": {
+        "details": {
+          "goal": "Review this synthetic service collection",
+          "service_target": "MOCK-service"
+        },
+        "operation": "inspect_service",
+        "request_id": "MOCK-workflow-request"
+      },
+      "request_id": "MOCK-workflow-request",
+      "state": "blocked",
+      "state_history": [
+        "received",
+        "blocked"
+      ]
+    },
+    "operator_example": {
+      "audit_events": [
+        {
+          "action_type": "restart_service",
+          "actor_id": "MOCK-workflow-requester",
+          "event_id": "e9dcdea6-2267-4a2e-ad6a-3a9da2461fbb",
+          "fingerprint": "2e636f6e34165ee515fc654314710fdc32ebcf42e73895cf7a4453440908d245",
+          "kind": "approval_requested",
+          "occurred_at": "2026-10-23T00:00:00+00:00",
+          "reason": "approval_pending",
+          "request_id": "d83d9bdd-9419-4f5a-bfac-e0c9f5c3610d",
+          "service_id": "MOCK-service"
+        },
+        {
+          "action_type": "restart_service",
+          "actor_id": "MOCK-workflow-approver",
+          "event_id": "0b7199d7-2d5b-4053-92dd-ea06beeff0a2",
+          "fingerprint": "2e636f6e34165ee515fc654314710fdc32ebcf42e73895cf7a4453440908d245",
+          "kind": "approval_granted",
+          "occurred_at": "2026-10-23T00:00:00+00:00",
+          "reason": "approval_approved",
+          "request_id": "d83d9bdd-9419-4f5a-bfac-e0c9f5c3610d",
+          "service_id": "MOCK-service"
+        }
+      ],
+      "authorization_consumed": false,
+      "clock_source": "synthetic_injected_clock",
+      "companion_binding": "sha256:5fa79c86b5fb18ab8ec94cdf40caffc7c0232e5df9e8bd8b2db30eb9f5354a23",
+      "current_approval": {
+        "action": {
+          "action_type": "restart_service",
+          "fingerprint": "2e636f6e34165ee515fc654314710fdc32ebcf42e73895cf7a4453440908d245",
+          "parameters_json": "{\"grace_period_seconds\":30}",
+          "policy_version": "triage-approval-v1",
+          "service_id": "MOCK-service"
+        },
+        "approved_by": {
+          "subject": "MOCK-workflow-approver"
+        },
+        "consumed_by": null,
+        "created_at": "2026-10-23T00:00:00+00:00",
+        "expires_at": "2026-10-23T00:05:00+00:00",
+        "rejected_by": null,
+        "request_id": "d83d9bdd-9419-4f5a-bfac-e0c9f5c3610d",
+        "requested_by": {
+          "subject": "MOCK-workflow-requester"
+        },
+        "state": "approved"
+      },
+      "decisions": [
+        {
+          "action": {
+            "action_type": "restart_service",
+            "fingerprint": "2e636f6e34165ee515fc654314710fdc32ebcf42e73895cf7a4453440908d245",
+            "parameters_json": "{\"grace_period_seconds\":30}",
+            "policy_version": "triage-approval-v1",
+            "service_id": "MOCK-service"
+          },
+          "allowed": false,
+          "audit_recorded": true,
+          "authorization_id": null,
+          "reason": "approval_pending",
+          "request": {
+            "action": {
+              "action_type": "restart_service",
+              "fingerprint": "2e636f6e34165ee515fc654314710fdc32ebcf42e73895cf7a4453440908d245",
+              "parameters_json": "{\"grace_period_seconds\":30}",
+              "policy_version": "triage-approval-v1",
+              "service_id": "MOCK-service"
+            },
+            "approved_by": null,
+            "consumed_by": null,
+            "created_at": "2026-10-23T00:00:00+00:00",
+            "expires_at": "2026-10-23T00:05:00+00:00",
+            "rejected_by": null,
+            "request_id": "d83d9bdd-9419-4f5a-bfac-e0c9f5c3610d",
+            "requested_by": {
+              "subject": "MOCK-workflow-requester"
+            },
+            "state": "pending"
+          }
+        },
+        {
+          "action": {
+            "action_type": "restart_service",
+            "fingerprint": "2e636f6e34165ee515fc654314710fdc32ebcf42e73895cf7a4453440908d245",
+            "parameters_json": "{\"grace_period_seconds\":30}",
+            "policy_version": "triage-approval-v1",
+            "service_id": "MOCK-service"
+          },
+          "allowed": false,
+          "audit_recorded": true,
+          "authorization_id": null,
+          "reason": "approval_approved",
+          "request": {
+            "action": {
+              "action_type": "restart_service",
+              "fingerprint": "2e636f6e34165ee515fc654314710fdc32ebcf42e73895cf7a4453440908d245",
+              "parameters_json": "{\"grace_period_seconds\":30}",
+              "policy_version": "triage-approval-v1",
+              "service_id": "MOCK-service"
+            },
+            "approved_by": {
+              "subject": "MOCK-workflow-approver"
+            },
+            "consumed_by": null,
+            "created_at": "2026-10-23T00:00:00+00:00",
+            "expires_at": "2026-10-23T00:05:00+00:00",
+            "rejected_by": null,
+            "request_id": "d83d9bdd-9419-4f5a-bfac-e0c9f5c3610d",
+            "requested_by": {
+              "subject": "MOCK-workflow-requester"
+            },
+            "state": "approved"
+          }
+        }
+      ],
+      "diagnosis_binding": "sha256:5e2cffe77dc9870ef0b9b3c6f47c9193b8f22d81eb9fc84a8c790fe0449f295f",
+      "execution_authorized": false,
+      "execution_performed": false,
+      "identity_source": "isolated_opaque_mock_sessions",
+      "provider_operation_support": "unverified",
+      "relationship": "separate_operator_selected_mock_example_not_diagnosis_derived",
+      "request_fingerprint": "sha256:38e737b0e1f67b6f17508d1bd13bb5a49c2368f0d81193df52a82cf97ee1b1a0",
+      "review": {
+        "authorization_granted": false,
+        "policy": {
+          "action": {
+            "action_type": "restart_service",
+            "fingerprint": "2e636f6e34165ee515fc654314710fdc32ebcf42e73895cf7a4453440908d245",
+            "parameters_json": "{\"grace_period_seconds\":30}",
+            "policy_version": "triage-approval-v1",
+            "service_id": "MOCK-service"
+          },
+          "allowed": true,
+          "category": "sensitive_service_operation",
+          "reason": "classified",
+          "requires_approval": true
+        }
+      },
+      "storage": "volatile_in_memory"
+    },
+    "preparation": {
+      "collected_information": {
+        "goal": "Review this synthetic service collection",
+        "service_target": "MOCK-service"
+      },
+      "errors": [],
+      "execution_authorized": false,
+      "execution_performed": false,
+      "missing_information": [],
+      "plan": {
+        "collected_information": {
+          "goal": "Review this synthetic service collection",
+          "service_target": "MOCK-service"
+        },
+        "dependencies": [
+          {
+            "available": true,
+            "contract_version": "setup-integration-v1",
+            "key": "provider_output",
+            "output_reference": "mock:collection-exported",
+            "phase": "preparation",
+            "provenance": "mock",
+            "reason": "Associated reference only; payload, authenticity, and freshness are not validated.",
+            "reported_state": "ready"
+          },
+          {
+            "available": true,
+            "contract_version": "setup-integration-v1",
+            "key": "triage_output",
+            "output_reference": "mock:workflow-diagnosis",
+            "phase": "preparation",
+            "provenance": "mock",
+            "reason": "Associated reference only; payload, authenticity, and freshness are not validated.",
+            "reported_state": "ready"
+          },
+          {
+            "available": false,
+            "contract_version": null,
+            "key": "provider_capability_validation",
+            "output_reference": null,
+            "phase": "execution",
+            "provenance": null,
+            "reason": "Roham's provider capability and requirement validation is outside this preparation module.",
+            "reported_state": null
+          },
+          {
+            "available": false,
+            "contract_version": null,
+            "key": "authorization_validation",
+            "output_reference": null,
+            "phase": "execution",
+            "provenance": null,
+            "reason": "Setayesh's authorization mechanism is unavailable here; no permission is inferred.",
+            "reported_state": null
+          },
+          {
+            "available": false,
+            "contract_version": null,
+            "key": "operation_executor",
+            "output_reference": null,
+            "phase": "execution",
+            "provenance": null,
+            "reason": "This preparation module has no real operation executor.",
+            "reported_state": null
+          }
+        ],
+        "execution_authorized": false,
+        "execution_performed": false,
+        "missing_information": [],
+        "operation": "inspect_service",
+        "proposed_steps": [
+          {
+            "dependency_keys": [],
+            "description": "Review the collected user intent and constraints.",
+            "key": "review_brief"
+          },
+          {
+            "dependency_keys": [
+              "provider_output"
+            ],
+            "description": "Review the external provider output reference.",
+            "key": "review_provider_output"
+          },
+          {
+            "dependency_keys": [
+              "triage_output"
+            ],
+            "description": "Review the external triage output reference; diagnosis remains triage-owned.",
+            "key": "review_triage_output"
+          },
+          {
+            "dependency_keys": [
+              "provider_capability_validation"
+            ],
+            "description": "Have the provider module confirm capabilities, applicable requirements, remaining user choices, and any cost information before execution.",
+            "key": "resolve_provider_requirements"
+          },
+          {
+            "dependency_keys": [
+              "authorization_validation"
+            ],
+            "description": "Refer the completed request to the teammate-owned authorization mechanism.",
+            "key": "obtain_authorization_validation"
+          },
+          {
+            "dependency_keys": [
+              "provider_capability_validation",
+              "authorization_validation",
+              "operation_executor"
+            ],
+            "description": "Hand off only after separate capability and authorization validation; no executor exists in this module.",
+            "key": "future_execution_handoff"
+          }
+        ],
+        "request_id": "MOCK-workflow-request"
+      },
+      "request": {
+        "details": {
+          "goal": "Review this synthetic service collection",
+          "service_target": "MOCK-service"
+        },
+        "operation": "inspect_service",
+        "request_id": "MOCK-workflow-request"
+      },
+      "request_id": "MOCK-workflow-request",
+      "state": "plan_prepared",
+      "state_history": [
+        "received",
+        "plan_prepared"
+      ]
+    }
+  },
+  "state": "approved_not_executed"
+}
