@@ -1,0 +1,115 @@
+{
+  "contract_version": "triage-contextual-diagnosis/0.2-draft",
+  "integration_status": "mock_preview_only",
+  "diagnosis_report": {
+    "service_id": "MOCK-service",
+    "summary": "Insufficient failure evidence to identify a cause from the supplied observations.",
+    "data_source": "mock",
+    "evidence": [
+      {
+        "evidence_id": "service-status",
+        "kind": "status",
+        "description": "Reported service status: unknown."
+      }
+    ],
+    "hypotheses": [],
+    "actions": [
+      {
+        "action_id": "collect_observability",
+        "title": "Collect missing observations",
+        "description": "Ask the observability adapter for available missing metrics, health details, and relevant logs; do not invent unavailable values.",
+        "risk_level": "low",
+        "requires_approval": false,
+        "status": "not_executed"
+      }
+    ],
+    "missing_information": [
+      "Service health is unknown.",
+      "HTTP status is unavailable.",
+      "CPU usage measurement is unavailable.",
+      "RAM usage measurement is unavailable.",
+      "Response time measurement is unavailable.",
+      "Service logs are unavailable (not collected or not supplied).",
+      "Snapshot timestamp is unavailable; observation freshness cannot be assessed."
+    ],
+    "limitations": [
+      "Confidence scores are deterministic heuristics, not calibrated probabilities.",
+      "This report uses one supplied snapshot; it does not establish causality or verify data provenance.",
+      "Configured heuristic thresholds: CPU >= 85 %, RAM >= 1024 MiB, response time >= 1000 ms.",
+      "RAM usage is an absolute MiB value; memory limit and utilization are unavailable.",
+      "Mock observations cannot establish the state of a real service."
+    ]
+  },
+  "collection_context": {
+    "contract_version": "provider-collection-context/0.2-draft",
+    "service_id": "MOCK-service",
+    "data_source": "mock",
+    "snapshot_digest": "sha256:f809af869a16d4ba232fdd7842e22496fc8b9c6edc78dfa3d648a598282e38fb",
+    "collection_started_at": "2026-10-22T00:00:00+00:00",
+    "collection_finished_at": "2026-10-22T00:00:00+00:00",
+    "capabilities": [
+      {
+        "capability": "service",
+        "availability": "available",
+        "error_code": null,
+        "http_status": null,
+        "collected_at": "2026-10-22T00:00:00+00:00",
+        "retryable": null
+      },
+      {
+        "capability": "deployment",
+        "availability": "available",
+        "error_code": null,
+        "http_status": null,
+        "collected_at": "2026-10-22T00:00:00+00:00",
+        "retryable": null
+      },
+      {
+        "capability": "logs",
+        "availability": "permission_denied",
+        "error_code": "AUTHENTICATION_ERROR",
+        "http_status": 403,
+        "collected_at": "2026-10-22T00:00:00+00:00",
+        "retryable": false
+      },
+      {
+        "capability": "metrics",
+        "availability": "failed",
+        "error_code": "RATE_LIMITED",
+        "http_status": 429,
+        "collected_at": "2026-10-22T00:00:00+00:00",
+        "retryable": true
+      }
+    ],
+    "log_export": {
+      "state": "collection_failed",
+      "received": null,
+      "exported": 0,
+      "withheld": 0
+    },
+    "limitations": [
+      "HEALTH_STATUS_UNVERIFIED",
+      "APPLICATION_HTTP_NOT_MEASURED",
+      "CPU_RAM_UNITS_UNVERIFIED",
+      "SOURCE_TIMESTAMPS_UNVERIFIED",
+      "LOG_WINDOW_COMPLETENESS_UNVERIFIED",
+      "DEPLOYMENT_RELEASE_FIELDS_NOT_IN_DRAFT"
+    ]
+  },
+  "correlation": {
+    "service_id": "MOCK-service",
+    "service_binding_ref": "MOCK-binding-1",
+    "collection_ref": "MOCK-collection-partial-failure",
+    "snapshot_digest": "sha256:f809af869a16d4ba232fdd7842e22496fc8b9c6edc78dfa3d648a598282e38fb",
+    "collection_context_digest": "sha256:a2e0857ef0e40c9b5cf485551ede15d61d4fcfadff504cd731dbf0ea71613d4f"
+  },
+  "trusted_mapping_verified": false,
+  "provenance_verified": false,
+  "authorization_granted": false,
+  "execution_performed": false,
+  "limitations": [
+    "INTERNAL DRAFT proposal; no contextual HTTP route or approved shared contract exists.",
+    "MOCK-only preview. Caller IDs/digests do not verify service/project identity or retained collection association.",
+    "Trusted backend resolution, retained full-envelope verification and current Setup binding checks remain unavailable here."
+  ]
+}
