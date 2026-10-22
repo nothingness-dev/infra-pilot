@@ -1,0 +1,88 @@
+{
+  "service_id": "MOCK-service",
+  "summary": "Top hypothesis: Elevated CPU usage may contribute to the observed slow response.",
+  "data_source": "mock",
+  "evidence": [
+    {
+      "evidence_id": "service-status",
+      "kind": "status",
+      "description": "Reported service status: degraded."
+    },
+    {
+      "evidence_id": "cpu-usage",
+      "kind": "metric",
+      "description": "Observed cpu usage: 97 %."
+    },
+    {
+      "evidence_id": "response-time",
+      "kind": "metric",
+      "description": "Observed response time: 2400 ms."
+    }
+  ],
+  "hypotheses": [
+    {
+      "hypothesis_id": "cpu_saturation",
+      "explanation": "Elevated CPU usage may contribute to the observed slow response.",
+      "confidence": 0.82,
+      "evidence_ids": [
+        "cpu-usage",
+        "response-time"
+      ]
+    },
+    {
+      "hypothesis_id": "service_degraded",
+      "explanation": "The service reports degraded state; the underlying cause remains unconfirmed.",
+      "confidence": 0.4,
+      "evidence_ids": [
+        "service-status"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "action_id": "collect_observability",
+      "title": "Collect missing observations",
+      "description": "Ask the observability adapter for available missing metrics, health details, and relevant logs; do not invent unavailable values.",
+      "risk_level": "low",
+      "requires_approval": false,
+      "status": "not_executed"
+    },
+    {
+      "action_id": "inspect_cpu_load",
+      "title": "Inspect CPU load",
+      "description": "Review available CPU history and workload profiling before attributing latency to CPU saturation.",
+      "risk_level": "low",
+      "requires_approval": false,
+      "status": "not_executed"
+    },
+    {
+      "action_id": "inspect_service_health",
+      "title": "Review service health details",
+      "description": "Review supplied health-check details and recent service events to investigate the reported unhealthy or degraded state.",
+      "risk_level": "low",
+      "requires_approval": false,
+      "status": "not_executed"
+    },
+    {
+      "action_id": "review_resource_configuration",
+      "title": "Review a possible resource configuration change",
+      "description": "If workload evidence confirms saturation, review configuration options and provider support with the operator before any approved change. No change is performed.",
+      "risk_level": "medium",
+      "requires_approval": true,
+      "status": "not_executed"
+    }
+  ],
+  "missing_information": [
+    "HTTP status is unavailable.",
+    "RAM usage measurement is unavailable.",
+    "Service logs are unavailable (not collected or not supplied).",
+    "Snapshot timestamp is unavailable; observation freshness cannot be assessed."
+  ],
+  "limitations": [
+    "Confidence scores are deterministic heuristics, not calibrated probabilities.",
+    "This report uses one supplied snapshot; it does not establish causality or verify data provenance.",
+    "Configured heuristic thresholds: CPU >= 85 %, RAM >= 1024 MiB, response time >= 1000 ms.",
+    "RAM usage is an absolute MiB value; memory limit and utilization are unavailable.",
+    "Mock observations cannot establish the state of a real service."
+  ]
+}

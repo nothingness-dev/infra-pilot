@@ -33,8 +33,17 @@
   must come from a trusted integration boundary, never a caller-supplied actor ID.
 - No infrastructure execution, real authentication integration, LLM integration,
   API server, frontend, Liara API calls, keys, or secrets belong in Task 3.
-- Do not merge any PR or start the API/real execution integration. Push only the
-  current task's feature branch and preserve all existing dependency branches.
+- Task 4 explicitly authorizes a module-local FastAPI application and thin
+  integration adapters on `feature/liara-triage-api`, based on Task 3. Preserve
+  all existing core models, engine, gate, and the original 238 tests.
+- Task 4 HTTP approval operations must be disabled by default. Install identity,
+  authorization, policy, audit, and storage only through trusted server code;
+  never accept caller-supplied IDs/roles as identity. Expose no approval mutations
+  or execution routes. Mock fixture generation must be explicit and offline.
+- No infrastructure execution, real authentication integration, provider calls,
+  secrets, LLM, database, frontend, or Task 5 development belongs in Task 4.
+- Do not merge any PR. Push only the current task's feature branch and preserve
+  all existing dependency branches and teammates' branches.
 - Contracts are internal DRAFTS, require team approval before final integration,
   and are NOT official Liara API schemas.
 
@@ -46,4 +55,5 @@ Set-Location -LiteralPath 'C:\git\shared\infra-pilot\apps\liara\triage'
 ```
 
 See `README.md` for module-local environment and dependency setup. Preserve
-the existing contract and diagnosis functionality while developing Task 3.
+the existing contract, diagnosis, and approval functionality while developing
+Task 4. See `API_INTEGRATION.md` for the HTTP trust boundary.
