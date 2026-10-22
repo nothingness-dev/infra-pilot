@@ -42,6 +42,16 @@
   or execution routes. Mock fixture generation must be explicit and offline.
 - No infrastructure execution, real authentication integration, provider calls,
   secrets, LLM, database, frontend, or Task 5 development belongs in Task 4.
+- Task 05A explicitly authorizes integration/security QA, narrow verified fixes,
+  a reproducible offline MOCK demo, and integration handoff documentation on
+  `feature/liara-triage-qa-demo`, based on the intact Task 4 branch. Preserve all
+  313 previous tests and all draft shared schemas. Do not start cross-module
+  integration or another task. Inspect other owners' published code read-only.
+- The demo must require explicit MOCK opt-in, use an isolated in-process app,
+  install only opaque mock sessions with scoped permissions, and open no network
+  listener. Never export its mock app as an ASGI server or modify the default
+  application's disabled approval routes. No real Liara connection or execution
+  may be claimed. Mock approval is not a real remediation result.
 - Do not merge any PR. Push only the current task's feature branch and preserve
   all existing dependency branches and teammates' branches.
 - Contracts are internal DRAFTS, require team approval before final integration,
@@ -55,5 +65,6 @@ Set-Location -LiteralPath 'C:\git\shared\infra-pilot\apps\liara\triage'
 ```
 
 See `README.md` for module-local environment and dependency setup. Preserve
-the existing contract, diagnosis, and approval functionality while developing
-Task 4. See `API_INTEGRATION.md` for the HTTP trust boundary.
+the existing contract, diagnosis, approval, and HTTP functionality while developing
+Task 05A. See `API_INTEGRATION.md` for the HTTP trust boundary and
+`INTEGRATION_HANDOFF.md` / `DEMO.md` for QA findings and the isolated demo.
