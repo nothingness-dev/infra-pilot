@@ -47,17 +47,22 @@ def main(argv=None) -> int:
             report, code = failure("INTERRUPTED"), 130
         except Exception:
             report, code = failure("UNEXPECTED_ERROR"), 2
+    return code if write_report(report) else 2
+
+
+def write_report(report) -> bool:
+    """Shared safe stdout boundary for the two explicit offline CLIs."""
     try:
         print(json.dumps(report, ensure_ascii=True, allow_nan=False, sort_keys=True), flush=True)
-    except OSError:
+    except (OSError, ValueError):
         # Prevent buffered shutdown diagnostics after a closed OS output pipe.
         try:
             with open(os.devnull, "w") as sink:
                 os.dup2(sink.fileno(), sys.stdout.fileno())
         except (AttributeError, OSError, ValueError):
             pass
-        return 2
-    return code
+        return False
+    return True
 
 
 if __name__ == "__main__":

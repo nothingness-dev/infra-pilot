@@ -15,10 +15,11 @@ from infrapilot_triage.collection_context import (
 from infrapilot_triage.schemas import ServiceSnapshot
 from provider import CollectionContextError, PreparedCollection, ServiceBinding
 from provider.examples.context_fixtures import MOCK_CONTEXT_SCENARIOS, build_mock_context
-from setup.collection_context import attach_collection_diagnosis, preserve_collection_context
+from setup.collection_context import CollectionCompanion, attach_collection_diagnosis, preserve_collection_context
 from setup.integration import CONTRACT_VERSION, DependencyInput, ResultMetadata, request_fingerprint
 from setup.models import OperationRequest
-from setup.triage import SetupIntegrationError, SnapshotEvidence, consume_diagnosis
+from setup.triage import DiagnosisPresentation, SetupIntegrationError, SnapshotEvidence, consume_diagnosis, validate_presentation
+from setup.validation import validate_request
 
 from .errors import MockIntegrationError
 
@@ -42,18 +43,42 @@ class MockResult:
         return json.loads(self._json)
 
 
+@dataclass(frozen=True, repr=False)
+class CompletedInspection:
+    """Backend-retained objects for continuation, never decoded from JSON.
+
+    The detached result is a historical output. Revalidate current mutable
+    producer objects before every subsequent action review/approval transition.
+    """
+
+    result: MockResult
+    request: OperationRequest
+    presentation: DiagnosisPresentation
+    companion: CollectionCompanion
+
+    def validate(self) -> None:
+        validate_presentation(self.request, self.presentation)
+        current = self.companion.to_dict()
+        if (current != self.result.to_dict()["presentation"]
+                or current["diagnosis"] != self.presentation.to_dict()):
+            raise MockIntegrationError("SETUP_ASSOCIATION_FAILED") from None
+
+    def __repr__(self):
+        return "CompletedInspection(mode='mock')"
+
+
 class MockSession:
     """An internal session, never reconstructed from submitted JSON or identifiers."""
 
-    def __init__(self, *, mock=False, scenario="partial_failure", service_id="MOCK-service"):
+    def __init__(self, *, mock=False, scenario="partial_failure", service_id="MOCK-service", request=None):
         try:
-            self._initialize(mock=mock, scenario=scenario, service_id=service_id)
+            self._initialize(mock=mock, scenario=scenario, service_id=service_id, request=request)
         except MockIntegrationError:
             raise
         except Exception:
             raise MockIntegrationError() from None
 
-    def _initialize(self, *, mock, scenario, service_id):
+    def _initialize(self, *, mock, scenario, service_id, request):
         if mock is not True:
             raise MockIntegrationError("MOCK_OPT_IN_REQUIRED") from None
         if type(scenario) is not str or scenario not in SCENARIOS:
@@ -62,13 +87,19 @@ class MockSession:
             raise MockIntegrationError("UNKNOWN_MOCK_SERVICE") from None
         self._scenario = scenario
         self._binding = _SERVICES[service_id]
+        if request is None:
+            request = OperationRequest("mock-request-" + scenario, "inspect_service", {
+                "service_target": service_id, "goal": "Review this synthetic service collection",
+            })
+        valid = validate_request(request)
+        if (not valid.is_complete or valid.operation != "inspect_service"
+                or valid.collected_information["service_target"] != service_id):
+            raise MockIntegrationError("SETUP_ASSOCIATION_FAILED") from None
+        self._request = OperationRequest(request.request_id, request.operation, dict(request.details))
         # Existing Provider fixture producer really calls MockLiaraClient,
         # collects observations and normalizes them. No stored diagnosis is read.
         self._prepared = build_mock_context(scenario)
         envelope = self._prepared.verify_request(self._prepared.to_request(), expected_binding=self._binding)
-        self._request = OperationRequest("mock-request-" + scenario, "inspect_service", {
-            "service_target": service_id, "goal": "Review this synthetic service collection",
-        })
         metadata = ResultMetadata(
             CONTRACT_VERSION, self._request.request_id, self._request.operation,
             request_fingerprint(self._request), "provider", "ready", "mock",
@@ -94,6 +125,10 @@ class MockSession:
         Optional submitted data is compared to the original retained object, not
         used to mint another trusted reference. This method is not an HTTP route.
         """
+        return self.inspect(submitted_envelope).result
+
+    def inspect(self, submitted_envelope: dict | None = None) -> CompletedInspection:
+        """Same collection/diagnosis path, retaining objects for backend workflow."""
         try:
             return self._finish(submitted_envelope)
         except MockIntegrationError:
@@ -163,7 +198,8 @@ class MockSession:
             "production_readiness": "unresolved", "authorization_consumed": False,
             "execution_authorized": False, "execution_performed": False,
         }
-        return MockResult(json.dumps(result, ensure_ascii=True, allow_nan=False, sort_keys=True), 0 if complete else 1)
+        output = MockResult(json.dumps(result, ensure_ascii=True, allow_nan=False, sort_keys=True), 0 if complete else 1)
+        return CompletedInspection(output, self._request, presentation, attached.companion)
 
 
 def run_mock_backend(*, mock=False, scenario="partial_failure", service_id="MOCK-service") -> MockResult:
