@@ -1,5 +1,9 @@
 # Mock backend integration profile
 
+Latest non-UI continuation: [outcome evaluation](OUTCOMES.md) compares retained
+observations independently of action-performance claims. The original Mock and
+request/approval commands keep their existing behavior.
+
 Current non-UI continuation: [request-to-approval workflow](WORKFLOW.md), using
 the same installed environment and original component implementations. The
 baseline was merged through PR #16; its original source-selection record below
