@@ -11,7 +11,10 @@ import re
 from typing import Literal
 
 from .client import LiaraClient
-from .models import Observation, ProviderResult, ServiceLog, ServiceObservations
+from .models import (
+    DeploymentStatus, MetricsSummary, Observation, ProviderResult, ServiceDetails,
+    ServiceLog, ServiceObservations, StructuredError,
+)
 
 
 LogSanitizer = Callable[[str], str | None]
@@ -61,6 +64,7 @@ class CollectionSummary:
     error_code: str | None
     http_status: int | None
     collected_at: str | None
+    retryable: bool | None = None
 
 
 @dataclass(frozen=True)
@@ -77,7 +81,12 @@ class TriageHandoff:
         """Provider sidecar; send ONLY snapshot.to_request() to /diagnose."""
         return {
             "snapshot": self.snapshot.to_request(),
-            "capabilities": [asdict(item) for item in self.capabilities],
+            # Keep the original unversioned wire shape. Draft v0.2 exports the
+            # additive retry hint through its separate collection_context only.
+            "capabilities": [
+                {key: value for key, value in asdict(item).items() if key != "retryable"}
+                for item in self.capabilities
+            ],
             "collection_started_at": self.collection_started_at,
             "collection_finished_at": self.collection_finished_at,
             "logs_exported": self.logs_exported,
@@ -124,12 +133,15 @@ class TriageAdapter:
         error = observation.error
         code = None
         status = None
+        retryable = None
         if error is not None:
             code = error.code if type(error.code) is str and error.code in _ERROR_CODES else "PROVIDER_ERROR"
             if type(error.http_status) is int and 100 <= error.http_status <= 599:
                 status = error.http_status
+            if type(error.retryable) is bool:
+                retryable = error.retryable
         return CollectionSummary(name, observation.availability, code, status,
-                                 self._safe_time(observation.collected_at))
+                                 self._safe_time(observation.collected_at), retryable)
 
     def from_observations(
         self, observations: ServiceObservations, *, service_id: str,
@@ -148,12 +160,22 @@ class TriageAdapter:
         origin = self._client.config.is_mock
         if type(observations.is_mock) is not bool or observations.is_mock != origin or any(
             not isinstance(item, Observation) or type(item.is_mock) is not bool
-            or item.is_mock != origin or item.availability not in _AVAILABILITY
+            or item.is_mock != origin or type(item.availability) is not str
+            or item.availability not in _AVAILABILITY
+            or (item.error is not None and not isinstance(item.error, StructuredError))
             or (item.availability == "available" and (item.data is None or item.error is not None))
             or (item.availability != "available" and item.data is not None)
             for item in items
         ):
             raise ValueError("Inconsistent provider observations.") from None
+        # Bundles may be supplied by trusted orchestration rather than collected
+        # here. Reject accidental cross-project joins before any log callback.
+        for item, model in zip(items, (ServiceDetails, DeploymentStatus, list, MetricsSummary)):
+            if item.data is not None and not isinstance(item.data, model):
+                raise ValueError("Invalid provider observations.") from None
+        for item in (observations.service, observations.deployment):
+            if item.data is not None and item.data.service_name != observations.service_name:
+                raise ValueError("Inconsistent provider service binding.") from None
 
         limitations = [
             "HEALTH_STATUS_UNVERIFIED", "APPLICATION_HTTP_NOT_MEASURED",

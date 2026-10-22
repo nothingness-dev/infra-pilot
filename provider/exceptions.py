@@ -73,3 +73,8 @@ class InvalidResponseError(LiaraProviderException):
 class InvalidRequestError(LiaraProviderException):
     code = "INVALID_REQUEST"
     default_message = "The provider request parameters are invalid."
+
+
+class CollectionContextError(LiaraProviderException):
+    code = "INVALID_COLLECTION_CONTEXT"
+    default_message = "Collection context validation failed."
