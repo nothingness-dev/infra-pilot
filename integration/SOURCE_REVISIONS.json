@@ -1,0 +1,183 @@
+{
+  "profile": "infrapilot-mock-backend/1",
+  "reviewed_on": "2026-10-22",
+  "main_base": "cc20096285a34ffd5e8c622612b8804953216b37",
+  "sources": {
+    "provider": {
+      "original_revision": "66655e6f21b70717948122bc521b72f54b9d91a8",
+      "original_tree": "82f5afe22f6af822c0f3f05f87dde7bae983f77d",
+      "path": "provider",
+      "pull_request": "https://github.com/nothingness-dev/infra-pilot/pull/12",
+      "method": "inherited unchanged",
+      "commits": [
+        {
+          "original": "e958bc14f822331f446ffc04a50e133d005763eb",
+          "integration": "e958bc14f822331f446ffc04a50e133d005763eb"
+        },
+        {
+          "original": "75b15050bae280653aa55395e4124321d7484ff7",
+          "integration": "75b15050bae280653aa55395e4124321d7484ff7"
+        },
+        {
+          "original": "66655e6f21b70717948122bc521b72f54b9d91a8",
+          "integration": "66655e6f21b70717948122bc521b72f54b9d91a8"
+        }
+      ]
+    },
+    "triage": {
+      "original_revision": "51d268d94757b5cc3d2f01bf04709aa71ee248b6",
+      "original_tree": "9108528b167c3620e9e1ec4a09513445e1fbd13e",
+      "path": "apps/liara/triage",
+      "pull_request": "https://github.com/nothingness-dev/infra-pilot/pull/14",
+      "method": "reviewed path-scoped non-merge cherry-pick -x",
+      "commits": [
+        {
+          "original": "83b1e6a4481442cca6a02cb5e8967bb258a9eec4",
+          "integration": "b192c4f74c6e76ebc06d20e7a088a42612ad49b6"
+        },
+        {
+          "original": "aa83ff8fc61fdaddbd338429c509b7cc1e5b3563",
+          "integration": "2c0cbbc2000864f31ee8328b85df46b6ce765e04"
+        },
+        {
+          "original": "ce27b8560d1ec5ed442df60b491252a6d2deb693",
+          "integration": "034f6a09345a3750af870cdf4679be1417e233ba"
+        },
+        {
+          "original": "34a2900ccae179e1c22a4894d06a76b9a2936b06",
+          "integration": "9a81d8c75bc31ec3d429e184064f9eab24b636fa"
+        },
+        {
+          "original": "2b3ed5f9d0969b816c6a1b8d4e15e0c5778b7aa1",
+          "integration": "a8fba16e90f0658dd0486b9a48dc9d03a13dc2b6"
+        },
+        {
+          "original": "305a588911e7d94bf77b005620282e19920cec9a",
+          "integration": "2e066ef7f66200267ac019988e729cf4a10d8ad4"
+        },
+        {
+          "original": "eac216c941085ec1f1a17ebe4acd16bf265e08fe",
+          "integration": "0b85eb592b50fcb04b4316485d41e64d2ae11f11"
+        },
+        {
+          "original": "9b79e44566d5ec2cedbedf8ee5c6970a23083521",
+          "integration": "07329fd8285e6e780c8d0e95a2a8e2560d804508"
+        },
+        {
+          "original": "ce19889a7c220f2d63e7036851f3178e389423c3",
+          "integration": "0ecbf3887df7790f2ccbb3d428177f4994964d7a"
+        },
+        {
+          "original": "4e6db7573e2168f64ba7b39850a3c5877d97c137",
+          "integration": "f9f550c33e45ffff04ff3420a848c14d3ed80d40"
+        },
+        {
+          "original": "415fb08345178ca23bd87e0e8192c987fae9cd7c",
+          "integration": "f7a2c014db5c87a615c158302dadf7b0a0d74337"
+        },
+        {
+          "original": "627e46fad0dff0545220b0fe78b76433dcd31cba",
+          "integration": "ef672566d6947491eb45485f0df172f57e58c5a2"
+        },
+        {
+          "original": "8bd4993930e2ce85e9c67a511e158cca4f97be2c",
+          "integration": "51804cc3f547dffb400d6cf459cde4c247cfcf08"
+        },
+        {
+          "original": "835e557b9d97f59522a88527117f759c9779f9d1",
+          "integration": "4a9f2e4b22dfd6cb1a35aaa5f69781ca34b30d42"
+        },
+        {
+          "original": "8fea2fbd284cb79fa328e3f4ab74537674e7b59a",
+          "integration": "21789fe46af32bd2ef4db90d5a4a0b7c0b89ec7b"
+        },
+        {
+          "original": "befee7b9e7c331358f4b2c28a9c87bb13ecd5375",
+          "integration": "f11eb7d023c3ac5e44caad3a23fae474c76ea2c5"
+        },
+        {
+          "original": "3d0ce20d648fb184d9c934a8cc1a70e277cbe483",
+          "integration": "e20af64006724d3c0219bccac0dff9699f9466ce"
+        },
+        {
+          "original": "428237de83631035439afa4d78d9f68f863942b9",
+          "integration": "64412d7611de5a0fdf3e2e4f33df3b37354500fe"
+        },
+        {
+          "original": "c551d67f031fb16c689a1172ba9660072d3ad67a",
+          "integration": "d3db86884487ee7f2290250f247b8f579d7e94fc"
+        },
+        {
+          "original": "1ee6c219c2b5c0bdddc98fd26b1ff17f95c74752",
+          "integration": "0f2e87c7c96bace1d714d5e90c7e367b7a54ff88"
+        },
+        {
+          "original": "e8e798b3d23257a74b0b63f95ac13b7459abfa25",
+          "integration": "d0f475a7328f2c777b6527edc4a8a212358cb65e"
+        },
+        {
+          "original": "d65f4b76ed44d32090a982c26af9b0a8a534d72d",
+          "integration": "499e7b0eee0529433edc78e3815d29bdbd827e2c"
+        },
+        {
+          "original": "700999f00231afba88032fc2872c9d257dd46664",
+          "integration": "ba886f14dd82e651f057a94429c5c9a9dacf1779"
+        },
+        {
+          "original": "ee4523e8410cb9b3a6bec67c6ad8e7950080c784",
+          "integration": "6ac1b9945d6b9aeebe1bb8934f5e131183d8d637"
+        },
+        {
+          "original": "fbb9785c62879f5ef5c3253b897dd1319e27bc9c",
+          "integration": "e6b1dce543bbc3b670d0c56968d1427bb0e70e15"
+        },
+        {
+          "original": "51d268d94757b5cc3d2f01bf04709aa71ee248b6",
+          "integration": "ebaf101f98a7d1d7dbea45b479e22b2979a1d45f"
+        }
+      ]
+    },
+    "setup": {
+      "original_revision": "7e559255a72134473aac75c1de0c42b21864b061",
+      "original_tree": "8b481bbbfe53c7c84d70f9d4a4a4a7c2f7cfc766",
+      "path": "setup",
+      "pull_request": "https://github.com/nothingness-dev/infra-pilot/pull/13",
+      "method": "reviewed path-scoped non-merge cherry-pick -x",
+      "commits": [
+        {
+          "original": "56df8f82d28a6784afc10c136cb80fc674addd84",
+          "integration": "7e7141da7349ae46d0ba97e1e634157e32c9dcdf"
+        },
+        {
+          "original": "a9d7482e0a1f67a396b5cd98609b217eeb13079f",
+          "integration": "31bf91d22559bfb9574db5004da48197d0ae5b3f"
+        },
+        {
+          "original": "62a1c740862f9aa7d1d00b941e4dc747956ed9dd",
+          "integration": "8951b33d43e40a10e97f2854d555880d574ad916"
+        },
+        {
+          "original": "929574dcde9e95e60c5a5889b5257612589c5a2c",
+          "integration": "b9f7c30828d1a6e3782652a74ab8854f069148c6"
+        },
+        {
+          "original": "783e8e7e9f05bca4986adfc77d8fa6758565b83c",
+          "integration": "564fd7791c2bda415acff40e275d08bc837d6559"
+        },
+        {
+          "original": "2ad4d36f14d7ab418b83b3636c69a69f77b867d2",
+          "integration": "2b22b299be6021c7a1470711b7457bd290de92ef"
+        },
+        {
+          "original": "7e559255a72134473aac75c1de0c42b21864b061",
+          "integration": "3323a07f972ec7c0145dd98c622937ec5bfbb814"
+        }
+      ]
+    }
+  },
+  "deliberate_deviations": [
+    "Historical Setup import/merge commits excluded; current Provider and Triage versions selected independently.",
+    "Triage QA source-preparation guard made checkout-relative; runtime/component tests and models unchanged.",
+    "Incident UI proposal c9f8f4035d9f1cded65e9dfd342170afa5020aa9 inspected only; not included."
+  ]
+}

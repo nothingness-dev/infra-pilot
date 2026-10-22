@@ -1,0 +1,38 @@
+{
+  "service_id": "MOCK-service",
+  "summary": "No failure indicators were found in the supplied observations; incomplete observability may hide problems.",
+  "data_source": "mock",
+  "evidence": [
+    {
+      "evidence_id": "service-status",
+      "kind": "status",
+      "description": "Reported service status: healthy."
+    }
+  ],
+  "hypotheses": [],
+  "actions": [
+    {
+      "action_id": "collect_observability",
+      "title": "Collect missing observations",
+      "description": "Ask the observability adapter for available missing metrics, health details, and relevant logs; do not invent unavailable values.",
+      "risk_level": "low",
+      "requires_approval": false,
+      "status": "not_executed"
+    }
+  ],
+  "missing_information": [
+    "HTTP status is unavailable.",
+    "CPU usage measurement is unavailable.",
+    "RAM usage measurement is unavailable.",
+    "Response time measurement is unavailable.",
+    "Service logs are unavailable (not collected or not supplied).",
+    "Snapshot timestamp is unavailable; observation freshness cannot be assessed."
+  ],
+  "limitations": [
+    "Confidence scores are deterministic heuristics, not calibrated probabilities.",
+    "This report uses one supplied snapshot; it does not establish causality or verify data provenance.",
+    "Configured heuristic thresholds: CPU >= 85 %, RAM >= 1024 MiB, response time >= 1000 ms.",
+    "RAM usage is an absolute MiB value; memory limit and utilization are unavailable.",
+    "Mock observations cannot establish the state of a real service."
+  ]
+}

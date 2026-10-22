@@ -1,0 +1,8 @@
+{
+  "allowed": false,
+  "reason": "unauthenticated",
+  "action": null,
+  "request": null,
+  "authorization_id": null,
+  "audit_recorded": true
+}

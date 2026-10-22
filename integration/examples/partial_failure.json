@@ -1,0 +1,234 @@
+{
+  "authorization_consumed": false,
+  "execution_authorized": false,
+  "execution_performed": false,
+  "integration_profile": "infrapilot-mock-backend/1",
+  "mode": "mock",
+  "presentation": {
+    "authorization_consumed": false,
+    "collection_context": {
+      "capabilities": [
+        {
+          "availability": "available",
+          "capability": "service",
+          "collected_at": "2026-10-22T00:00:00+00:00",
+          "error_code": null,
+          "http_status": null,
+          "retryable": null
+        },
+        {
+          "availability": "available",
+          "capability": "deployment",
+          "collected_at": "2026-10-22T00:00:00+00:00",
+          "error_code": null,
+          "http_status": null,
+          "retryable": null
+        },
+        {
+          "availability": "permission_denied",
+          "capability": "logs",
+          "collected_at": "2026-10-22T00:00:00+00:00",
+          "error_code": "AUTHENTICATION_ERROR",
+          "http_status": 403,
+          "retryable": false
+        },
+        {
+          "availability": "failed",
+          "capability": "metrics",
+          "collected_at": "2026-10-22T00:00:00+00:00",
+          "error_code": "RATE_LIMITED",
+          "http_status": 429,
+          "retryable": true
+        }
+      ],
+      "collection_finished_at": "2026-10-22T00:00:00+00:00",
+      "collection_started_at": "2026-10-22T00:00:00+00:00",
+      "contract_version": "provider-collection-context/0.2-draft",
+      "data_source": "mock",
+      "limitations": [
+        "HEALTH_STATUS_UNVERIFIED",
+        "APPLICATION_HTTP_NOT_MEASURED",
+        "CPU_RAM_UNITS_UNVERIFIED",
+        "SOURCE_TIMESTAMPS_UNVERIFIED",
+        "LOG_WINDOW_COMPLETENESS_UNVERIFIED",
+        "DEPLOYMENT_RELEASE_FIELDS_NOT_IN_DRAFT"
+      ],
+      "log_export": {
+        "exported": 0,
+        "received": null,
+        "state": "collection_failed",
+        "withheld": 0
+      },
+      "service_id": "MOCK-service",
+      "snapshot_digest": "sha256:f809af869a16d4ba232fdd7842e22496fc8b9c6edc78dfa3d648a598282e38fb"
+    },
+    "companion_binding": "sha256:1364fa31257062eac5a2c3c514f55f6db85c79fba8bab836c9d74428ab36f1cc",
+    "contract_version": "setup-collection-companion/1-proposal",
+    "diagnosis": {
+      "association": {
+        "contract_version": "setup-integration-v1",
+        "operation": "inspect_service",
+        "provenance": "mock",
+        "request_fingerprint": "sha256:a71422a710bb82dfff19270c4c1130b3c3d3a3e7da22e97ee8ae30f3bea1040d",
+        "request_id": "mock-request-partial_failure",
+        "source": "provider",
+        "state": "ready"
+      },
+      "binding": "sha256:292581f24586510ac2451dd159a1834f885b5233d9d7305c8dafa87bd59b79b9",
+      "contract_version": "setup-integration-v1",
+      "execution_authorized": false,
+      "execution_performed": false,
+      "freshness_evaluated": false,
+      "output_reference": "mock:collection-partial_failure",
+      "provenance_verified": false,
+      "report": {
+        "actions": [
+          {
+            "action_id": "collect_observability",
+            "description": "Ask the observability adapter for available missing metrics, health details, and relevant logs; do not invent unavailable values.",
+            "requires_approval": false,
+            "risk_level": "low",
+            "status": "not_executed",
+            "title": "Collect missing observations"
+          }
+        ],
+        "data_source": "mock",
+        "evidence": [
+          {
+            "description": "Reported service status: unknown.",
+            "evidence_id": "service-status",
+            "kind": "status"
+          }
+        ],
+        "hypotheses": [],
+        "limitations": [
+          "Confidence scores are deterministic heuristics, not calibrated probabilities.",
+          "This report uses one supplied snapshot; it does not establish causality or verify data provenance.",
+          "Configured heuristic thresholds: CPU >= 85 %, RAM >= 1024 MiB, response time >= 1000 ms.",
+          "RAM usage is an absolute MiB value; memory limit and utilization are unavailable.",
+          "Mock observations cannot establish the state of a real service."
+        ],
+        "missing_information": [
+          "Service health is unknown.",
+          "HTTP status is unavailable.",
+          "CPU usage measurement is unavailable.",
+          "RAM usage measurement is unavailable.",
+          "Response time measurement is unavailable.",
+          "Service logs are unavailable (not collected or not supplied).",
+          "Snapshot timestamp is unavailable; observation freshness cannot be assessed."
+        ],
+        "service_id": "MOCK-service",
+        "summary": "Insufficient failure evidence to identify a cause from the supplied observations."
+      },
+      "request_fingerprint": "sha256:a71422a710bb82dfff19270c4c1130b3c3d3a3e7da22e97ee8ae30f3bea1040d",
+      "request_id": "mock-request-partial_failure",
+      "snapshot": {
+        "cpu_usage_percent": null,
+        "data_source": "mock",
+        "http_status": null,
+        "logs": null,
+        "ram_usage_mib": null,
+        "response_time_ms": null,
+        "service_id": "MOCK-service",
+        "status": "unknown",
+        "timestamp": null
+      }
+    },
+    "display": {
+      "collection_errors": [
+        {
+          "availability": "permission_denied",
+          "capability": "logs",
+          "collected_at": "2026-10-22T00:00:00+00:00",
+          "error_code": "AUTHENTICATION_ERROR",
+          "http_status": 403,
+          "retryable": false
+        },
+        {
+          "availability": "failed",
+          "capability": "metrics",
+          "collected_at": "2026-10-22T00:00:00+00:00",
+          "error_code": "RATE_LIMITED",
+          "http_status": 429,
+          "retryable": true
+        }
+      ],
+      "collection_state": "partial_failure",
+      "freshness_evaluated": false,
+      "logs": {
+        "availability": "permission_denied",
+        "display_state": "collection_failed",
+        "exported": 0,
+        "received": null,
+        "state": "collection_failed",
+        "withheld": 0
+      },
+      "provenance_verified": false,
+      "sanitizer_policy_revision": null,
+      "source_claim": "mock"
+    },
+    "execution": {
+      "blockers": [
+        "production_authentication_and_target_acl_not_integrated",
+        "durable_approval_and_workflow_binding_storage_not_integrated",
+        "provider_capability_validation_not_integrated",
+        "real_operation_execution_not_implemented"
+      ],
+      "execution_authorized": false,
+      "execution_performed": false,
+      "state": "execution_disabled"
+    },
+    "execution_authorized": false,
+    "execution_performed": false,
+    "production_readiness": "unresolved",
+    "request_fingerprint": "sha256:a71422a710bb82dfff19270c4c1130b3c3d3a3e7da22e97ee8ae30f3bea1040d",
+    "request_id": "mock-request-partial_failure",
+    "snapshot": {
+      "cpu_usage_percent": null,
+      "data_source": "mock",
+      "http_status": null,
+      "logs": null,
+      "ram_usage_mib": null,
+      "response_time_ms": null,
+      "service_id": "MOCK-service",
+      "status": "unknown",
+      "timestamp": null
+    },
+    "source_evidence": {
+      "association": {
+        "contract_version": "setup-integration-v1",
+        "operation": "inspect_service",
+        "provenance": "mock",
+        "request_fingerprint": "sha256:a71422a710bb82dfff19270c4c1130b3c3d3a3e7da22e97ee8ae30f3bea1040d",
+        "request_id": "mock-request-partial_failure",
+        "source": "provider",
+        "state": "ready"
+      },
+      "output_reference": "mock:collection-partial_failure"
+    },
+    "state": "diagnosis_associated"
+  },
+  "production_readiness": "unresolved",
+  "scenario": "partial_failure",
+  "status": "partial",
+  "triage_preview": {
+    "authorization_granted": false,
+    "contract_version": "triage-contextual-diagnosis/0.2-draft",
+    "correlation": {
+      "collection_context_digest": "sha256:a2e0857ef0e40c9b5cf485551ede15d61d4fcfadff504cd731dbf0ea71613d4f",
+      "collection_ref": "MOCK-collection-partial_failure",
+      "service_binding_ref": "MOCK-fixture-binding",
+      "service_id": "MOCK-service",
+      "snapshot_digest": "sha256:f809af869a16d4ba232fdd7842e22496fc8b9c6edc78dfa3d648a598282e38fb"
+    },
+    "execution_performed": false,
+    "integration_status": "mock_preview_only",
+    "limitations": [
+      "INTERNAL DRAFT proposal; no contextual HTTP route or approved shared contract exists.",
+      "MOCK-only preview. Caller IDs/digests do not verify service/project identity or retained collection association.",
+      "Trusted backend resolution, retained full-envelope verification and current Setup binding checks remain unavailable here."
+    ],
+    "provenance_verified": false,
+    "trusted_mapping_verified": false
+  }
+}

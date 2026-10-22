@@ -1,0 +1,76 @@
+{
+  "collection_context": {
+    "capabilities": [
+      {
+        "availability": "available",
+        "capability": "service",
+        "collected_at": "2026-10-22T00:00:00+00:00",
+        "error_code": null,
+        "http_status": null,
+        "retryable": null
+      },
+      {
+        "availability": "available",
+        "capability": "deployment",
+        "collected_at": "2026-10-22T00:00:00+00:00",
+        "error_code": null,
+        "http_status": null,
+        "retryable": null
+      },
+      {
+        "availability": "available",
+        "capability": "logs",
+        "collected_at": "2026-10-22T00:00:00+00:00",
+        "error_code": null,
+        "http_status": null,
+        "retryable": null
+      },
+      {
+        "availability": "available",
+        "capability": "metrics",
+        "collected_at": "2026-10-22T00:00:00+00:00",
+        "error_code": null,
+        "http_status": null,
+        "retryable": null
+      }
+    ],
+    "collection_finished_at": "2026-10-22T00:00:00+00:00",
+    "collection_started_at": "2026-10-22T00:00:00+00:00",
+    "contract_version": "provider-collection-context/0.2-draft",
+    "data_source": "mock",
+    "limitations": [
+      "HEALTH_STATUS_UNVERIFIED",
+      "APPLICATION_HTTP_NOT_MEASURED",
+      "CPU_RAM_UNITS_UNVERIFIED",
+      "SOURCE_TIMESTAMPS_UNVERIFIED",
+      "LOG_WINDOW_COMPLETENESS_UNVERIFIED",
+      "DEPLOYMENT_RELEASE_FIELDS_NOT_IN_DRAFT",
+      "LOG_TIME_AND_LEVEL_UNVERIFIED"
+    ],
+    "log_export": {
+      "exported": 1,
+      "received": 1,
+      "state": "exported",
+      "withheld": 0
+    },
+    "service_id": "MOCK-service",
+    "snapshot_digest": "sha256:b2c860ea8cf0d4dcf52d23b74fd66d0f7a0e661309b50f7a35cb6b6186e11d9a"
+  },
+  "snapshot": {
+    "cpu_usage_percent": null,
+    "data_source": "mock",
+    "http_status": null,
+    "logs": [
+      {
+        "level": "unknown",
+        "message": "Synthetic application started",
+        "timestamp": null
+      }
+    ],
+    "ram_usage_mib": null,
+    "response_time_ms": null,
+    "service_id": "MOCK-service",
+    "status": "unknown",
+    "timestamp": null
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "service_id": "MOCK-service",
+  "summary": "Top hypothesis: Supplied logs report database connection failures that may explain application errors.",
+  "data_source": "mock",
+  "evidence": [
+    {
+      "evidence_id": "service-status",
+      "kind": "status",
+      "description": "Reported service status: unhealthy."
+    },
+    {
+      "evidence_id": "http-status",
+      "kind": "http",
+      "description": "Observed HTTP status: 500."
+    },
+    {
+      "evidence_id": "log-0001",
+      "kind": "log",
+      "description": "Log entry 1 (error): \"PostgreSQL connection refused\""
+    }
+  ],
+  "hypotheses": [
+    {
+      "hypothesis_id": "database_connection_failure",
+      "explanation": "Supplied logs report database connection failures that may explain application errors.",
+      "confidence": 0.89,
+      "evidence_ids": [
+        "http-status",
+        "log-0001"
+      ]
+    },
+    {
+      "hypothesis_id": "service_unhealthy",
+      "explanation": "The service reports unhealthy state; the underlying cause remains unconfirmed.",
+      "confidence": 0.45,
+      "evidence_ids": [
+        "service-status"
+      ]
+    },
+    {
+      "hypothesis_id": "http_server_error",
+      "explanation": "An HTTP server error was observed; HTTP status alone does not identify its cause.",
+      "confidence": 0.35,
+      "evidence_ids": [
+        "http-status"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "action_id": "collect_observability",
+      "title": "Collect missing observations",
+      "description": "Ask the observability adapter for available missing metrics, health details, and relevant logs; do not invent unavailable values.",
+      "risk_level": "low",
+      "requires_approval": false,
+      "status": "not_executed"
+    },
+    {
+      "action_id": "inspect_application_errors",
+      "title": "Review application errors",
+      "description": "Review existing application logs and error context around the failing request without exposing credentials.",
+      "risk_level": "low",
+      "requires_approval": false,
+      "status": "not_executed"
+    },
+    {
+      "action_id": "inspect_database_connectivity",
+      "title": "Review database connection evidence",
+      "description": "Review supplied connection errors and database availability observations; distinguish connectivity, authentication, and pool failures.",
+      "risk_level": "low",
+      "requires_approval": false,
+      "status": "not_executed"
+    },
+    {
+      "action_id": "inspect_service_health",
+      "title": "Review service health details",
+      "description": "Review supplied health-check details and recent service events to investigate the reported unhealthy or degraded state.",
+      "risk_level": "low",
+      "requires_approval": false,
+      "status": "not_executed"
+    },
+    {
+      "action_id": "review_database_configuration",
+      "title": "Review a possible database configuration change",
+      "description": "If connection evidence supports a configuration change, have the operator review credentials, endpoints, and connection limits before any approved change. No change is performed.",
+      "risk_level": "medium",
+      "requires_approval": true,
+      "status": "not_executed"
+    }
+  ],
+  "missing_information": [
+    "CPU usage measurement is unavailable.",
+    "RAM usage measurement is unavailable.",
+    "Response time measurement is unavailable.",
+    "Snapshot timestamp is unavailable; observation freshness cannot be assessed."
+  ],
+  "limitations": [
+    "Confidence scores are deterministic heuristics, not calibrated probabilities.",
+    "This report uses one supplied snapshot; it does not establish causality or verify data provenance.",
+    "Configured heuristic thresholds: CPU >= 85 %, RAM >= 1024 MiB, response time >= 1000 ms.",
+    "Log window and completeness are unknown; supplied entries may be partial or historical.",
+    "RAM usage is an absolute MiB value; memory limit and utilization are unavailable.",
+    "Mock observations cannot establish the state of a real service."
+  ]
+}

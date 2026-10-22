@@ -1,0 +1,11 @@
+{
+  "service_id": "MOCK-service",
+  "status": "degraded",
+  "data_source": "mock",
+  "http_status": null,
+  "cpu_usage_percent": 97.0,
+  "ram_usage_mib": null,
+  "response_time_ms": 2400.0,
+  "logs": null,
+  "timestamp": null
+}

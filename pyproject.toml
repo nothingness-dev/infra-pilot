@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "infrapilot-mock-backend"
+version = "0.1.0"
+description = "Explicit offline Provider/Triage/Setup composition for InfraPilot"
+requires-python = ">=3.11"
+dependencies = ["infrapilot-triage==0.1.0"]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10", "httpx>=0.27,<1"]
+
+[project.scripts]
+infrapilot-mock = "integration.mock_backend:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["integration", "integration.*", "provider", "provider.*", "setup", "setup.*"]
+exclude = ["*.tests", "*.tests.*", "*.qa"]
+
+[tool.setuptools.package-data]
+provider = ["examples/fixtures/context_v02/*.json", "examples/mock_triage_snapshot.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["integration/tests", "provider/tests", "provider/qa", "setup/tests", "apps/liara/triage/tests"]

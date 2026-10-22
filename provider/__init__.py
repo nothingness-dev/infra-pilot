@@ -4,6 +4,7 @@ from .client import LiaraApiClient, LiaraClient, MockLiaraClient
 from .exceptions import (
     ApiUnavailableError,
     AuthenticationError,
+    CollectionContextError,
     InvalidRequestError,
     InvalidResponseError,
     LiaraProviderException,
@@ -20,6 +21,9 @@ from .models import (
 from .triage import (
     CollectionSummary, LogSanitizer, TriageAdapter, TriageHandoff, TriageLog, TriageSnapshot,
 )
+from .collection_context import (
+    COLLECTION_CONTEXT_VERSION, CollectionContextAdapter, PreparedCollection, ServiceBinding,
+)
 
 __all__ = [
     "LiaraClient", "LiaraApiClient", "MockLiaraClient", "ProviderConfig",
@@ -32,4 +36,6 @@ __all__ = [
     "ServiceObservations",
     "CollectionSummary", "LogSanitizer", "TriageAdapter", "TriageHandoff",
     "TriageLog", "TriageSnapshot",
+    "CollectionContextError", "COLLECTION_CONTEXT_VERSION", "CollectionContextAdapter",
+    "PreparedCollection", "ServiceBinding",
 ]

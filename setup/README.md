@@ -1,4 +1,28 @@
-# Provisional Liara setup module — Stages 1–3
+# Liara Setup preparation and triage workflow
+
+Current continuation: [TRIAGE_COMPATIBILITY.md](TRIAGE_COMPATIBILITY.md) documents
+the actual published Diagnosis integration, source SHAs and remaining producer
+gaps. [APPROVAL_WORKFLOW.md](APPROVAL_WORKFLOW.md) completes the backend-only
+approval handoff, source ancestry, exact verification and proposed shell/incident
+props/callbacks. `setup.triage` consumes canonical Diagnosis models;
+`setup.diagnosis_api` validates the existing API's responses;
+`setup.approval_workflow` delegates review/request/approve/reject to the actual
+policy/gate. All execution indicators remain false, and there is no executor.
+The optional consumers/tests use triage's documented dependencies in ignored
+`setup/.venv`; legacy intake and preparation remain standard-library only.
+Setup stays here and existing application functions are preserved.
+
+The opt-in [collection-context compatibility handoff](COLLECTION_CONTEXT_COMPATIBILITY.md)
+documents `setup.collection_context`, its backend-retained companion beside the
+existing evidence/Diagnosis, exact pending Provider/Triage source pins, synthetic
+checks and proposed Incident display states. It depends on Setup PR #9 and the
+reviewed producer packages; it does not enable approval or execution.
+
+## Historical Stages 1–3
+
+The descriptions below record the original reference-only foundation, not current
+claims that teammate code or these optional consumers are absent. For full current
+tests/environment and the new offline approval example, use APPROVAL_WORKFLOW.md.
 
 Fatima owns this isolated, framework-independent Python 3 module. Its models
 are **local proposals awaiting team agreement**, not approved shared contracts
@@ -14,7 +38,7 @@ not occurred. State names describe preparation only.
 No installation or dependency manifest is needed. Run from the repository root:
 
 ```powershell
-python -B -m unittest discover -s setup/tests -t . -v
+setup/.venv/Scripts/python.exe -B -m unittest discover -s setup/tests -t . -v
 python -B -m setup.examples.offline_demo
 ```
 
