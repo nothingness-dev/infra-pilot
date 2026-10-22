@@ -52,6 +52,18 @@
   listener. Never export its mock app as an ASGI server or modify the default
   application's disabled approval routes. No real Liara connection or execution
   may be claimed. Mock approval is not a real remediation result.
+- Task 05B collection-context work is authorized on
+  `feature/liara-collection-context` from the intact Task 05A implementation.
+  Preserve the previous audit report byte-for-byte. Provider PR #12 remains a
+  proposal; add only local structural validation, offline fixtures/tests, an
+  explicit MOCK preview, and a reviewed draft contextual contract.
+- Do not install a contextual HTTP route, real mapping/authentication, approval
+  mutation or execution path without explicit contract/trust approval. Public
+  IDs/hashes cannot authenticate correlation. Keep existing shared schemas,
+  `/internal/triage/diagnose`, core behavior, dependencies and all 350 tests intact.
+- Provider/Setup implementation copies for optional QA must be exact pinned Git
+  blobs under this module's ignored `.tmp`, verified by hashes, with no edits to
+  teammate files. Imported MOCK mappings must remain visibly fixture-only.
 - Do not merge any PR. Push only the current task's feature branch and preserve
   all existing dependency branches and teammates' branches.
 - Contracts are internal DRAFTS, require team approval before final integration,
@@ -66,5 +78,5 @@ Set-Location -LiteralPath 'C:\git\shared\infra-pilot\apps\liara\triage'
 
 See `README.md` for module-local environment and dependency setup. Preserve
 the existing contract, diagnosis, approval, and HTTP functionality while developing
-Task 05A. See `API_INTEGRATION.md` for the HTTP trust boundary and
-`INTEGRATION_HANDOFF.md` / `DEMO.md` for QA findings and the isolated demo.
+Task 05B. See `COLLECTION_CONTEXT_V02_PROPOSAL.md` for the current proposal and
+trust limits; earlier handoff/audit documents retain their pinned historical scope.

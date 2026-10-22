@@ -226,3 +226,40 @@ one Starlette/HTTPX warning on each. Python 3.11 and 3.13 are unavailable here a
 were not tested. The current TestClient transport remains installed and tested;
 no dependency upgrade or warning suppression was applied. All interfaces remain
 internal DRAFTS awaiting agreement; no cross-module integration was performed.
+
+## Provider collection context compatibility (Task 05B)
+
+`collection_context.py` adds **triage-local proposal models**, strict structural
+checks against Provider PR #12 at `66655e6f21b70717948122bc521b72f54b9d91a8`, and an
+explicit offline MOCK preview. No new HTTP route, production identity resolver,
+approval mutation, shared schema change, or provider dependency is installed.
+The existing `/internal/triage/diagnose` continues accepting only `ServiceSnapshot`.
+
+The seven original Provider fixture files are preserved byte-for-byte under
+`tests/fixtures/provider_context_v02/`; `SOURCE.json` records revision and hashes.
+Exact proposed request/response JSON is under `examples/context_v02/`. These are
+MOCK-only examples, not actual contextual HTTP responses or approved contracts.
+
+```python
+from infrapilot_triage.collection_context import (
+    validate_provider_context, validate_contextual_request,
+    preview_mock_contextual_diagnosis, diagnose_contextual_request,
+)
+# Validation checks consistency only; it does not authenticate a service mapping.
+# The production entry deliberately rejects every input with untrusted_service_mapping.
+# MOCK preview requires mock=True and data_source="mock"; it never enables HTTP.
+```
+
+Run the unchanged regression command from this module:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -p no:cacheprovider
+.\.tmp\qa-py312\Scripts\python.exe -m pytest -p no:cacheprovider
+```
+
+All 350 previous cases remain unchanged; 66 new fixture/proposal cases bring
+the standard suite to 416. See [COLLECTION_CONTEXT_V02_PROPOSAL.md](COLLECTION_CONTEXT_V02_PROPOSAL.md)
+for the 15-point compatibility matrix, exact fields, test results, and commands
+for separately running actual pinned Provider/Setup implementations. The earlier
+[TASK05B_COMPATIBILITY_REVIEW.md](TASK05B_COMPATIBILITY_REVIEW.md) is retained
+unchanged as a historical audit of the revisions it names.
