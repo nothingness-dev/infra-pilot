@@ -105,3 +105,23 @@ this module. The setup coordination envelope and triage `ServiceSnapshot` draft
 were inspected only to understand expectations. Neither is finalized, imported
 or modified. No shared contracts, permissions backend, execution adapter, app
 server or deployment infrastructure are supplied in this task.
+
+## Live-smoke tooling follow-up (2026-10-22)
+
+`python -B -m provider.examples.live_smoke` now provides environment-configured,
+read-only checks using the existing adapter. Its report excludes payloads,
+project/account names, credentials and raw error messages. See the module README
+for configuration, summary fields and exit codes.
+
+At implementation verification, **both `LIARA_API_TOKEN` and
+`LIARA_PROJECT_NAME` were absent from the execution environment**. No
+authenticated live smoke run was performed. Automated tests use mocked clients
+or mocked HTTP transport; they do not change any capability's live-verification
+status in this document.
+
+When a real run is later reviewed, retain its time, account/project context
+outside committed credential data, API base URL and per-check outcomes. Record
+the conclusion only for that context/time; do not infer account-independent
+support or permissions from a successful call, and do not infer unsupported
+API capabilities from 403, 404, missing data or skipped logs. Metric units and
+other schema uncertainties above remain unverified.
