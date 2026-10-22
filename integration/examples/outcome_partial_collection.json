@@ -1,0 +1,217 @@
+{
+  "action": {
+    "simulation": null,
+    "status": "unknown_unverified"
+  },
+  "association_status": "validated_mock_bindings",
+  "authorization_consumed": false,
+  "causality_established": false,
+  "changes": [],
+  "comparison_scope": [
+    "reported_health",
+    "server_error_indicator",
+    "slow_response_indicator"
+  ],
+  "contract_version": "infrapilot-evidence-outcome/1-mock",
+  "error_code": null,
+  "evaluation_state": "insufficient_evidence",
+  "evidence": {
+    "after": {
+      "collection_context": {
+        "capabilities": [
+          {
+            "availability": "available",
+            "capability": "service",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "deployment",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "permission_denied",
+            "capability": "logs",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": "AUTHENTICATION_ERROR",
+            "http_status": 403,
+            "retryable": false
+          },
+          {
+            "availability": "failed",
+            "capability": "metrics",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": "RATE_LIMITED",
+            "http_status": 429,
+            "retryable": true
+          }
+        ],
+        "collection_finished_at": "2026-10-22T00:00:00+00:00",
+        "collection_started_at": "2026-10-22T00:00:00+00:00",
+        "contract_version": "provider-collection-context/0.2-draft",
+        "data_source": "mock",
+        "limitations": [
+          "HEALTH_STATUS_UNVERIFIED",
+          "APPLICATION_HTTP_NOT_MEASURED",
+          "CPU_RAM_UNITS_UNVERIFIED",
+          "SOURCE_TIMESTAMPS_UNVERIFIED",
+          "LOG_WINDOW_COMPLETENESS_UNVERIFIED",
+          "DEPLOYMENT_RELEASE_FIELDS_NOT_IN_DRAFT"
+        ],
+        "log_export": {
+          "exported": 0,
+          "received": null,
+          "state": "collection_failed",
+          "withheld": 0
+        },
+        "service_id": "MOCK-service",
+        "snapshot_digest": "sha256:f809af869a16d4ba232fdd7842e22496fc8b9c6edc78dfa3d648a598282e38fb"
+      },
+      "data_source": "mock",
+      "diagnosis_binding": "sha256:b0ebe5542ba406da81243d5946182b7b424c425f0d4b7c04cbec429183b8cfcb",
+      "diagnosis_limitations": [
+        "Confidence scores are deterministic heuristics, not calibrated probabilities.",
+        "This report uses one supplied snapshot; it does not establish causality or verify data provenance.",
+        "Configured heuristic thresholds: CPU >= 85 %, RAM >= 1024 MiB, response time >= 1000 ms.",
+        "RAM usage is an absolute MiB value; memory limit and utilization are unavailable.",
+        "Mock observations cannot establish the state of a real service."
+      ],
+      "logs": {
+        "exported": 0,
+        "received": null,
+        "state": "collection_failed",
+        "withheld": 0
+      },
+      "measurement_semantics": null,
+      "measurements": {
+        "cpu_usage_percent": null,
+        "http_status": null,
+        "ram_usage_mib": null,
+        "response_time_ms": null,
+        "status": "unknown"
+      },
+      "observation_timestamp": null,
+      "provenance_verified": false,
+      "reference": "MOCK-evidence-2",
+      "request_fingerprint": "sha256:38e737b0e1f67b6f17508d1bd13bb5a49c2368f0d81193df52a82cf97ee1b1a0",
+      "source_freshness_verified": false,
+      "source_kind": "provider_mock"
+    },
+    "before": {
+      "collection_context": {
+        "capabilities": [
+          {
+            "availability": "available",
+            "capability": "service",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "deployment",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "logs",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "metrics",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          }
+        ],
+        "collection_finished_at": "2026-10-22T00:00:00+00:00",
+        "collection_started_at": "2026-10-22T00:00:00+00:00",
+        "contract_version": "provider-collection-context/0.2-draft",
+        "data_source": "mock",
+        "limitations": [
+          "HEALTH_STATUS_UNVERIFIED",
+          "APPLICATION_HTTP_NOT_MEASURED",
+          "CPU_RAM_UNITS_UNVERIFIED",
+          "SOURCE_TIMESTAMPS_UNVERIFIED",
+          "LOG_WINDOW_COMPLETENESS_UNVERIFIED",
+          "DEPLOYMENT_RELEASE_FIELDS_NOT_IN_DRAFT",
+          "LOG_TIME_AND_LEVEL_UNVERIFIED"
+        ],
+        "log_export": {
+          "exported": 1,
+          "received": 1,
+          "state": "exported",
+          "withheld": 0
+        },
+        "service_id": "MOCK-service",
+        "snapshot_digest": "sha256:b2c860ea8cf0d4dcf52d23b74fd66d0f7a0e661309b50f7a35cb6b6186e11d9a"
+      },
+      "data_source": "mock",
+      "diagnosis_binding": "sha256:5e2cffe77dc9870ef0b9b3c6f47c9193b8f22d81eb9fc84a8c790fe0449f295f",
+      "diagnosis_limitations": [
+        "Confidence scores are deterministic heuristics, not calibrated probabilities.",
+        "This report uses one supplied snapshot; it does not establish causality or verify data provenance.",
+        "Configured heuristic thresholds: CPU >= 85 %, RAM >= 1024 MiB, response time >= 1000 ms.",
+        "Log window and completeness are unknown; supplied entries may be partial or historical.",
+        "RAM usage is an absolute MiB value; memory limit and utilization are unavailable.",
+        "Mock observations cannot establish the state of a real service."
+      ],
+      "logs": {
+        "exported": 1,
+        "received": 1,
+        "state": "exported",
+        "withheld": 0
+      },
+      "measurement_semantics": null,
+      "measurements": {
+        "cpu_usage_percent": null,
+        "http_status": null,
+        "ram_usage_mib": null,
+        "response_time_ms": null,
+        "status": "unknown"
+      },
+      "observation_timestamp": null,
+      "provenance_verified": false,
+      "reference": "MOCK-evidence-1",
+      "request_fingerprint": "sha256:38e737b0e1f67b6f17508d1bd13bb5a49c2368f0d81193df52a82cf97ee1b1a0",
+      "source_freshness_verified": false,
+      "source_kind": "provider_mock"
+    }
+  },
+  "execution_authorized": false,
+  "execution_performed": false,
+  "limitations": [
+    "NO_EXECUTION_OR_CAUSALITY_PROOF",
+    "COMPARISON_IS_NOT_SERVICE_RECOVERY",
+    "LOG_ABSENCE_AND_DIAGNOSIS_CONFIDENCE_NOT_COMPARED",
+    "PROVIDER_OBSERVATION_TIMES_AND_WINDOWS_UNVERIFIED",
+    "PROVIDER_FIXTURE_COLLECTION_ORDER_NOT_ESTABLISHED",
+    "PROVIDER_METRIC_UNITS_UNVERIFIED"
+  ],
+  "mode": "mock",
+  "observation_result": "insufficient_comparable_evidence",
+  "policy": {
+    "controlled_sample_max_age_seconds": 60,
+    "resources_directional": false,
+    "slow_response_ms": 1000.0
+  },
+  "policy_version": "controlled-observation-comparison/1",
+  "post_action_evaluation": "not_performed",
+  "production_readiness": "unresolved",
+  "remediation_verified": false
+}

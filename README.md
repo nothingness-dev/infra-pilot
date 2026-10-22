@@ -86,6 +86,25 @@ See [all 19 scenarios, safe output, Python API and exits](integration/WORKFLOW.m
 including partial collection, missing data, unmapped actions, rejection,
 expiration and missing identity/permissions.
 
+## Evidence-based outcome comparison
+
+The [outcome evaluator](integration/OUTCOMES.md) compares retained before/after
+observations separately from action performance. It reports improvement,
+deterioration, mixed changes, unchanged policy indicators, insufficient evidence
+or rejected associations. It does not establish execution or causality.
+
+```powershell
+.\.venv\Scripts\python.exe -B -m integration.outcome_demo --mock --scenario improvement
+.\.venv\Scripts\python.exe -B -m integration.outcome_demo --mock --scenario approved_not_executed
+$LASTEXITCODE  # 4: approval does not establish that an action occurred
+```
+
+Directional examples use explicitly controlled canonical observations with known
+fixture units. Provider's unknown telemetry and original collection context are
+preserved; its fixed timestamps are not turned into a chronological post-action
+sequence. All execution, causality and verified-remediation flags remain false.
+The two older commands retain their original behavior.
+
 ## Tests
 
 Run the assembled checkout, without temporary source copies:
@@ -103,9 +122,12 @@ archive with a separate new virtual environment, without Git objects or QA
 scratch copies. Installed imports and the Mock flow also worked outside that
 checkout directory. See [verification evidence](integration/VERIFICATION.md).
 
-The request-to-approval continuation adds 30 behavioral/CLI tests. The current
+The request-to-approval continuation added 30 behavioral/CLI tests. That
 suite passed **691 tests**; see the separately recorded
 [workflow verification](integration/WORKFLOW_VERIFICATION.md).
+
+The outcome milestone adds 39 tests. The current suite passed **730 tests**;
+see [outcome verification](integration/OUTCOME_VERIFICATION.md).
 
 Provider remains usable and testable with the standard library alone:
 
@@ -119,8 +141,9 @@ packages. Optional historical QA commands and their separate results are in the
 
 ## Scope and next steps
 
-The executable profiles are `infrapilot-mock-backend/1` and the opt-in
-`infrapilot-request-approval/1-mock`. Existing shared
+The executable profiles are `infrapilot-mock-backend/1`,
+`infrapilot-request-approval/1-mock`, and the opt-in
+`infrapilot-evidence-outcome/1-mock`. Existing shared
 schemas and the Provider/Triage/Setup contextual proposals keep their original
 Draft/proposal labels. No contextual HTTP route or production trust backend is
 enabled. Both existing diagnosis and approval behavior are preserved.
@@ -134,4 +157,4 @@ log-window semantics remain unverified; missing telemetry stays null/unknown.
 See [architecture and trust boundaries](integration/README.md),
 [exact selected source revisions](integration/SOURCE_REVISIONS.json), and
 [the Incident UI proposal](https://github.com/nothingness-dev/infra-pilot/pull/15).
-Neither profile implements that UI or performs infrastructure execution.
+None of these profiles implements that UI or performs infrastructure execution.

@@ -55,12 +55,16 @@ class CompletedInspection:
     request: OperationRequest
     presentation: DiagnosisPresentation
     companion: CollectionCompanion
+    prepared: PreparedCollection
+    source_binding: ServiceBinding
 
     def validate(self) -> None:
         validate_presentation(self.request, self.presentation)
         current = self.companion.to_dict()
+        envelope = self.prepared.verify_request(self.prepared.to_request(), expected_binding=self.source_binding)
         if (current != self.result.to_dict()["presentation"]
-                or current["diagnosis"] != self.presentation.to_dict()):
+                or current["diagnosis"] != self.presentation.to_dict()
+                or envelope != {"snapshot": current["snapshot"], "collection_context": current["collection_context"]}):
             raise MockIntegrationError("SETUP_ASSOCIATION_FAILED") from None
 
     def __repr__(self):
@@ -199,7 +203,7 @@ class MockSession:
             "execution_authorized": False, "execution_performed": False,
         }
         output = MockResult(json.dumps(result, ensure_ascii=True, allow_nan=False, sort_keys=True), 0 if complete else 1)
-        return CompletedInspection(output, self._request, presentation, attached.companion)
+        return CompletedInspection(output, self._request, presentation, attached.companion, self._prepared, self._binding)
 
 
 def run_mock_backend(*, mock=False, scenario="partial_failure", service_id="MOCK-service") -> MockResult:

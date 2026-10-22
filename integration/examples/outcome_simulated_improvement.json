@@ -1,0 +1,150 @@
+{
+  "action": {
+    "simulation": {
+      "canonical_action": {
+        "action_type": "restart_service",
+        "fingerprint": "2e636f6e34165ee515fc654314710fdc32ebcf42e73895cf7a4453440908d245",
+        "parameters_json": "{\"grace_period_seconds\":30}",
+        "policy_version": "triage-approval-v1",
+        "service_id": "MOCK-service"
+      },
+      "kind": "controlled_synthetic_event_not_execution_receipt",
+      "occurred_at": "2026-10-23T00:00:05+00:00",
+      "provider_support": "unverified",
+      "real_execution": false
+    },
+    "status": "simulated"
+  },
+  "association_status": "validated_mock_bindings",
+  "authorization_consumed": false,
+  "causality_established": false,
+  "changes": [
+    {
+      "after": "healthy",
+      "before": "unhealthy",
+      "change": "improved",
+      "field": "status"
+    },
+    {
+      "after": 200,
+      "before": 500,
+      "change": "improved",
+      "field": "http_status"
+    },
+    {
+      "after": 300.0,
+      "before": 1800.0,
+      "change": "improved",
+      "field": "response_time_ms"
+    },
+    {
+      "after": 20.0,
+      "before": 90.0,
+      "change": "context_only",
+      "delta": -70.0,
+      "field": "cpu_usage_percent",
+      "unit": "%"
+    },
+    {
+      "after": 800.0,
+      "before": 1200.0,
+      "change": "context_only",
+      "delta": -400.0,
+      "field": "ram_usage_mib",
+      "unit": "MiB"
+    }
+  ],
+  "comparison_scope": [
+    "reported_health",
+    "server_error_indicator",
+    "slow_response_indicator"
+  ],
+  "contract_version": "infrapilot-evidence-outcome/1-mock",
+  "error_code": null,
+  "evaluation_state": "evaluated",
+  "evidence": {
+    "after": {
+      "collection_context": null,
+      "data_source": "mock",
+      "diagnosis_binding": "sha256:34695fe5005ec4ea0ab99ed08e002eade1312435affe31e67e6bc05dd91694a5",
+      "diagnosis_limitations": [
+        "Confidence scores are deterministic heuristics, not calibrated probabilities.",
+        "This report uses one supplied snapshot; it does not establish causality or verify data provenance.",
+        "Configured heuristic thresholds: CPU >= 85 %, RAM >= 1024 MiB, response time >= 1000 ms.",
+        "RAM usage is an absolute MiB value; memory limit and utilization are unavailable.",
+        "Mock observations cannot establish the state of a real service."
+      ],
+      "logs": {
+        "received": null,
+        "state": "unavailable"
+      },
+      "measurement_semantics": "controlled-app-probe/1",
+      "measurements": {
+        "cpu_usage_percent": 20.0,
+        "http_status": 200,
+        "ram_usage_mib": 800.0,
+        "response_time_ms": 300.0,
+        "status": "healthy"
+      },
+      "observation_timestamp": "2026-10-23T00:00:10Z",
+      "provenance_verified": false,
+      "reference": "MOCK-evidence-2",
+      "request_fingerprint": "sha256:38e737b0e1f67b6f17508d1bd13bb5a49c2368f0d81193df52a82cf97ee1b1a0",
+      "source_freshness_verified": false,
+      "source_kind": "controlled_canonical"
+    },
+    "before": {
+      "collection_context": null,
+      "data_source": "mock",
+      "diagnosis_binding": "sha256:651bbe9185e6e0073cea10c4cf7a8bf8ce7cbedc183dd140be60759f5d4dcf1b",
+      "diagnosis_limitations": [
+        "Confidence scores are deterministic heuristics, not calibrated probabilities.",
+        "This report uses one supplied snapshot; it does not establish causality or verify data provenance.",
+        "Configured heuristic thresholds: CPU >= 85 %, RAM >= 1024 MiB, response time >= 1000 ms.",
+        "RAM usage is an absolute MiB value; memory limit and utilization are unavailable.",
+        "Mock observations cannot establish the state of a real service."
+      ],
+      "logs": {
+        "received": null,
+        "state": "unavailable"
+      },
+      "measurement_semantics": "controlled-app-probe/1",
+      "measurements": {
+        "cpu_usage_percent": 90.0,
+        "http_status": 500,
+        "ram_usage_mib": 1200.0,
+        "response_time_ms": 1800.0,
+        "status": "unhealthy"
+      },
+      "observation_timestamp": "2026-10-23T00:00:00Z",
+      "provenance_verified": false,
+      "reference": "MOCK-evidence-1",
+      "request_fingerprint": "sha256:38e737b0e1f67b6f17508d1bd13bb5a49c2368f0d81193df52a82cf97ee1b1a0",
+      "source_freshness_verified": false,
+      "source_kind": "controlled_canonical"
+    }
+  },
+  "execution_authorized": false,
+  "execution_performed": false,
+  "limitations": [
+    "NO_EXECUTION_OR_CAUSALITY_PROOF",
+    "COMPARISON_IS_NOT_SERVICE_RECOVERY",
+    "LOG_ABSENCE_AND_DIAGNOSIS_CONFIDENCE_NOT_COMPARED",
+    "RESOURCE_DELTAS_NOT_SERVICE_RECOVERY",
+    "ONLY_HEALTH_SERVER_ERROR_AND_LATENCY_INDICATORS_SUMMARIZED",
+    "HTTP_NON_SERVER_ERRORS_NOT_CLASSIFIED",
+    "UNCHANGED_MEANS_SAME_POLICY_INDICATORS_NOT_IDENTICAL_DATA",
+    "FRESHNESS_CHECK_APPLIES_ONLY_TO_CONTROLLED_SYNTHETIC_SAMPLES"
+  ],
+  "mode": "mock",
+  "observation_result": "observed_improvement",
+  "policy": {
+    "controlled_sample_max_age_seconds": 60,
+    "resources_directional": false,
+    "slow_response_ms": 1000.0
+  },
+  "policy_version": "controlled-observation-comparison/1",
+  "post_action_evaluation": "simulated_only",
+  "production_readiness": "unresolved",
+  "remediation_verified": false
+}
