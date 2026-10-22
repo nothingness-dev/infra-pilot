@@ -17,6 +17,9 @@ from .models import (
     DeploymentStatus, DiskUsage, MetricSeries, MetricsSummary, Observation,
     Release, ReleasePage, ServiceDetails, ServiceLog, ServiceObservations,
 )
+from .triage import (
+    CollectionSummary, LogSanitizer, TriageAdapter, TriageHandoff, TriageLog, TriageSnapshot,
+)
 
 __all__ = [
     "LiaraClient", "LiaraApiClient", "MockLiaraClient", "ProviderConfig",
@@ -27,4 +30,6 @@ __all__ = [
     "ServiceDetails", "DeploymentStatus", "ServiceLog", "MetricSeries",
     "DiskUsage", "MetricsSummary", "Release", "ReleasePage", "Observation",
     "ServiceObservations",
+    "CollectionSummary", "LogSanitizer", "TriageAdapter", "TriageHandoff",
+    "TriageLog", "TriageSnapshot",
 ]

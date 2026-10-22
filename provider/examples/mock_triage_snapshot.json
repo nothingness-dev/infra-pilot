@@ -1,0 +1,17 @@
+{
+  "service_id": "MOCK-service",
+  "status": "unknown",
+  "data_source": "mock",
+  "http_status": null,
+  "cpu_usage_percent": null,
+  "ram_usage_mib": null,
+  "response_time_ms": null,
+  "logs": [
+    {
+      "message": "Synthetic application started",
+      "level": "unknown",
+      "timestamp": null
+    }
+  ],
+  "timestamp": null
+}
