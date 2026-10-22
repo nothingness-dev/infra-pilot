@@ -1,0 +1,17 @@
+{
+  "service_id": "MOCK-service",
+  "status": "unhealthy",
+  "data_source": "mock",
+  "http_status": 500,
+  "cpu_usage_percent": null,
+  "ram_usage_mib": null,
+  "response_time_ms": null,
+  "logs": [
+    {
+      "message": "PostgreSQL connection refused",
+      "level": "error",
+      "timestamp": null
+    }
+  ],
+  "timestamp": null
+}

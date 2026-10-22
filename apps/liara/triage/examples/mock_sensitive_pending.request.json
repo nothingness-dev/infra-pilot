@@ -1,0 +1,6 @@
+{
+  "service_id": "MOCK-service",
+  "action_type": "restart_service",
+  "parameters": {},
+  "proposal": null
+}
