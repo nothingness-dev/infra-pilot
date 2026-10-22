@@ -192,3 +192,37 @@ Run the complete suite from the module:
 The Task 4 suite includes all 238 regressions and the new API/security/example
 cases. Current Starlette emits a deprecation warning for its HTTPX TestClient
 transport; tests still run. Dependency ranges are not a production lock file.
+
+## Integration QA and five-minute demo (Task 05A)
+
+The full suite now includes 37 additional HTTP integration, security, and demo
+checks. All 313 existing tests remain unchanged. QA found and fixed partial
+redaction of quoted credential values containing escaped quotes; shared schemas,
+diagnosis rules, approval policy, and route contracts are unchanged.
+
+Run the isolated demonstration after installing `requirements.txt` (the offline
+demo uses the same TestClient/HTTPX dependencies as the tests):
+
+```powershell
+Set-Location -LiteralPath 'C:\git\shared\infra-pilot\apps\liara\triage'
+.\.venv\Scripts\python.exe -m infrapilot_triage.demo --mock
+```
+
+This requires explicit MOCK opt-in, runs actual HTTP validation/diagnosis/gate
+logic in-process, and opens no network listener. It reuses existing database
+HTTP 500 and CPU/latency fixtures and shows default HTTP denial, pending approval,
+a separate MOCK approver, authorization without execution, and replay denial.
+The operator-selected MOCK restart is a separate process demonstration; it is
+not an automatically inferred database repair or a verified provider operation.
+No provider module, API credential, executor, frontend, or real identity is used.
+
+See [DEMO.md](DEMO.md) for the five-minute walkthrough, concise PowerShell output,
+and optional loopback HTTP requests. See [INTEGRATION_HANDOFF.md](INTEGRATION_HANDOFF.md)
+for exact interfaces, read-only compatibility findings from actual setup/provider
+sources, contract gaps, runtime validation, and the remaining warning.
+
+Verified Task 05A suite: 350 tests pass on Python 3.14.7 and Python 3.12.13, with
+one Starlette/HTTPX warning on each. Python 3.11 and 3.13 are unavailable here and
+were not tested. The current TestClient transport remains installed and tested;
+no dependency upgrade or warning suppression was applied. All interfaces remain
+internal DRAFTS awaiting agreement; no cross-module integration was performed.
