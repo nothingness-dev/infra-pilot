@@ -1,5 +1,11 @@
 # Provisional Liara setup module — Stages 1–3
 
+Current continuation: [TRIAGE_COMPATIBILITY.md](TRIAGE_COMPATIBILITY.md) documents
+the actual published Diagnosis integration, source SHAs and remaining producer
+gaps. `setup.triage` adds an optional canonical-model consumer; it does not move
+Setup or replace the existing application functions. The stage descriptions
+below are a historical record, not current claims that teammate code is absent.
+
 Fatima owns this isolated, framework-independent Python 3 module. Its models
 are **local proposals awaiting team agreement**, not approved shared contracts
 or a repository-wide stack decision. It uses only the Python standard library.
