@@ -1,0 +1,32 @@
+{
+  "allowed": false,
+  "reason": "approval_pending",
+  "action": {
+    "service_id": "MOCK-service",
+    "action_type": "restart_service",
+    "parameters_json": "{\"grace_period_seconds\":30}",
+    "policy_version": "triage-approval-v1",
+    "fingerprint": "2e636f6e34165ee515fc654314710fdc32ebcf42e73895cf7a4453440908d245"
+  },
+  "request": {
+    "request_id": "0a81bbfb-294f-4436-b5ff-818599f7eb15",
+    "action": {
+      "service_id": "MOCK-service",
+      "action_type": "restart_service",
+      "parameters_json": "{\"grace_period_seconds\":30}",
+      "policy_version": "triage-approval-v1",
+      "fingerprint": "2e636f6e34165ee515fc654314710fdc32ebcf42e73895cf7a4453440908d245"
+    },
+    "requested_by": {
+      "subject": "MOCK-requester"
+    },
+    "created_at": "2026-01-01T00:00:00Z",
+    "expires_at": "2026-01-01T00:05:00Z",
+    "state": "pending",
+    "approved_by": null,
+    "rejected_by": null,
+    "consumed_by": null
+  },
+  "authorization_id": null,
+  "audit_recorded": true
+}

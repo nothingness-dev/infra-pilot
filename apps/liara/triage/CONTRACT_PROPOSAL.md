@@ -146,3 +146,28 @@ These interfaces remain **internal DRAFTS requiring team approval**. They are
 **NOT official Liara API schemas**, and no setup, provider, infrastructure, or
 other teammate files are modified. No real executor or authentication backend
 is supplied. See `APPROVAL_POLICY.md` before proposing integration.
+
+## Task 4 HTTP integration proposal (internal DRAFT v0.1)
+
+The six Task 1 models and Task 2/3 behavior remain unchanged. Task 4 adds an
+internal FastAPI boundary: `ServiceSnapshot` -> `engine.diagnose` ->
+`DiagnosisReport`, plus a thin `ApprovalIntegration` over existing policy/gate
+interfaces. The API copies and sanitizes recognizable credentials from log
+messages before diagnosis, retaining evidence positions and declaring redaction
+in report limitations. The original snapshot/log schemas still preserve inputs.
+
+New module-local proposed envelopes are `HealthResponse`, `ErrorResponse`,
+`AuthorizationRequest`, and `PolicyEvaluationResponse`; they do not modify shared
+adapter/report fields. OpenAPI is available at `/openapi.json`. The app version
+is 0.1.0; v0.1 is a proposal label, not a negotiated version header or stable
+compatibility commitment. Review these additions with the team before adoption.
+
+Setup sends a provider-normalized snapshot to `/internal/triage/diagnose`, then
+presents the unchanged report. Sensitive HTTP checks default to unavailable;
+trusted server code must install verified authentication and the existing gate.
+No approval mutation or infrastructure executor is exposed. Canonical policy
+actions do not assert any real provider capability. Full routes, serialized
+examples, statuses, trusted ports, and open questions are in `API_INTEGRATION.md`.
+
+These remain **internal DRAFT contracts requiring team approval**, **NOT official
+Liara API schemas or endpoints**. No teammate-owned modules are changed.
