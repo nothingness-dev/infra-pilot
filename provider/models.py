@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 import math
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, Literal, TypeVar
 from urllib.parse import urlsplit
 
 
@@ -127,3 +127,99 @@ class ProviderResult(Generic[T]):
     data: T | None = None
     error: StructuredError | None = None
     is_mock: bool = False
+
+
+# Provider-local observation models, not an agreed ServiceSnapshot contract.
+@dataclass(frozen=True)
+class ServiceDetails:
+    service_name: str
+    provider_id: str | None
+    platform: str | None
+    native_status: str | None
+    is_deployed: bool | None
+
+
+@dataclass(frozen=True)
+class DeploymentStatus:
+    service_name: str
+    is_deployed: bool | None
+    native_status: str | None
+
+
+@dataclass(frozen=True)
+class ServiceLog:
+    message: str | None
+    native_type: str | None
+    native_datetime: str | None
+
+
+@dataclass(frozen=True)
+class MetricSeries:
+    applet: str | None
+    # The spec does not identify tuple positions, sample times, or units.
+    values: tuple[int | float | str, ...] | None
+
+
+@dataclass(frozen=True)
+class DiskUsage:
+    name: str | None
+    size: str | None
+    usage: str | None
+    reported_at: str | None
+
+
+@dataclass(frozen=True)
+class MetricsSummary:
+    cpu_usage: tuple[MetricSeries, ...] | None
+    memory_usage: tuple[MetricSeries, ...] | None
+    disks_usage: tuple[DiskUsage, ...] | None
+    cpu_unit: str | None = None
+    memory_unit: str | None = None
+    disk_unit: str | None = None
+
+
+@dataclass(frozen=True)
+class Release:
+    provider_id: str | None
+    native_state: str | None
+    created_at: str | None
+    finished_at: str | None
+    tag: str | None
+
+
+@dataclass(frozen=True)
+class ReleasePage:
+    releases: tuple[Release, ...] | None
+    total: int | float | None
+    current_release: str | None
+    ready_releases_count: int | float | None
+    page: int
+    count: int
+
+
+Availability = Literal[
+    "available", "unavailable", "not_collected", "permission_denied",
+    "authentication_failed", "not_found", "failed", "unsupported", "unverified",
+]
+
+
+@dataclass(frozen=True)
+class Observation(Generic[T]):
+    availability: Availability
+    data: T | None
+    error: StructuredError | None
+    is_mock: bool
+    collected_at: str | None
+
+
+@dataclass(frozen=True)
+class ServiceObservations:
+    service_name: str
+    collection_started_at: str
+    collection_finished_at: str
+    is_mock: bool
+    service: Observation[ServiceDetails]
+    deployment: Observation[DeploymentStatus]
+    logs: Observation[list[ServiceLog]]
+    metrics: Observation[MetricsSummary]
+    logs_since: str | None

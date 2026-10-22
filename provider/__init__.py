@@ -13,6 +13,10 @@ from .exceptions import (
     TimeoutError,
 )
 from .models import ProviderConfig, ProviderResult, ProviderStatus, SecretStr, StructuredError
+from .models import (
+    DeploymentStatus, DiskUsage, MetricSeries, MetricsSummary, Observation,
+    Release, ReleasePage, ServiceDetails, ServiceLog, ServiceObservations,
+)
 
 __all__ = [
     "LiaraClient", "LiaraApiClient", "MockLiaraClient", "ProviderConfig",
@@ -20,4 +24,7 @@ __all__ = [
     "LiaraProviderException", "AuthenticationError", "RateLimitError",
     "TimeoutError", "ApiUnavailableError", "ResourceNotFoundError",
     "NetworkError", "InvalidResponseError", "InvalidRequestError",
+    "ServiceDetails", "DeploymentStatus", "ServiceLog", "MetricSeries",
+    "DiskUsage", "MetricsSummary", "Release", "ReleasePage", "Observation",
+    "ServiceObservations",
 ]
