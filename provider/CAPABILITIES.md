@@ -101,10 +101,11 @@ other successfully collected endpoints remain available in a partial bundle.
 ## Integration boundary
 
 Models in `provider/models.py` and `collect_service_observations()` are local to
-this module. The setup coordination envelope and triage `ServiceSnapshot` draft
-were inspected only to understand expectations. Neither is finalized, imported
-or modified. No shared contracts, permissions backend, execution adapter, app
-server or deployment infrastructure are supplied in this task.
+this module. The setup coordination envelope was inspected for context; the
+triage `ServiceSnapshot` draft now has an optional provider-local projection
+described below. Neither shared contract is finalized, imported or modified.
+No permissions backend, execution adapter, app server or deployment infrastructure
+is supplied by provider.
 
 ## Live-smoke tooling follow-up (2026-10-22)
 
@@ -125,3 +126,20 @@ the conclusion only for that context/time; do not infer account-independent
 support or permissions from a successful call, and do not infer unsupported
 API capabilities from 403, 404, missing data or skipped logs. Metric units and
 other schema uncertainties above remain unverified.
+
+## Draft diagnosis compatibility follow-up (2026-10-22)
+
+The official upstream HEAD was rechecked and remains
+`338325a42cd28d12dcee10c088840d2098504a8b`; no new metric-unit or health semantics
+were established. Provider now has a local `TriageAdapter` projection and a
+synthetic draft request. [TRIAGE_HANDOFF.md](TRIAGE_HANDOFF.md) records the exact
+triage revision, conservative field mapping, per-capability sidecar, log-sharing
+policy and offline schema/ASGI QA. No shared contract is finalized by this work.
+
+Neither `LIARA_API_TOKEN` nor `LIARA_PROJECT_NAME` was present. No authenticated
+request, account/key creation or test-service provisioning was performed and no
+real captured fixture is supplied. All previous live-access and unit/semantic
+uncertainties remain unchanged. Official documentation describes token creation
+through the console, but short-lived key options and permission scopes were not
+verified in a logged-in account. Mock and in-process diagnosis tests do not
+establish any account's Liara permissions or service health.

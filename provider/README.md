@@ -102,7 +102,7 @@ and still produces a successful connection check.
 
 ## Result contracts for integration
 
-All models live in `provider.models` and are also exported by `provider`.
+Core client models live in `provider.models` and are also exported by `provider`.
 
 | Model | Fields / behavior |
 | --- | --- |
@@ -386,3 +386,38 @@ check instants. A 403/404 does not establish that Liara lacks the capability;
 available API data does not establish application health. This tool neither
 interprets metric units nor updates the capability report automatically. Review
 actual run evidence before documenting a live verification claim.
+
+## Draft diagnosis handoff
+
+`TriageAdapter`, `TriageHandoff` and `TriageSnapshot` now provide a provider-local
+projection to the team's draft `ServiceSnapshot`, without importing triage or
+adding framework dependencies. See [TRIAGE_HANDOFF.md](TRIAGE_HANDOFF.md) for the
+pinned contract revision, field mapping, optional compatibility QA and live blockers.
+
+```python
+from provider import MockLiaraClient, TriageAdapter
+
+result = TriageAdapter(MockLiaraClient()).collect(
+    "mock-project", service_id="MOCK-service",
+)
+if result.data is not None:
+    request = result.data.snapshot.to_request()  # Only this dict fits /diagnose.
+    sidecar = result.data.to_dict()  # Preserve errors, availability and limits.
+```
+
+Provide a trusted opaque service binding explicitly; no project-to-internal-ID
+mapping is assumed. Health remains `unknown`; unverified normalized metrics,
+app HTTP/response time and source timestamp remain null. Nonempty logs require
+a trusted application-specific sanitizer; they are withheld by default. Empty
+collected logs remain `[]`, unavailable/withheld logs remain null. Partial
+collection retains its handoff even when `result.success` is false.
+
+Generate the reproducible, clearly **mock** JSON request offline:
+
+```powershell
+python -B -m provider.examples.triage_handoff
+```
+
+The adapter does not call triage, consume approval, or execute operations. Real
+account/service access and a sanitized real sample remain pending environment
+credentials; offline compatibility does not constitute live verification.
