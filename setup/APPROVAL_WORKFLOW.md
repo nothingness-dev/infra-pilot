@@ -5,6 +5,13 @@ published producer implementations, preserves the previous intake/completion
 functions and does not implement a Diagnosis engine/API, policy rules, incident
 UI, provider adapter, authenticator or executor.
 
+Later opt-in continuation: [COLLECTION_CONTEXT_COMPATIBILITY.md](COLLECTION_CONTEXT_COMPATIBILITY.md)
+preserves Provider's draft context beside evidence/Diagnosis on a topic stacked
+over PR #9. That document records its newer exact producer pins and checks;
+the source history and results below remain this approval stage's checkpoint.
+The new context consumer uses only this workflow's disabled-readiness view and
+does not request/approve/reject/consume an authorization or enable execution.
+
 ## Actual source history and dependencies
 
 Verified through the selected local clone and authenticated origin access:

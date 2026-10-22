@@ -12,6 +12,12 @@ The optional consumers/tests use triage's documented dependencies in ignored
 `setup/.venv`; legacy intake and preparation remain standard-library only.
 Setup stays here and existing application functions are preserved.
 
+The opt-in [collection-context compatibility handoff](COLLECTION_CONTEXT_COMPATIBILITY.md)
+documents `setup.collection_context`, its backend-retained companion beside the
+existing evidence/Diagnosis, exact pending Provider/Triage source pins, synthetic
+checks and proposed Incident display states. It depends on Setup PR #9 and the
+reviewed producer packages; it does not enable approval or execution.
+
 ## Historical Stages 1–3
 
 The descriptions below record the original reference-only foundation, not current
