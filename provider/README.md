@@ -276,3 +276,113 @@ In addition to existing modes, `"missing"` returns null source data and
 collections/sparse details. All mock observations remain synthetic and labelled;
 mock metric numbers imply no units, and mock log timestamps do not implement
 server-side `since` filtering. Release page/count slicing is supported.
+
+## Read-only live smoke test
+
+From the repository root, run:
+
+```powershell
+python -B -m provider.examples.live_smoke
+$LASTEXITCODE
+```
+
+This tool uses the existing `LiaraClient` methods for **one configured project**:
+service details, deployment status, logs, summary metrics, and the first release
+page (the adapter's default page/count). It does not list account projects,
+probe application URLs, perform mutations, retry, or follow redirects. Service
+and deployment checks are independent calls to the same details endpoint. At
+most five GETs occur, or four when logs are skipped. Per-socket timeout and
+response-size protections are inherited from the client.
+
+### Environment-only configuration
+
+| Variable | Requirement |
+| --- | --- |
+| `LIARA_API_TOKEN` | Required token, without `Bearer `; validated by `ProviderConfig` |
+| `LIARA_PROJECT_NAME` | Required documented project name; uses the adapter's name/path validation |
+| `LIARA_LOGS_SINCE` | Optional opaque timestamp string accepted by the provider; omit to skip logs. Explicit blank or non-UTF-8 text is invalid. No timestamp format/units are guessed. |
+| `LIARA_API_BASE_URL` | Optional trusted HTTPS API base URL, validated by `ProviderConfig`; defaults to `https://api.iran.liara.ir`. This is not an application health-check URL. |
+| `LIARA_TIMEOUT_SECONDS` | Optional positive finite number, validated by `ProviderConfig`; defaults to 10 seconds |
+
+All configuration is validated before client construction or network access.
+Explicit invalid optional values are rejected rather than silently replaced.
+No command-line arguments are accepted or echoed. The tool reads no credential
+files, does not prompt, and does not write reports/configuration to disk.
+
+For a temporary PowerShell session, use a masked prompt so the token is not a
+literal in command history. The example clears the token/project environment
+variables it sets after execution:
+
+```powershell
+$liaraSmokeToken = Read-Host 'Liara API token' -AsSecureString
+try {
+    $env:LIARA_API_TOKEN = [System.Net.NetworkCredential]::new('', $liaraSmokeToken).Password
+    $env:LIARA_PROJECT_NAME = Read-Host 'Liara project name'
+
+    # Optional: set LIARA_LOGS_SINCE to a provider-supported timestamp to enable logs.
+    # Without it, the log check is explicitly reported as skipped.
+
+    python -B -m provider.examples.live_smoke
+    $liaraSmokeExitCode = $LASTEXITCODE
+} finally {
+    Remove-Item Env:LIARA_API_TOKEN -ErrorAction SilentlyContinue
+    Remove-Item Env:LIARA_PROJECT_NAME -ErrorAction SilentlyContinue
+    $liaraSmokeToken.Dispose()
+}
+$liaraSmokeExitCode
+```
+
+### Report and exit codes
+
+Stdout contains one JSON object; ordinary failures do not produce stderr or a
+traceback. Only fixed capability/status names, allowlisted error codes,
+validated HTTP error status codes, UTC check times and local check durations
+are serialized. The tool never exports project names, tokens, auth headers,
+raw response bodies, log contents, environment values, or error messages.
+`duration_ms` measures execution of an API check, not application response time.
+
+The following report is **synthetic**, illustrating one log permission failure;
+it is not evidence of authenticated access:
+
+```json
+{
+  "status": "partial",
+  "exit_code": 1,
+  "checks": [
+    {"capability": "service", "status": "available", "error_code": null, "http_status": null, "checked_at": "2026-10-22T00:00:00Z", "duration_ms": 10.2},
+    {"capability": "deployment", "status": "available", "error_code": null, "http_status": null, "checked_at": "2026-10-22T00:00:00Z", "duration_ms": 9.1},
+    {"capability": "logs", "status": "permission_denied", "error_code": "AUTHENTICATION_ERROR", "http_status": 403, "checked_at": "2026-10-22T00:00:00Z", "duration_ms": 8.4},
+    {"capability": "metrics", "status": "available", "error_code": null, "http_status": null, "checked_at": "2026-10-22T00:00:00Z", "duration_ms": 7.3},
+    {"capability": "releases", "status": "available", "error_code": null, "http_status": null, "checked_at": "2026-10-22T00:00:00Z", "duration_ms": 8.8}
+  ]
+}
+```
+
+| Exit code | Meaning |
+| --- | --- |
+| `0` | Every attempted check returned available data; an intentionally skipped log check does not prevent success. |
+| `1` | Partial result: at least one check is available and at least one attempted check failed or returned unavailable data. |
+| `2` | No attempted check returned available data, or client initialization/output failed. |
+| `3` | Missing/invalid environment configuration or unsupported command-line arguments; no network request is made. |
+| `130` | Operator interrupted the run; a fixed interrupted report replaces the incomplete report. |
+
+Per-check states are `available`, `authentication_failed` (401),
+`permission_denied` (403), `not_found` (404), `unavailable`, `skipped`, and
+`failed`. HTTP status is `null` for successful results because the existing
+adapter does not expose successful transport status; the tool does not invent
+a 200. Unavailable means `success=True, data=None`; an empty log list or a false
+deployment flag is still available data. Skipped logs have null duration/error/
+HTTP status, with a timestamp recording the skip decision.
+
+Structured provider error codes are allowlisted. Unknown codes become
+`PROVIDER_ERROR`; inconsistent client results become `INVALID_CLIENT_RESULT`;
+unexpected per-check exceptions become `UNEXPECTED_ERROR` and later checks
+continue. A mock-labelled result becomes `MOCK_RESULT` and cannot pass as live
+evidence. Bootstrap failures have a fixed top-level error code and empty checks.
+A closed output pipe returns code 2 without emitting an exception diagnostic.
+
+Access results apply only to the configured account/project and the reported
+check instants. A 403/404 does not establish that Liara lacks the capability;
+available API data does not establish application health. This tool neither
+interprets metric units nor updates the capability report automatically. Review
+actual run evidence before documenting a live verification claim.
