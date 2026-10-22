@@ -9,7 +9,7 @@ adapter or infrastructure operation is added.
 
 | Source | Actual full SHA |
 | --- | --- |
-| Current `main` / `origin/main` | `0ef27606a2500df334a651a63f57a7ecc492a441` |
+| Main integrated at compatibility checkpoint | `0ef27606a2500df334a651a63f57a7ecc492a441` |
 | Preserved Setup application boundary | `c5d037b657e7970a3d34c59ce1a28e4ce7b10463` |
 | `feature/liara-triage-foundation` (PR #2) | `2b3ed5f9d0969b816c6a1b8d4e15e0c5778b7aa1` |
 | `feature/liara-diagnosis-engine` (PR #3) | `ce19889a7c220f2d63e7036851f3178e389423c3` |
@@ -24,6 +24,12 @@ snapshot/report still have no schema version, request ID or report timestamp.
 `/health` measures process availability only. Default privileged routes return
 503; no HTTP request/approve/reject routes exist. Setup does not call the consuming
 `/authorize` route for review or polling.
+
+Final refresh found main at `9f244f93445cf59600db96e16a61980df87284ec` after the
+teammate's live-smoke-runner PR #7. Provider contracts/client/observability are
+unchanged; documentation, an opt-in example runner and its tests were added.
+That unrelated runner history is not merged into our topics or executed.
+Local tracked main is fast-forwarded separately.
 
 `feat/setup-triage-compatibility` starts at original main
 `fa84670203d920cad6535208ddcc23e43bf024af` and merges the required
