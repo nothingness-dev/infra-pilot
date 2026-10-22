@@ -9,26 +9,34 @@ adapter or infrastructure operation is added.
 
 | Source | Actual full SHA |
 | --- | --- |
-| Current `main` / `origin/main` | `fa84670203d920cad6535208ddcc23e43bf024af` |
+| Current `main` / `origin/main` | `0ef27606a2500df334a651a63f57a7ecc492a441` |
 | Preserved Setup application boundary | `c5d037b657e7970a3d34c59ce1a28e4ce7b10463` |
 | `feature/liara-triage-foundation` (PR #2) | `2b3ed5f9d0969b816c6a1b8d4e15e0c5778b7aa1` |
 | `feature/liara-diagnosis-engine` (PR #3) | `ce19889a7c220f2d63e7036851f3178e389423c3` |
 | Required `feature/liara-approval-policy` | `835e557b9d97f59522a88527117f759c9779f9d1` |
-| Provider contracts inspected, `fix/provider-auth-and-response-handling` | `c9f829f5fa8eff8f2feac520aceeb6ac4bfc3878` |
+| Newer `feature/liara-triage-api` | `428237de83631035439afa4d78d9f68f863942b9` |
+| Published provider, `feat/liara-service-observability` (merged into main) | `799c752a038a6a5ec1697411bbefb77161457e72` |
 
-No newer Diagnosis API branch was present in the fetched branch list. The active
-triage package is `apps/liara/triage/src/infrapilot_triage`, not a hypothetical
-shared API. Its `__init__` exports the actual engine, models and approval gate.
-Provider paths were inspected read-only using Git; provider history is not needed
-by this consumer and was not merged.
+The resumed fetch found the published Diagnosis API branch. The active package is
+`apps/liara/triage/src/infrapilot_triage`; its original exports, engine, schemas and
+policy are unchanged by that API history. The API is internal draft v0.1;
+snapshot/report still have no schema version, request ID or report timestamp.
+`/health` measures process availability only. Default privileged routes return
+503; no HTTP request/approve/reject routes exist. Setup does not call the consuming
+`/authorize` route for review or polling.
 
-`feat/setup-triage-compatibility` starts at main and merges only the required
+`feat/setup-triage-compatibility` starts at original main
+`fa84670203d920cad6535208ddcc23e43bf024af` and merges the required
 Approval head (which contains Diagnosis and foundation), producing integration
 commit `8e3b49ee481d1b5a6825a049a1ed44de7365fbd5`. Main already contains Setup's
 reported tip through merged PR #1. No source history is reset or rewritten.
-The compatibility draft targets `feature/liara-approval-policy` so the review
-diff contains Setup changes. `feat/setup-approval-workflow` will stack on this
-completed compatibility branch. Teammate PRs are not merged or retargeted.
+On resumption it merges current main's published provider history in
+`0be6213e2c7ee282b9dec99bf98eb07335cf06e3`, then the actual API branch in
+`7aa8f666245b97a353a1681aa9d4f8c6ac12160b`. These integrations are into our topic
+only, without editing producer code. The compatibility draft targets
+`feature/liara-triage-api`; its description distinguishes inherited already-merged
+provider history from Setup-owned changes. `feat/setup-approval-workflow` stacks
+on the completed compatibility tip. Teammate PRs are not merged or retargeted.
 
 ## Exact compatibility mapping
 
@@ -68,15 +76,31 @@ reports. The original reference-only preparation can remain `blocked` inside
 `preparation`; no fake provider/triage references are manufactured to promote it.
 Every outcome retains `execution_performed=false`, `execution_authorized=false`.
 
+`consume_diagnosis(request, evidence, report)` binds an actual producer report
+from trusted backend orchestration without recreating it.
+`setup.diagnosis_api.consume_diagnosis_response(..., status_code=..., payload=...)`
+validates a decoded successful response from the existing
+`POST /internal/triage/diagnose`; failed/unusable responses remain errors with
+constant safe messages. No server, HTTP client, retry or alternative API is added.
+The original snapshot is copied and sanitized using triage's actual
+`sanitize_snapshot` before presentation, so raw logs are not redisplayed beside
+the API's redacted report. The original input remains unchanged. This sanitizer
+is defense in depth, not a general secret detector. Frontend-returned reports
+are not accepted as trusted backend evidence or approval credentials.
+
 ## Required producer / shared decisions
 
-- Roham's actual provider supports `ping()` and `list_projects()` only. A projects
-  result, successful connection, `ProviderStatus.timestamp` or `is_mock` is not
-  service-health telemetry or an authorization principal. Example gap:
-  `ProviderResult(success=True, data=[{"project_id": "svc-A"}])` cannot supply
-  CPU, RAM, HTTP status or logs for a `ServiceSnapshot`. Publish a separately
-  reviewed observability adapter, stable project/service mapping, units, source
-  labels, sanitized logs and observation timestamps. Unavailable data must stay null.
+- Roham's provider now implements read-only details/deployment, logs, metrics,
+  releases and partial collection. Source and `provider/CAPABILITIES.md` were
+  inspected; no live access was verified. `ServiceObservations` is not a canonical
+  snapshot: native status `mock-running` is not normalized health; CPU
+  `values=("0.25",)` with `cpu_unit=None` cannot become `cpu_usage_percent`, and
+  memory with unknown units cannot become MiB. Native log type/time is not agreed
+  severity/aware source time. Collector times are not source freshness. Application
+  HTTP health/response latency is not collected. An actual mock partial bundle
+  with permission-denied logs is tested and refused as a canonical snapshot.
+  Roham must propose explicit identifier/health/unit/log-time normalization and
+  availability/window semantics; unresolved fields stay null rather than guessed.
 - Agree how a trusted composition layer associates an actual snapshot/reference
   to a Setup brief. The Setup fingerprint is a local association, not a producer
   signature, freshness proof, cross-service identity resolver or shared contract.
@@ -90,7 +114,7 @@ Every outcome retains `execution_performed=false`, `execution_authorized=false`.
   sanitized transport before production use. Snapshot `timestamp=None` is valid;
   it cannot be upgraded to current/live evidence.
 - Real authentication/ACLs, durable approval/audit storage, shared API routing and
-  provider capabilities/execution are still absent. No shared application
+  provider operation capability validation/execution are still absent. No shared application
   registration or competing Diagnosis API is implemented here.
 
 ## Git preparation and remaining remote rename
@@ -108,7 +132,7 @@ local refs were renamed non-overwriting at exactly the same SHAs:
 The last three remote refs were renamed using GitHub's native mechanism after
 checking protection and open PR heads/bases. Their new upstreams and SHAs match.
 No open PR used those refs; PR #1 was already merged. No manual remote ref deletion
-or force-push was used. Main and open teammate PRs #2/#3 remain intact.
+or force-push was used. Main and open teammate PRs #2/#3/#4 remain intact.
 
 **Pending:** remote `feat/liara-fatima-setup-foundation` at
 `9c6e7229e126f203369c901638a6d06e8aa5b370` is still GitHub's default branch.
@@ -132,7 +156,7 @@ would generate files in teammate paths. No shared dependency file was changed.
 
 ```powershell
 python -m venv setup/.venv
-setup/.venv/Scripts/python.exe -m pip install "pydantic>=2,<3" "pytest>=8,<10"
+setup/.venv/Scripts/python.exe -m pip install "pydantic>=2,<3" "pytest>=8,<10" "fastapi>=0.115,<1" "uvicorn>=0.30,<1" "httpx>=0.27,<1"
 $env:PYTHONPATH = (Resolve-Path apps/liara/triage/src).Path
 setup/.venv/Scripts/python.exe -B -m unittest discover -s setup/tests -t .
 Push-Location apps/liara/triage
@@ -141,7 +165,15 @@ try {
 } finally { Pop-Location }
 ```
 
-Verified compatibility branch: 62 Setup tests and 238 triage tests passed on
-Python 3.14.8, Pydantic 2.14.1 and pytest 9.1.1. No provider/live API test is claimed.
+The initial checkpoint was independently rerun: 62 Setup / 238 triage tests passed.
+After integrating the newer API: **69 Setup / 313 triage tests pass** on Python
+3.14.8, Pydantic 2.14.1, pytest 9.1.1, FastAPI 0.159.1, Starlette 1.9.0,
+HTTPX 0.28.1 and Uvicorn 0.54.0. The documented Starlette HTTPX TestClient
+deprecation warning remains. API tests are in-process; no live provider/API test
+is claimed.
 Fixtures clearly label all synthetic service evidence `mock`. There is no
 repository-wide linter, shared manifest or root CI command in the inspected tree.
+The producer guide's `C:\git\shared` path belongs to its workstation. The user
+explicitly authorized this verified clone at `C:\Users\FATIMA\GitHub\infra-pilot`;
+the same documented dependency/source contracts are tested here, keeping generated
+environment artifacts inside ignored `setup/.venv`.

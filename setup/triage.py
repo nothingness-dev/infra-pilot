@@ -107,15 +107,28 @@ class DiagnosisPresentation:
         }
 
 
-def prepare_diagnosis(request: OperationRequest, evidence: SnapshotEvidence) -> DiagnosisPresentation:
-    """Run the actual engine on supplied observations, retaining its complete report."""
+def consume_diagnosis(
+    request: OperationRequest, evidence: SnapshotEvidence, report: DiagnosisReport,
+) -> DiagnosisPresentation:
+    """Bind an actual producer report retained by trusted backend orchestration."""
     snapshot = _snapshot(request, evidence)
+    if not isinstance(report, DiagnosisReport):
+        raise SetupIntegrationError("invalid_diagnosis", "Expected the canonical DiagnosisReport.")
+    try:
+        report = DiagnosisReport.model_validate(report.model_dump(warnings=False))
+    except ValidationError:
+        raise SetupIntegrationError("invalid_diagnosis", "DiagnosisReport validation failed.") from None
     current = OperationRequest(request.request_id, request.operation, dict(request.details))
     detached = SnapshotEvidence(snapshot, evidence.association)
-    report = diagnose(snapshot)
     presentation = DiagnosisPresentation(current, detached, report, _digest(current, detached, report))
     validate_presentation(current, presentation)
     return presentation
+
+
+def prepare_diagnosis(request: OperationRequest, evidence: SnapshotEvidence) -> DiagnosisPresentation:
+    """Run the actual engine on supplied observations, retaining its complete report."""
+    snapshot = _snapshot(request, evidence)
+    return consume_diagnosis(request, evidence, diagnose(snapshot))
 
 
 def validate_presentation(request: OperationRequest, presentation: DiagnosisPresentation) -> None:
