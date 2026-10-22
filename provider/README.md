@@ -5,7 +5,8 @@ Roham owns this isolated `provider/` package for InfraPilot. It uses **Python
 or network access is required to run its tests. Package markers are named
 `__init__.py` (Python's import/discovery convention), rather than `init.py`.
 
-The public API checks connection/authentication and lists projects. It does not
+The public API checks connection/authentication, lists projects, and collects
+read-only service/deployment, log, metric and release observations. It does not
 create or modify infrastructure. It has no dependency on Fatima's `setup/`, and
 does not change that module's models or integration contracts.
 
@@ -87,12 +88,13 @@ empty = MockLiaraClient(failure_mode="empty").list_projects()
 assert empty.success and empty.data == []
 ```
 
-`MockLiaraClient(config=None, *, failure_mode=None)` always forces mock mode on
+`MockLiaraClient(config=None, *, failure_mode=None, failure_modes=None)` forces mock mode on
 a copied config, even when given a live config. It never constructs an HTTP
 opener or opens a socket. Every result, including errors, has `is_mock=True`.
 Fixtures are fresh on each call; caller mutations do not affect later calls.
 
-Supported modes: `None` (normal), `"empty"`, `"timeout"`, `"unauthorized"` (401),
+Supported modes: `None` (normal), `"empty"`, `"missing"`, `"invalid_response"`,
+`"timeout"`, `"unauthorized"` (401),
 `"forbidden"` (403), `"rate_limit"` (429), `"not_found"` (404), `"unavailable"`
 (503), or any integer HTTP error status from 400 through 599. Unknown modes
 raise a safe `ValueError`. Empty means a valid account with zero projects,
@@ -168,7 +170,7 @@ header. Empty 200, non-finite JSON values (including exponent overflow such as
 `1e999`) and malformed project shapes are rejected. `HEAD` succeeds without
 reading or parsing a response body. The internal
 transport supports JSON payloads and URL-encoded query parameters for future
-adapters; only `ping()` and `list_projects()` are public provider operations.
+adapters; all public provider operations are read-only.
 
 ## Secret handling
 
@@ -190,3 +192,87 @@ adapters; only `ping()` and `list_projects()` are public provider operations.
 - TLS verification uses urllib's default HTTPS behavior. Redirects are blocked,
   and Authorization is also registered as an unredirected header. No global
   urllib opener is installed or modified.
+
+## Service observations
+
+See [CAPABILITIES.md](CAPABILITIES.md) for pinned official API evidence, access
+limitations, native response schemas, and unverified units/time semantics.
+All additions reuse the protected transport. Runtime dependencies remain zero.
+
+| Public method | Local result data |
+| --- | --- |
+| `get_service(name)` | `ServiceDetails`: selected identifier/platform/native status/deployment fields |
+| `get_deployment_status(name)` | `DeploymentStatus`: native deployment flag and status from project details |
+| `get_logs(name, *, since)` | List of `ServiceLog`; required opaque nonblank timestamp string |
+| `get_metrics(name)` | `MetricsSummary` of native series and disk strings; units remain `None` |
+| `list_releases(name, *, page=1, count=10)` | One `ReleasePage`, retaining native states and order |
+| `collect_service_observations(name, *, logs_since=None, include_metrics=True)` | `ServiceObservations` with per-component data, availability, error, origin and collector timestamps |
+
+Every method returns `ProviderResult` with its existing `is_mock` flag. Retain
+that flag when forwarding data. Null/sparse responses can yield
+`success=True, data=None` for unavailable observations; malformed structures
+yield `INVALID_RESPONSE`. Missing fields stay `None`, empty arrays stay empty,
+and false/zero remain measured values. Native status strings are not mapped to
+healthy/unhealthy. CPU/memory samples are not converted to percent/MiB. API
+latency is not exported as an application response-time measurement.
+
+Project `envs` and unrestricted metadata are excluded from selected detail and
+release models. Returned `project_id`, when present, must match the request.
+`ServiceLog` retains `message`, `native_type`, `native_datetime`; no severity or
+timezone is guessed. These dataclasses are module-local and independent of the
+team's unapproved `ServiceSnapshot` draft.
+
+```python
+import json
+import os
+from dataclasses import asdict
+from provider import LiaraClient, MockLiaraClient, ProviderConfig
+
+# For live calls, set LIARA_API_TOKEN and initialize with the same methods:
+# live = LiaraClient(ProviderConfig(api_key=os.environ["LIARA_API_TOKEN"]))
+mock = MockLiaraClient(failure_modes={"logs": 403})
+
+result = mock.collect_service_observations(
+    "example-api", logs_since="2026-01-01T00:00:00Z",
+)
+assert not result.success
+assert result.error.code == "PARTIAL_COLLECTION"
+assert result.data.service.availability == "available"
+assert result.data.logs.availability == "permission_denied"
+assert result.data.logs.error.http_status == 403
+assert result.data.is_mock and result.is_mock
+print(json.dumps(asdict(result), allow_nan=False))
+
+# These each make a single read-only request when used with the live client:
+# details = live.get_service("your-project-name")
+# logs = live.get_logs("your-project-name", since="provider-supported-timestamp")
+# releases = live.list_releases("your-project-name", page=1, count=10)
+```
+
+The collector always reads service details once and derives deployment from
+that same response. It optionally makes one log request (only with explicit
+`logs_since`) and one metrics request. At most three sequential GETs occur;
+release pages are fetched separately and never implicitly paged. Optional flags
+are validated before any request. A skipped component has `not_collected`, null
+data/error/time. Every requested component gets its own UTC collection time,
+availability and error. Source timestamps remain distinct from collection time.
+
+An unsuccessful bundle **retains its valid data**. `PARTIAL_COLLECTION` means at
+least one component is available but some requested data is unavailable/failed;
+`COLLECTION_FAILED` means none is available. The bundle's `http_status` is `None`,
+because multiple requests are involved; inspect the component errors. Bundle
+`retryable` is true when any component error is retryable. Inspect individual
+components when retrying instead of assuming every request needs repetition.
+
+### Extended offline modes
+
+`MockLiaraClient(..., failure_modes={...})` accepts copied capability overrides:
+`projects`, `service`, `logs`, `metrics`, `releases`. The global `failure_mode`
+remains the default; an explicit override of `None` restores normal success for
+that capability. `get_deployment_status()` shares the `service` mode.
+
+In addition to existing modes, `"missing"` returns null source data and
+`"invalid_response"` returns a malformed source shape. `"empty"` supplies empty
+collections/sparse details. All mock observations remain synthetic and labelled;
+mock metric numbers imply no units, and mock log timestamps do not implement
+server-side `since` filtering. Release page/count slicing is supported.
