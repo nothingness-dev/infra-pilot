@@ -1,0 +1,20 @@
+# Local environment and Python build products
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Test caches and temporary files
+.pytest_cache/
+.tmp/
+*.tmp
+*.temp
+*~
+*.swp
+*.swo
+
+# Local credentials and environment configuration
+.env
+.env.*
