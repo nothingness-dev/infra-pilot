@@ -1,0 +1,69 @@
+{
+  "collection_context": {
+    "capabilities": [
+      {
+        "availability": "available",
+        "capability": "service",
+        "collected_at": "2026-10-22T00:00:00+00:00",
+        "error_code": null,
+        "http_status": null,
+        "retryable": null
+      },
+      {
+        "availability": "available",
+        "capability": "deployment",
+        "collected_at": "2026-10-22T00:00:00+00:00",
+        "error_code": null,
+        "http_status": null,
+        "retryable": null
+      },
+      {
+        "availability": "unavailable",
+        "capability": "logs",
+        "collected_at": "2026-10-22T00:00:00+00:00",
+        "error_code": null,
+        "http_status": null,
+        "retryable": null
+      },
+      {
+        "availability": "available",
+        "capability": "metrics",
+        "collected_at": "2026-10-22T00:00:00+00:00",
+        "error_code": null,
+        "http_status": null,
+        "retryable": null
+      }
+    ],
+    "collection_finished_at": "2026-10-22T00:00:00+00:00",
+    "collection_started_at": "2026-10-22T00:00:00+00:00",
+    "contract_version": "provider-collection-context/0.2-draft",
+    "data_source": "mock",
+    "limitations": [
+      "HEALTH_STATUS_UNVERIFIED",
+      "APPLICATION_HTTP_NOT_MEASURED",
+      "CPU_RAM_UNITS_UNVERIFIED",
+      "SOURCE_TIMESTAMPS_UNVERIFIED",
+      "LOG_WINDOW_COMPLETENESS_UNVERIFIED",
+      "DEPLOYMENT_RELEASE_FIELDS_NOT_IN_DRAFT"
+    ],
+    "log_export": {
+      "exported": 0,
+      "received": null,
+      "state": "unavailable",
+      "withheld": 0
+    },
+    "service_id": "MOCK-service",
+    "snapshot_digest": "sha256:f809af869a16d4ba232fdd7842e22496fc8b9c6edc78dfa3d648a598282e38fb"
+  },
+  "snapshot": {
+    "cpu_usage_percent": null,
+    "data_source": "mock",
+    "http_status": null,
+    "logs": null,
+    "ram_usage_mib": null,
+    "response_time_ms": null,
+    "service_id": "MOCK-service",
+    "status": "unknown",
+    "timestamp": null
+  }
+}
