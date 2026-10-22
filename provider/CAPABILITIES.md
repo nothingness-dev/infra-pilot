@@ -143,3 +143,13 @@ uncertainties remain unchanged. Official documentation describes token creation
 through the console, but short-lived key options and permission scopes were not
 verified in a logged-in account. Mock and in-process diagnosis tests do not
 establish any account's Liara permissions or service health.
+
+## Collection-context preparation follow-up (2026-10-22)
+
+An experimental provider-local Draft v0.2 envelope and synthetic fixtures now
+preserve collection metadata beside the unchanged snapshot. Executed offline QA
+uses actual Task 05A and Setup code; see
+[COLLECTION_CONTEXT_DRAFT.md](COLLECTION_CONTEXT_DRAFT.md). No new Liara endpoint,
+unit interpretation or live support conclusion is introduced. Current coordination
+keeps testing Mock, and no authenticated live request was made. Service health,
+metric units, permissions and source-window uncertainties remain as above.

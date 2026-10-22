@@ -1,5 +1,11 @@
 # Provider to diagnosis handoff (INTERNAL DRAFT v0.1)
 
+**Follow-up:** PR #10 is merged. The opt-in provider-local Draft v0.2 proposal and
+executed compatibility checks against Task 05A / current Setup are documented in
+[COLLECTION_CONTEXT_DRAFT.md](COLLECTION_CONTEXT_DRAFT.md). The existing snapshot,
+sidecar wire shape and diagnosis endpoint below are preserved. The historical
+counts/revisions below record the original PR #10 verification checkpoint.
+
 Reviewed on 2026-10-22 against triage commit
 [`428237de83631035439afa4d78d9f68f863942b9`](https://github.com/nothingness-dev/infra-pilot/tree/428237de83631035439afa4d78d9f68f863942b9/apps/liara/triage).
 PRs #5 and #7 containing the provider and live-smoke tooling are merged into

@@ -421,3 +421,24 @@ python -B -m provider.examples.triage_handoff
 The adapter does not call triage, consume approval, or execute operations. Real
 account/service access and a sanitized real sample remain pending environment
 credentials; offline compatibility does not constitute live verification.
+
+## Experimental collection context (Draft v0.2)
+
+An opt-in provider-local proposal now pairs the unchanged snapshot with
+`collection_context`. It preserves per-capability errors/retry hints, collector
+times, limitations and log export counts. Trusted bindings select the exact
+project/client scope; a retained `PreparedCollection` checks the entire submitted
+snapshot/context against backend state. Digests are not authentication or approval.
+
+See [COLLECTION_CONTEXT_DRAFT.md](COLLECTION_CONTEXT_DRAFT.md) for the proposed
+fields, trust boundary, seven synthetic fixtures and executed Setup/Task 05A QA.
+The existing endpoint still accepts only `ServiceSnapshot`; this new envelope
+is not sent anywhere automatically and has no implemented HTTP consumer.
+
+```powershell
+python -B -m provider.examples.context_demo --mock
+```
+
+This explicit offline demo prints a synthetic partial-failure envelope and needs
+no token. Previous snapshot/sidecar wire shapes remain unchanged. Shared Task 05B
+adoption, endpoint decisions, real credentials and live verification remain pending.
