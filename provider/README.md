@@ -65,6 +65,37 @@ use HTTPS, without embedded credentials, a query, or a fragment. The timeout
 must be positive and finite. Invalid configuration raises a fixed-message
 `ValueError` before network access.
 
+Optional keyword-only `team_id` follows the official CLI's request scope:
+`None` keeps the previous request behavior, `""` explicitly sends personal
+`teamID=`, and a nonempty identifier selects a team. Shared environment parsing
+uses `LIARA_TEAM_ID`, preserving an explicitly empty value. It applies to every
+read request, alongside existing log/release query parameters. This is account
+selection, not proof of ownership or sufficient permissions. The identifier is
+hidden from config repr and `to_dict()`; invalid values raise fixed errors.
+See [source evidence and limitations](CAPABILITIES.md#project-access-investigation-2026-10-23).
+
+For safe exact project resolution and one Provider → Diagnosis → Setup inspection
+with optional summary history, use the existing integration CLI's additive mode:
+
+```powershell
+.\.venv\Scripts\python.exe -B -m integration.readonly_inspection --live-read-only --verify-access --history-database .tmp/liara-readonly/history.sqlite
+```
+
+Create the parent directory and configure the existing environment settings first;
+follow the [secure PowerShell procedure](../integration/LIVE_VERIFICATION.md).
+In Windows PowerShell 5.1 an empty environment assignment removes the variable;
+the linked procedure shows a child-process-only personal-scope setting that works
+there too. Never put a token in a command argument or paste it into chat.
+
+The stdlib-only `provider.diagnostics.check_project_access(client, project)` reuses
+`list_projects()` once, matches only exact `project_id`, and exports fixed states,
+safe error/status/retryability, structural counts and local timing. It prints
+nothing. Empty visible lists, absent targets, malformed data, 401, 403, 404, 429,
+timeout, network and server errors remain distinct; no target is guessed. The
+integration entry point provides explicit opt-in and pre-construction validation.
+No new independent client, parser or runtime dependency was introduced. The
+original `provider.examples.live_smoke` command/output remains available.
+
 ## Offline mock
 
 ```python

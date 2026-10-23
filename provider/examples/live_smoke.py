@@ -14,6 +14,7 @@ from typing import Any
 
 from provider import LiaraClient, ProviderConfig, ProviderResult, StructuredError
 from provider.environment import LiveSettings as _Settings, read_live_settings
+from provider.diagnostics import SAFE_ERROR_CODES, summarize_result
 
 
 EXIT_SUCCESS = 0
@@ -23,11 +24,7 @@ EXIT_INVALID_CONFIGURATION = 3
 EXIT_INTERRUPTED = 130
 
 _CAPABILITIES = ("service", "deployment", "logs", "metrics", "releases")
-_ERROR_CODES = frozenset({
-    "AUTHENTICATION_ERROR", "RATE_LIMITED", "TIMEOUT", "API_UNAVAILABLE",
-    "RESOURCE_NOT_FOUND", "NETWORK_ERROR", "INVALID_RESPONSE", "INVALID_REQUEST",
-    "PROVIDER_ERROR", "PARTIAL_COLLECTION", "COLLECTION_FAILED",
-})
+_ERROR_CODES = SAFE_ERROR_CODES
 
 
 def _settings(environment: Mapping[str, str]) -> _Settings:
@@ -41,23 +38,8 @@ def _now() -> str:
 
 def _summary(result: ProviderResult) -> tuple[str, str | None, int | None]:
     """Never serialize provider data, error messages, or unrecognized codes."""
-    if not isinstance(result, ProviderResult) or type(result.success) is not bool:
-        return "failed", "INVALID_CLIENT_RESULT", None
-    if result.is_mock is not False:
-        return "failed", "MOCK_RESULT", None
-    if result.success:
-        if result.error is not None:
-            return "failed", "INVALID_CLIENT_RESULT", None
-        return ("unavailable" if result.data is None else "available"), None, None
-    error = result.error
-    if not isinstance(error, StructuredError):
-        return "failed", "INVALID_CLIENT_RESULT", None
-    status = error.http_status
-    if type(status) is not int or not 100 <= status <= 599:
-        status = None
-    code = error.code if type(error.code) is str and error.code in _ERROR_CODES else "PROVIDER_ERROR"
-    state = {401: "authentication_failed", 403: "permission_denied", 404: "not_found"}.get(status, "failed")
-    return state, code, status
+    summary = summarize_result(result)
+    return summary["status"], summary["error_code"], summary["http_status"]
 
 
 def _report(checks: list[dict[str, Any]]) -> dict[str, Any]:
