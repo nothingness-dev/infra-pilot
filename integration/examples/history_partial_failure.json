@@ -1,0 +1,103 @@
+{
+  "example_provenance": "offline_mock_history_not_live_evidence",
+  "live_verification_performed": false,
+  "result": {
+    "authorization_consumed": false,
+    "data_source": "mock",
+    "execution_authorized": false,
+    "execution_performed": false,
+    "exit_code": 0,
+    "history_only": true,
+    "history_profile": "infrapilot-inspection-history/1",
+    "records": [
+      {
+        "record_id": "sha256:cf229fe9f718ff4ea7be3b0638644656864fb32db697ed3053d4c4e8da1f09ab",
+        "sequence": 1,
+        "stored_at": "2026-10-23T08:25:58.873636+00:00",
+        "summary": {
+          "application_health": "unknown",
+          "application_http_status": null,
+          "application_response_time_ms": null,
+          "authorization_consumed": false,
+          "binding_digest": "sha256:7c3935940aa186f96f6f8229b34e0235bef2cae7ec3b007edbe55ac540075244",
+          "capabilities": [
+            {
+              "availability": "available",
+              "capability": "service",
+              "collected_at": "2026-10-22T00:00:00+00:00",
+              "error_code": null,
+              "http_status": null,
+              "retryable": null
+            },
+            {
+              "availability": "available",
+              "capability": "deployment",
+              "collected_at": "2026-10-22T00:00:00+00:00",
+              "error_code": null,
+              "http_status": null,
+              "retryable": null
+            },
+            {
+              "availability": "permission_denied",
+              "capability": "logs",
+              "collected_at": "2026-10-22T00:00:00+00:00",
+              "error_code": "AUTHENTICATION_ERROR",
+              "http_status": 403,
+              "retryable": false
+            },
+            {
+              "availability": "failed",
+              "capability": "metrics",
+              "collected_at": "2026-10-22T00:00:00+00:00",
+              "error_code": "RATE_LIMITED",
+              "http_status": 429,
+              "retryable": true
+            }
+          ],
+          "context_digest": "sha256:a2e0857ef0e40c9b5cf485551ede15d61d4fcfadff504cd731dbf0ea71613d4f",
+          "contract_version": "infrapilot-inspection-history/1",
+          "cpu_usage_percent": null,
+          "data_source": "mock",
+          "diagnosis_counts": {
+            "actions": 1,
+            "evidence": 1,
+            "hypotheses": 0,
+            "limitations": 5,
+            "missing_information": 7
+          },
+          "execution_authorized": false,
+          "execution_performed": false,
+          "freshness_evaluated": false,
+          "history_only": true,
+          "limitations": [
+            "HEALTH_STATUS_UNVERIFIED",
+            "APPLICATION_HTTP_NOT_MEASURED",
+            "CPU_RAM_UNITS_UNVERIFIED",
+            "SOURCE_TIMESTAMPS_UNVERIFIED",
+            "LOG_WINDOW_COMPLETENESS_UNVERIFIED",
+            "DEPLOYMENT_RELEASE_FIELDS_NOT_IN_DRAFT"
+          ],
+          "logs": {
+            "exported": 0,
+            "received": null,
+            "state": "collection_failed",
+            "withheld": 0
+          },
+          "pipeline_error": null,
+          "provenance_verified": false,
+          "ram_usage_mib": null,
+          "remediation_verified": false,
+          "report_digest": "sha256:768930c9e6af2b5b731e2cf238fb245506813c5fec67eb02a581b6f15a4d4421",
+          "request_fingerprint": "sha256:a71422a710bb82dfff19270c4c1130b3c3d3a3e7da22e97ee8ae30f3bea1040d",
+          "request_id_digest": "sha256:6b2dfbfb974b5a8ee7eb0967d8141dd3533cef9d5bca2b0c5df4386417e18fca",
+          "snapshot_digest": "sha256:f809af869a16d4ba232fdd7842e22496fc8b9c6edc78dfa3d648a598282e38fb",
+          "source_timestamp": null,
+          "stage": "complete"
+        }
+      }
+    ],
+    "returned_count": 1,
+    "saved_record_id": "sha256:cf229fe9f718ff4ea7be3b0638644656864fb32db697ed3053d4c4e8da1f09ab",
+    "status": "recorded"
+  }
+}

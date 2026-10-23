@@ -1,5 +1,10 @@
 # InfraPilot: backend inspection and offline Mock workflows
 
+[Persistent inspection history](integration/HISTORY.md) now saves validated,
+allowlisted inspection summaries to local SQLite and reads them after a process
+restart. It archives errors and missing-data states without storing tokens, log
+text or free-form requests, and never revives trust or approval authority.
+
 This repository assembles the existing Provider, Triage and Setup into
 one **explicitly Mock** Python flow. The actual Provider collector/normalizer,
 Triage diagnosis engine and Setup companion/presentation execute in-process.
@@ -135,9 +140,12 @@ suite passed **691 tests**; see the separately recorded
 The outcome milestone added 39 tests. Its checkpoint passed **730 tests**;
 see [outcome verification](integration/OUTCOME_VERIFICATION.md).
 
-The read-only composition adds 35 tests across integration and Provider. The
-current suite passes **765 tests**; see
+The read-only composition added 35 tests across integration and Provider. Its
+checkpoint passed **765 tests**; see
 [read-only verification](integration/READONLY_VERIFICATION.md).
+
+Persistent inspection history adds 27 tests. The current suite passes **792
+tests**; see [history verification](integration/HISTORY_VERIFICATION.md).
 
 Provider remains usable and testable with the standard library alone:
 

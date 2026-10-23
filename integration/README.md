@@ -1,5 +1,9 @@
 # Mock backend integration profile
 
+[Persistent inspection history](HISTORY.md) adds opt-in local SQLite storage for
+validated summaries, with an offline record/list demo. Historical records do not
+restore current producer references, identity, approvals or execution authority.
+
 The separate [local read-only Liara inspection](READONLY_INSPECTION.md) now
 connects the real adapter to Diagnosis/Setup behind explicit opt-in and validated
 environment configuration. Its CLI exports a data-free summary. Live account
