@@ -2017,3 +2017,420 @@ dialog::backdrop {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
+
+/* --- Setup Wizard Styles --- */
+.setup-wizard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.panel-lead {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 0 0 16px 0;
+}
+.hardware-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+.hardware-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.hardware-card:hover {
+  border-color: var(--cyan);
+}
+.hardware-card.selected {
+  border-color: var(--cyan);
+  background: var(--raised);
+}
+.hardware-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.hardware-card-head strong {
+  font-size: 13px;
+  color: var(--text);
+}
+.hardware-specs {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.hardware-specs span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.hardware-card small {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* Environment Variables List */
+.env-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.env-header button.small {
+  padding: 6px 10px;
+  font-size: 11px;
+  margin: 0;
+}
+.env-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0;
+}
+.env-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+}
+.env-key {
+  flex: 1;
+  font-family: monospace;
+  font-size: 12px;
+}
+.env-value-wrapper {
+  flex: 1.5;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.env-value {
+  width: 100%;
+  padding-inline-end: 32px;
+  font-family: monospace;
+  font-size: 12px;
+}
+.env-toggle-secret {
+  position: absolute;
+  inset-inline-end: 6px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.env-secret-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+.env-remove {
+  padding: 6px;
+  color: var(--danger);
+  border-radius: 4px;
+}
+.env-remove:hover {
+  background: var(--danger-bg);
+}
+
+/* DNS Guidance Box */
+.dns-guidance-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 16px;
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dns-guidance-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font-size: 13px;
+}
+.dns-guidance-card p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 0;
+}
+.dns-record-box {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+}
+.dns-record-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dns-label {
+  font-size: 11px;
+  color: var(--muted);
+}
+.dns-value {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--cyan);
+  background: var(--surface);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+/* SSL Status Card */
+.ssl-status-card {
+  border: 1px solid var(--cyan-border);
+  border-radius: 8px;
+  background: var(--cyan-bg);
+  padding: 14px 16px;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ssl-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ssl-card-head strong {
+  font-size: 13px;
+  color: var(--text);
+}
+.ssl-card-head small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+}
+.ssl-status-card p {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* Missing Info & Validation */
+.missing-info-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.missing-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.missing-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-inline-start: 3px solid var(--danger);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+.missing-card-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.missing-card-info strong {
+  font-size: 12px;
+  color: var(--text);
+}
+.missing-card-info p {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 2px 0 0 0;
+}
+.missing-card button.small {
+  padding: 6px 10px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+/* Validation Success Box */
+.validation-success-box {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.success-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--cyan-bg);
+  border: 1px solid var(--cyan-border);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.success-banner strong {
+  font-size: 13px;
+  color: var(--text);
+}
+.success-banner p {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 2px 0 0 0;
+  line-height: 1.8;
+}
+.validation-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+}
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.summary-item span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.summary-item strong {
+  font-size: 12px;
+  color: var(--text);
+}
+
+/* Workflow Steps Timeline */
+.workflow-plan-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 14px 0;
+}
+.workflow-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 14px 0;
+}
+.setup-workflow-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.workflow-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--cyan-bg);
+  border: 1px solid var(--cyan-border);
+  color: var(--cyan);
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.step-content strong {
+  font-size: 12px;
+  color: var(--text);
+  display: block;
+  margin-bottom: 3px;
+}
+.step-content p {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.8;
+}
+.step-content code {
+  font-family: monospace;
+  font-size: 11px;
+  background: var(--raised);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--cyan);
+}
+
+/* Crucial Guardrail Alert Box */
+.guardrail-alert-box {
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  background: var(--danger-bg);
+  padding: 16px;
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.guardrail-alert-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.guardrail-badge-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.guardrail-alert-head strong {
+  font-size: 13px;
+  color: var(--danger);
+  line-height: 1.8;
+}
+.guardrail-description {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.9;
+  margin: 0;
+}
+.action-approval-button {
+  background: var(--cyan);
+  color: #06111f;
+  border-color: var(--cyan);
+  font-weight: 600;
+}
+.action-approval-button:hover {
+  background: #1cc6dd;
+}
+@media (max-width: 800px) {
+  .hardware-plans-grid, .dns-record-box { grid-template-columns: minmax(0, 1fr); }
+  .env-row { flex-wrap: wrap; }
+  .env-key, .env-value-wrapper { flex: 1 1 100%; min-width: 0; }
+  .dns-value { overflow-wrap: anywhere; }
+  .missing-card { flex-wrap: wrap; }
+}

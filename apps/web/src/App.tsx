@@ -28,7 +28,9 @@ import {
   ArrowClockwise,
   ArrowLeft,
   Plus,
+  RocketLaunch,
 } from "@phosphor-icons/react";
+import { SetupPage } from "./Setup";
 import {
   exportSchema,
   defaults,
@@ -67,6 +69,7 @@ import {
 const navigation = [
   { path: "/", title: "داشبورد", icon: House },
   { path: "/services", title: "سرویس‌ها", icon: Cube },
+  { path: "/setup", title: "راه‌اندازی سرویس", icon: RocketLaunch },
   { path: "/incidents", title: "رخدادها", icon: Bell },
   { path: "/analysis", title: "تحلیل هوشمند", icon: Brain },
   { path: "/approvals", title: "تأیید عملیات", icon: ShieldCheck },
@@ -463,6 +466,7 @@ function Pages({
   onPreferences: (p: Preferences) => void;
 }) {
   if (path === "/") return <Dashboard c={c} />;
+  if (path === "/setup") return <SetupPage c={c} />;
   if (path === "/services") return <Services c={c} />;
   if (path.startsWith("/services/"))
     return path.slice(10) === encodeURIComponent(c.data.service.id) ? (
@@ -1487,6 +1491,35 @@ function Analysis({ c }: { c: Context }) {
   );
 }
 
+function SetupRequests({ c }: { c: Context }) {
+  const selected = new URLSearchParams(window.location.search).get("setup");
+  const plans = c.data.setup_requests;
+  if (!plans.length) return null;
+  return <Panel title="برنامه‌های راه‌اندازی ثبت‌شده">
+    <Notice>برنامه‌های MOCK زیر در بک‌اند ذخیره شده‌اند. ایجاد سرویس در Gate فعلی پشتیبانی نمی‌شود؛ تأیید یا اجرای این برنامه‌ها فعال نیست.</Notice>
+    {plans.map((plan) => <article key={plan.id} id={plan.id} className="panel" aria-label={"برنامه " + plan.brief.service_id}>
+      <h3>{plan.brief.service_id}</h3>
+      <bdi>{plan.id}</bdi>
+      {selected === plan.id && <Badge>برنامهٔ ارسال‌شده</Badge>}
+      <Badge tone="warning">مسدود · عملیات پشتیبانی نمی‌شود</Badge>
+      <dl className="facts">
+        <dt>عملیات</dt><dd><bdi>{plan.operation}</bdi></dd>
+        <dt>پلتفرم</dt><dd><bdi>{plan.brief.platform}</bdi></dd>
+        <dt>پلن آزمایشی</dt><dd><bdi>{plan.brief.plan}</bdi></dd>
+        <dt>دامنهٔ درخواستی</dt><dd><bdi>{plan.brief.custom_domain || "تعیین نشده"}</bdi></dd>
+        <dt>نام متغیرها</dt><dd><bdi>{plan.brief.environment_keys.join(", ") || "ندارد"}</bdi></dd>
+        <dt>زمان ثبت</dt><dd>{c.date(plan.created_at)}</dd>
+      </dl>
+      <p>مقادیر محیطی دریافت نشده‌اند. مجوز اجرا صادر نشده و هیچ سرویسی ایجاد نشده است.</p>
+      {plan.preparation && <>
+        <p>گام‌های تولیدشده توسط ماژول Setup:</p>
+        <ol>{plan.preparation.step_keys.map((key) => <li key={key}><bdi>{key}</bdi></li>)}</ol>
+        <p>وابستگی‌های فراهم‌نشده: <bdi>{plan.preparation.missing_dependencies.join(", ")}</bdi></p>
+      </>}
+    </article>)}
+  </Panel>;
+}
+
 function Approvals({ c }: { c: Context }) {
   const [filter, setFilter] = useState("all");
   const [ack, setAck] = useState(false);
@@ -1506,6 +1539,7 @@ function Approvals({ c }: { c: Context }) {
         title="مرکز تأیید عملیات"
         description="بازبینی تصمیم‌ها؛ تأیید درخواست از صدور مجوز و اجرا جداست"
       />
+      <SetupRequests c={c} />
       <div className="stats-grid">
         {(["pending", "approved", "rejected", "expired"] as const).map((s) => (
           <button
@@ -1524,7 +1558,7 @@ function Approvals({ c }: { c: Context }) {
         ))}
       </div>
       <Notice>
-        همهٔ درخواست‌های این صفحه نمونهٔ مستقل restart در محیط MOCK هستند؛
+        درخواست‌های جدول ری‌استارت، نمونهٔ مستقل restart در محیط MOCK هستند؛
         پیشنهاد تشخیص، دستور restart نیست. شمارنده‌ها فقط درخواست‌های جاری را
         نشان می‌دهند؛ جدول سوابق تاریخی را نیز نگه می‌دارد.
       </Notice>

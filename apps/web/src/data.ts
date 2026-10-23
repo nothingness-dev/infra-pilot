@@ -205,6 +205,37 @@ export const approvalSchema = z.object({
   audit: z.array(audit),
   ...flags,
 });
+export function validSetupDomain(value: string): boolean {
+  return value === "" || (value.length <= 253 && value.split(".").length >= 2 &&
+    value.split(".").every((label) => /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/.test(label)));
+}
+export const setupBriefSchema = z.object({
+  service_id: z.string().regex(/^[a-z0-9][a-z0-9-]{1,62}$/),
+  platform: z.enum(["nodejs", "python", "docker", "go", "php", "static"]),
+  plan: z.enum(["starter-256mb", "standard-1gb", "pro-2gb"]),
+  custom_domain: z.string().max(253).refine(validSetupDomain),
+  environment_keys: z.array(z.string().regex(/^[A-Z_][A-Z0-9_]{0,63}$/)).max(30)
+    .refine((keys) => new Set(keys).size === keys.length),
+}).strict();
+export const setupRequestSchema = z.object({
+  id: z.string().regex(/^SETUP-[a-f0-9]{32}$/),
+  source: z.literal("mock"),
+  operation: z.literal("setup_service"),
+  state: z.literal("blocked"),
+  limitation: z.literal("setup_operation_not_supported_by_gate"),
+  created_at: stamp,
+  brief: setupBriefSchema,
+  environment_values: z.literal("not_collected"),
+  preparation: z.object({
+    state: z.literal("blocked"),
+    step_keys: z.array(z.string().regex(/^[a-z_]+$/)).min(1).max(20),
+    missing_dependencies: z.array(z.string().regex(/^[a-z_]+$/)).min(1).max(20),
+  }).strict().optional(),
+  execution_authorized: z.literal(false),
+  execution_performed: z.literal(false),
+}).strict();
+export type SetupBrief = z.infer<typeof setupBriefSchema>;
+
 export const stateSchema = z
   .object({
     version: z.literal("infrapilot-ui/1-mock"),
@@ -213,6 +244,7 @@ export const stateSchema = z
     service: z.object({ id: text, name: text, project: text }),
     records: z.array(recordSchema).min(1).max(20),
     approvals: z.array(approvalSchema).max(100),
+    setup_requests: z.array(setupRequestSchema).max(100).default([]),
     connection: z.object({
       state: z.literal("not_verified"),
       logs_window: z.literal("not_configured"),
@@ -220,6 +252,8 @@ export const stateSchema = z
     ...flags,
   })
   .superRefine((value, ctx) => {
+    if (new Set(value.setup_requests.map((p) => p.id)).size !== value.setup_requests.length)
+      ctx.addIssue({ code: "custom", message: "Invalid setup catalog" });
     const ids = value.records.map((r) => r.id);
     if (
       new Set(value.approvals.map((a) => a.id)).size !== value.approvals.length
@@ -316,6 +350,25 @@ export async function mutate(path: string, payload: object): Promise<void> {
   });
   if (!r.ok)
     throw new Error(r.status === 409 ? "STALE_REVISION" : "MUTATION_FAILED");
+}
+
+export async function submitSetup(brief: SetupBrief, idempotencyKey: string) {
+  const payload = { ...setupBriefSchema.parse(brief), idempotency_key: idempotencyKey };
+  await bootstrap();
+  const send = () => fetch("/api/ui/setup-requests", {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "Content-Type": "application/json", "X-UI-CSRF": csrf },
+    body: JSON.stringify(payload),
+  });
+  const response = await send();
+  // A mutation must never migrate an ambiguous retry into a new session.
+  // The original idempotency scope may already contain the saved proposal.
+  if (!response.ok) throw new Error(response.status === 409 ? "IDEMPOTENCY_CONFLICT" : "SETUP_FAILED");
+  const saved = setupRequestSchema.parse(await response.json());
+  if (JSON.stringify(saved.brief) !== JSON.stringify(setupBriefSchema.parse(brief)))
+    throw new Error("SETUP_ASSOCIATION_FAILED");
+  return saved;
 }
 
 export type Preferences = {
