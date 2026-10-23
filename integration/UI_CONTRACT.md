@@ -26,7 +26,8 @@ responses or completed diagnosis are not health/freshness/identity verification.
 ## HTTP surface
 
 All requests use the same origin. POST requires JSON, a permitted exact Origin,
-and at most 1024 bytes. Mutation bodies reject extra properties and coerce no
+and at most 1024 bytes (4096 for setup proposals). Declared and streamed sizes
+are bounded before JSON validation. Mutation bodies reject extra properties and coerce no
 types. Every protected endpoint requires the opaque HttpOnly session cookie.
 
 | Method / route | Body | Result |
@@ -67,8 +68,12 @@ reflected. A gate expiration decision is a completed HTTP request with stored
   match the retained report revision; another session cannot use its public IDs.
   A process lock serializes related reads and writes. Final UI decisions cannot
   be reversed. Gate and SQLite still enforce their own association/expiry rules.
-- At most eight process-local sessions and 100 approvals per session. Cookie
-  lifetime is one hour; no background session eviction/recovery is implemented.
+- At most eight unexpired process-local sessions and 100 approvals per session.
+  Server lifetime is fixed at one monotonic hour from creation. Repeated
+  bootstrap returns the remaining cookie lifetime, without extending the
+  server deadline. Expired sessions are rejected and their operators closed on
+  access/bootstrap and by a periodic reaper. Active sessions are never evicted
+  for capacity, and sessions are never inferred from IP addresses.
   Restart starts new opaque sessions and leaves prior SQLite summaries/audit as
   local historical artifacts under `.tmp/ui-demo`, outside the static root.
 - Browser/runtime JSON validation checks association, canonical capability order,
@@ -82,3 +87,45 @@ reflected. A gate expiration decision is a completed HTTP request with stored
 
 No production identity/service ACL integration, real freshness, live Liara
 access or infrastructure execution is claimed by this interface.
+
+## Mock setup proposals
+
+`POST /api/ui/setup-requests` uses the same Origin, session and CSRF boundary.
+Its JSON limit is 4096 bytes; other UI mutations keep the 1024-byte limit.
+The strict body contains a UUID4 `idempotency_key`, `service_id`, one of the
+displayed Mock `platform` and `plan` values, optional `custom_domain`, and
+`environment_keys` (at most 30 unique uppercase variable names). No environment
+values, credentials, roles, or provider settings are accepted. Values entered
+in the form remain only in component memory and are never transmitted.
+
+The server saves one immutable proposal in `setup.sqlite` in the current
+session directory. A repeat key with the same canonical brief returns the same
+record; different content with that key returns 409. The maximum is 100 plans
+per session. GET state adds `setup_requests`, and the worklist renders the exact
+returned `SETUP-...` ID and target, separately from restart approval examples.
+The client keeps the key across failed/ambiguous retries of the same brief and
+does not navigate or announce success until it receives the saved record.
+It does not transparently retry a mutation in a new session after 401; expired
+sessions cannot silently become a new idempotency scope. A late response after
+leaving the form cannot force navigation. Successful response targets are
+checked against the submitted brief.
+
+The backend calls existing `setup.workflow.prepare_request` with a names-only
+local brief. `preparation` records its blocked state, actual step keys and missing
+dependency keys; no Provider/Triage output or approval is invented. Retained
+records are bounded and revalidated before projection, including brief digest,
+target, false flags and the planner summary. This consistency check is not
+authenticated/tamper-proof provenance for private SQLite files.
+
+`setup_service` is unsupported by the current ActionPolicy. Proposals therefore
+have `state: blocked`, `limitation: setup_operation_not_supported_by_gate`, and
+both execution flags false. They are not Approval Gate grants and have no
+approve/execute button. Mock plans do not assert Liara hardware availability or
+pricing. A future policy change fails closed until the gate integration is
+reviewed. Only names of environment variables are retained; configuring their
+values still needs a separate secure execution design.
+
+Expired/restarted sessions are not reconstructed from public IDs. Their SQLite
+plan files remain local historical artifacts, with no restored session or
+authority. Keeping an operator-accessible historical archive is outside this
+local demo's authentication model.

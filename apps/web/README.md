@@ -1,7 +1,7 @@
 # InfraPilot web application
 
 One shared React/TypeScript/Vite application implements the ten supplied Persian
-RTL concepts. It calls the existing Python Provider → Triage → Setup pipeline
+RTL concepts plus a four-step Mock setup proposal wizard. It calls the existing Python Provider → Triage → Setup pipeline
 through an explicit local **MOCK** adapter. It is runnable offline after installing
 dependencies. REAL mode, infrastructure execution and conversational AI are
 unavailable and visibly explained.
@@ -48,6 +48,7 @@ separate integration milestone.
 | --- | --- |
 | `/` | Dashboard: consistent service/incident/current approval counts, unknown health, unavailable HTTP chart, diagnostic link, resource absence and recent actual report activity. |
 | `/services` | Services: search, sort, pagination, selection and detail link over the actual one-service catalog. No pretend project/type inventory. |
+| `/setup` | Four-step Mock proposal: technical brief, unverified domain guidance, form validation and blocked plan submission. Uses the existing Setup planner; saves a names-only proposal with idempotent retry in SQLite. No service, DNS or SSL changes. |
 | `/services/MOCK-service` | Details: overview, metrics, deployments/releases and collected-data tabs. Null metrics and missing release bodies remain explicit. |
 | `/incidents` | Four synthetic lifecycle scenarios; lifecycle and collection-error filters, search/sort/page and selected preview. No severity is invented from collection errors. |
 | `/incidents/INC-024` | Details (also 023/022/021): actual evidence/hypotheses/actions, safe capability errors, missing data, approval audit, refresh and acknowledged separate demo request. |
@@ -76,6 +77,13 @@ permissions and extra fields are rejected. No execution endpoint exists.
 
 Only `infrapilot-preferences-v1` (theme, timezone, local notification boolean) is
 persisted in localStorage. CSRF is module-memory only; session cookie is HttpOnly.
+The Setup form keeps environment values only in component memory; it sends and
+stores **names only**, including on retries. Validation messages never echo
+values. Navigating away discards form values. Saved proposals appear separately
+in Approvals with the exact target/ID, actual Setup planner step keys and missing
+dependencies. They remain blocked because the Gate does not support
+`setup_service`; those proposals have no approval/execute control. The wizard's
+plans and hardware descriptions are Mock examples, not a Liara product catalog.
 No Liara tokens, service environment, raw Provider response or raw log array is
 sent to the browser. The diagnostic report can quote synthetic Mock log evidence.
 Exports contain no diagnostic prose/log content or authentication information.
@@ -89,6 +97,7 @@ up. API connectivity is separate from program health and latency.
 ## Structure and dependencies
 
 - `src/App.tsx`: shared shell and ten routed page components; History API router.
+- `src/Setup.tsx`: additional Mock setup wizard and safe proposal submission.
 - `src/ui.tsx`: accessible tables, panels, dialogs, badges, timelines and navigation.
 - `src/data.ts`: explicit read models, association checks, HTTP client, safe preferences.
 - `src/styles.css`: shared semantic dark/light tokens and responsive RTL composition.
@@ -131,3 +140,8 @@ the user's Liara account. See [design QA](design-qa.md) and the verification rec
 for viewports, screenshots, journey and remaining limits. This is a complete
 readable offline interface, not evidence of production authorization, working
 live Liara access, validated resource units or verified remediation.
+
+The subsequent Setup integration and session-lifetime fixes are recorded in
+[SETUP_VERIFICATION](docs/SETUP_VERIFICATION.md), with remaining live access,
+production identity and executor requirements. A review server may use
+`--port 8790`; use the handoff port rather than an older development process.

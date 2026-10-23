@@ -7,6 +7,9 @@ installing the existing Python environment, run `npm --prefix apps/web ci`,
 `.\.venv\Scripts\python.exe -B -m integration.ui_server --mock` and open
 http://127.0.0.1:8787/. Approval decisions use the actual gate/store; live Liara,
 production identity and infrastructure execution remain unavailable in the UI.
+The additional [Mock setup wizard](apps/web/docs/SETUP_VERIFICATION.md) collects
+a proposal, reuses Setup's planner and saves it idempotently for review. Unsupported
+setup operations stay blocked; DNS, SSL and infrastructure are never changed.
 
 [Persistent inspection history](integration/HISTORY.md) now saves validated,
 allowlisted inspection summaries to local SQLite and reads them after a process
