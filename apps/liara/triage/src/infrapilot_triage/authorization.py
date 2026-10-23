@@ -2,10 +2,11 @@
 
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
+import hashlib
 from typing import Callable
 from uuid import UUID, uuid4
 
-from .approval_store import ApprovalStore, ApprovalTransaction
+from .approval_store import ApprovalReceipt, ApprovalStore, ApprovalTransaction
 from .approvals import ApprovalRequest, ApprovalState, AuditEvent, AuditKind, DecisionReason, GateDecision
 from .identity import AuthenticatedActor, IdentityBoundary, Permission
 from .policy import ActionCategory, ActionIntent, ActionPolicy, CanonicalAction, PolicyDecision
@@ -136,7 +137,11 @@ class ApprovalGate:
             return GateDecision(False, DecisionReason.STORAGE_UNAVAILABLE)
         try:
             with self._store.transaction() as transaction:
-                context = _Context(self._now())
+                try:
+                    context = _Context(self._now())
+                except _Refusal as refusal:
+                    # No timestamp exists with which to create a valid audit.
+                    return GateDecision(False, refusal.reason)
                 try:
                     return operation(transaction, context)
                 except _Refusal as refusal:
@@ -196,9 +201,45 @@ class ApprovalGate:
             parameters=action.parameters,
         )
 
+    @staticmethod
+    def _retry(transaction, key, operation, context, request_id=None, ttl_microseconds=0):
+        if key is None:
+            return None, None
+        try:
+            if type(key) is not str or len(key) != 36 or str(UUID(key)) != key or UUID(key).version != 4:
+                raise ValueError()
+        except Exception:
+            raise _Refusal(DecisionReason.INVALID_STATE) from None
+        key_digest = hashlib.sha256(key.encode("ascii")).hexdigest()
+        receipt = transaction.receipt(key_digest)
+        if receipt is not None and (
+            type(receipt) is not ApprovalReceipt or receipt.key_digest != key_digest
+            or receipt.operation != operation or receipt.actor_id != context.actor.subject
+            or receipt.fingerprint != context.action.fingerprint
+            or receipt.ttl_microseconds != ttl_microseconds
+            or (request_id is not None and receipt.request_id != request_id)
+        ):
+            raise _Refusal(DecisionReason.INVALID_STATE)
+        return key_digest, receipt
+
+    @staticmethod
+    def _remember(transaction, key_digest, operation, context, request, ttl_microseconds=0):
+        if key_digest is not None:
+            transaction.remember(ApprovalReceipt(key_digest, operation, request.request_id,
+                                 context.actor.subject, context.action.fingerprint, ttl_microseconds))
+
+    @staticmethod
+    def _replayed(request):
+        reason = {ApprovalState.PENDING: DecisionReason.PENDING, ApprovalState.APPROVED: DecisionReason.APPROVED,
+                  ApprovalState.REJECTED: DecisionReason.REJECTED, ApprovalState.EXPIRED: DecisionReason.EXPIRED,
+                  ApprovalState.CONSUMED: DecisionReason.CONSUMED}[request.state]
+        # In particular, a consumption receipt can NEVER return allowed=True.
+        return GateDecision(False, reason, request.action, request, audit_recorded=True)
+
     def request_approval(
         self, intent: ActionIntent, *, authentication: object | None = None,
         ttl: timedelta = timedelta(minutes=5),
+        idempotency_key: str | None = None,
     ) -> GateDecision:
         def operation(transaction: ApprovalTransaction, context: _Context) -> GateDecision:
             decision = self._classify(intent)
@@ -213,6 +254,13 @@ class ApprovalGate:
                 raise _Refusal(DecisionReason.APPROVAL_NOT_REQUIRED)
             if not isinstance(ttl, timedelta) or not timedelta(0) < ttl <= timedelta(minutes=15):
                 raise _Refusal(DecisionReason.INVALID_EXPIRATION)
+            micros = ttl // timedelta(microseconds=1)
+            key, receipt = self._retry(transaction, idempotency_key, "request", context, ttl_microseconds=micros)
+            if receipt is not None:
+                request = self._load(receipt.request_id, transaction, context)
+                if request.action != action or request.requested_by != actor:
+                    raise _Refusal(DecisionReason.ACTION_MISMATCH)
+                return self._replayed(self._expire(request, transaction, context))
             context.now = self._now()
             request = ApprovalRequest(
                 request_id=str(uuid4()), action=action, requested_by=actor,
@@ -223,17 +271,18 @@ class ApprovalGate:
             context.request_id = request.request_id
             transaction.put(request)
             transaction.record(self._event(context, AuditKind.REQUESTED, DecisionReason.PENDING))
+            self._remember(transaction, key, "request", context, request, micros)
             return GateDecision(False, DecisionReason.PENDING, action, request, audit_recorded=True)
         return self._run(operation)
 
-    def approve(self, request_id: str, *, authentication: object | None = None) -> GateDecision:
-        return self._decide(request_id, authentication, approve=True)
+    def approve(self, request_id: str, *, authentication: object | None = None, idempotency_key: str | None = None) -> GateDecision:
+        return self._decide(request_id, authentication, approve=True, idempotency_key=idempotency_key)
 
-    def reject(self, request_id: str, *, authentication: object | None = None) -> GateDecision:
+    def reject(self, request_id: str, *, authentication: object | None = None, idempotency_key: str | None = None) -> GateDecision:
         """Reject pending requests or revoke an approved, unconsumed request."""
-        return self._decide(request_id, authentication, approve=False)
+        return self._decide(request_id, authentication, approve=False, idempotency_key=idempotency_key)
 
-    def _decide(self, request_id: str, authentication: object | None, *, approve: bool) -> GateDecision:
+    def _decide(self, request_id: str, authentication: object | None, *, approve: bool, idempotency_key=None) -> GateDecision:
         def operation(transaction: ApprovalTransaction, context: _Context) -> GateDecision:
             actor = self._actor(authentication, context)
             request = self._load(request_id, transaction, context)
@@ -245,6 +294,10 @@ class ApprovalGate:
             if actor.subject == request.requested_by.subject:
                 raise _Refusal(DecisionReason.SELF_APPROVAL)
             request = self._expire(request, transaction, context)
+            operation = "approve" if approve else "reject"
+            key, receipt = self._retry(transaction, idempotency_key, operation, context, request.request_id)
+            if receipt is not None:
+                return self._replayed(request)
             valid_states = (ApprovalState.PENDING,) if approve else (ApprovalState.PENDING, ApprovalState.APPROVED)
             if request.state not in valid_states:
                 self._state_refusal(request)
@@ -256,12 +309,14 @@ class ApprovalGate:
                 kind, reason = AuditKind.REJECTED, DecisionReason.REJECTED
             transaction.put(request)
             transaction.record(self._event(context, kind, reason))
+            self._remember(transaction, key, operation, context, request)
             return GateDecision(False, reason, request.action, request, audit_recorded=True)
         return self._run(operation)
 
     def authorize(
         self, intent: ActionIntent, *, authentication: object | None = None,
         approval_request_id: str | None = None,
+        idempotency_key: str | None = None,
     ) -> GateDecision:
         """Re-evaluate policy and atomically consume approval, without execution."""
         def operation(transaction: ApprovalTransaction, context: _Context) -> GateDecision:
@@ -281,6 +336,12 @@ class ApprovalGate:
                 if request.requested_by.subject != actor.subject:
                     raise _Refusal(DecisionReason.REQUESTER_MISMATCH)
                 request = self._expire(request, transaction, context)
+                key, receipt = self._retry(transaction, idempotency_key, "authorize", context, request.request_id)
+                if receipt is not None:
+                    if request.approved_by is None:
+                        raise _Refusal(DecisionReason.INVALID_STATE)
+                    self._permission(request.approved_by, action, Permission.APPROVE)
+                    return self._replayed(request)
                 if request.state != ApprovalState.APPROVED:
                     self._state_refusal(request)
                 if request.approved_by is None or request.approved_by.subject == actor.subject:
@@ -298,8 +359,12 @@ class ApprovalGate:
             elif approval_request_id is not None:
                 raise _Refusal(DecisionReason.APPROVAL_NOT_REQUIRED)
             else:
+                if idempotency_key is not None:
+                    raise _Refusal(DecisionReason.INVALID_STATE)
                 context.now = self._now()
             transaction.record(self._event(context, AuditKind.CONSUMED, DecisionReason.AUTHORIZED))
+            if request is not None:
+                self._remember(transaction, key, "authorize", context, request)
             return GateDecision(
                 True, DecisionReason.AUTHORIZED, action, request,
                 authorization_id=str(uuid4()), audit_recorded=True,

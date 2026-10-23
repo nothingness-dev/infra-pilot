@@ -70,13 +70,14 @@ class MockWorkflow:
     """
 
     def __init__(self, *, mock: bool = False, collection_scenario: str = "exported",
-                 clock: Callable[[], datetime] | None = None):
+                 clock: Callable[[], datetime] | None = None, approval_store_factory=None):
         if mock is not True:
             raise MockIntegrationError("MOCK_OPT_IN_REQUIRED") from None
         if type(collection_scenario) is not str or collection_scenario not in MOCK_CONTEXT_SCENARIOS:
             raise MockIntegrationError("INVALID_SCENARIO") from None
         self._collection_scenario = collection_scenario
         self._clock = clock if clock is not None else MockClock()
+        self._approval_store_factory = approval_store_factory
         self._accepted = None
         self._stages = {}
         self._inspection = None
@@ -87,6 +88,16 @@ class MockWorkflow:
 
     def __repr__(self):
         return "MockWorkflow(mode='mock', execution='disabled')"
+
+    def close(self):
+        if self._operator is not None:
+            self._operator.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
 
     def _result(self, state, stage, code=0, *, error=None):
         collection = self._stages.get("collection")
@@ -129,6 +140,7 @@ class MockWorkflow:
                 and details.get("goal", MOCK_GOAL) in _GOALS)
 
     def _invalidate(self):
+        self.close()
         self._inspection, self._operator, self._review = None, None, None
         self._failed = False
         for name in ("collection", "preparation", "inspection", "action_review", "operator_example"):
@@ -249,7 +261,10 @@ class MockWorkflow:
                 return self._result("invalid_request", "approval", 3, error="INVALID_MOCK_OPTION")
             if self._review is None or not self._review.policy.allowed or self._operator is not None:
                 return self._result("blocked", "approval", 4, error="CURRENT_ACTION_REVIEW_REQUIRED")
-            self._operator = OperatorApprovalExample(self._inspection, clock=self._clock)
+            if self._operator is not None:
+                self._operator.close()
+            self._operator = OperatorApprovalExample(self._inspection, clock=self._clock,
+                                                     store_factory=self._approval_store_factory)
             example = self._operator
             example.identity.permitted = outcome != "permission_denied"
             decision = example.request(authentication=(
@@ -277,14 +292,18 @@ class MockWorkflow:
         return self._perform("approval", operation)
 
 
-def run_mock_workflow(*, mock=False, scenario="complete") -> WorkflowResult:
+def run_mock_workflow(*, mock=False, scenario="complete", approval_store_factory=None) -> WorkflowResult:
     """Allowlisted scenario runner; the reusable session supplies the behavior."""
     if mock is not True:
         raise MockIntegrationError("MOCK_OPT_IN_REQUIRED") from None
     if type(scenario) is not str or scenario not in SCENARIOS:
         raise MockIntegrationError("INVALID_SCENARIO") from None
     collection = scenario if scenario in MOCK_CONTEXT_SCENARIOS else "exported"
-    workflow = MockWorkflow(mock=True, collection_scenario=collection)
+    with MockWorkflow(mock=True, collection_scenario=collection, approval_store_factory=approval_store_factory) as workflow:
+        return _run_workflow(workflow, scenario)
+
+
+def _run_workflow(workflow, scenario):
     details = {} if scenario in ("complete_information", "needs_information", "invalid_completion", "changed_target") else {
         "service_target": "MOCK-service", "goal": MOCK_GOAL,
     }

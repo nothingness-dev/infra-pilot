@@ -1,5 +1,10 @@
 # Mock backend integration profile
 
+[Durable Approval and Audit](APPROVAL_PERSISTENCE.md) connects the existing gate
+and workflow to optional scoped SQLite storage. State, structured audit events
+and retry associations commit together. Stored decisions never restore sessions,
+current evidence or execution authority; the default in-memory flow is unchanged.
+
 [Protected Mock request access](ACCESS.md) adds a trusted resolver boundary,
 operation/service permissions and persistent ownership checks. It stays offline,
 denies unconfigured identity, and restores neither sessions nor evidence after restart.

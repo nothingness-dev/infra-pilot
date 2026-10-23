@@ -8,6 +8,7 @@ diagnosis, context or canonical action; it is not production authentication.
 from dataclasses import asdict
 from datetime import datetime, timezone
 from typing import Callable
+from uuid import UUID, uuid4
 
 from infrapilot_triage import (
     ActionIntent, ActionPolicy, ApprovalGate, AuthenticatedActor, InMemoryApprovalStore, Permission,
@@ -18,6 +19,24 @@ from setup.integration import request_fingerprint
 
 from .errors import MockIntegrationError
 from .service import CompletedInspection
+from .request_policy import digest
+
+
+def approval_references(inspection, *, retention_nonce):
+    """Only an original validated current inspection selects these associations."""
+    if type(inspection) is not CompletedInspection or inspection.source_binding.is_mock is not True:
+        raise MockIntegrationError("SETUP_ASSOCIATION_FAILED") from None
+    try:
+        if type(retention_nonce) is not str or str(UUID(retention_nonce)) != retention_nonce or UUID(retention_nonce).version != 4:
+            raise ValueError()
+    except Exception:
+        raise MockIntegrationError("SETUP_ASSOCIATION_FAILED") from None
+    inspection.validate()
+    scope = digest({"approval_scope_v1": asdict(inspection.source_binding)})
+    association = digest({"approval_association_v1": {"scope": scope, "retention_nonce": retention_nonce,
+        "request_fingerprint": request_fingerprint(inspection.request),
+        "diagnosis_binding": inspection.presentation.binding, "companion_binding": inspection.companion.binding}})
+    return scope, association
 
 
 class MockClock:
@@ -60,7 +79,10 @@ class OperatorApprovalExample:
     that Liara supports it. This class has no execution/authorize method.
     """
 
-    def __init__(self, inspection: CompletedInspection, *, clock: Callable[[], datetime]):
+    def __init__(self, inspection: CompletedInspection, *, clock: Callable[[], datetime], store_factory=None):
+        self._retention_nonce = str(uuid4())
+        if store_factory is not None:
+            approval_references(inspection, retention_nonce=self._retention_nonce)
         inspection.validate()
         self.inspection = inspection
         self.intent = ActionIntent(service_id="MOCK-service", action_type="restart_service",
@@ -71,13 +93,28 @@ class OperatorApprovalExample:
             raise MockIntegrationError("SETUP_ASSOCIATION_FAILED") from None
         self._binding = self._current_binding()
         self.identity = _Identity(self.review.policy.action)
-        self.store = InMemoryApprovalStore()
+        self._owned_store = store_factory is not None
+        if store_factory is None:
+            self.store = InMemoryApprovalStore()
+        else:
+            from .approval_store import SQLiteApprovalStore
+            scope, association = approval_references(inspection, retention_nonce=self._retention_nonce)
+            self.store = store_factory(scope_ref=scope, association_ref=association)
+            if (type(self.store) is not SQLiteApprovalStore or self.store.scope_ref != scope
+                    or self.store.association_ref != association):
+                if type(self.store) is SQLiteApprovalStore:
+                    self.store.close()
+                raise MockIntegrationError("SETUP_ASSOCIATION_FAILED") from None
         self.gate = ApprovalGate(identity=self.identity, policy=self.policy, store=self.store, clock=clock)
         self._identifier = None
         self._decisions = []
 
     def __repr__(self):
         return "OperatorApprovalExample(mode='mock', execution='disabled')"
+
+    def close(self):
+        if self._owned_store:
+            self.store.close()
 
     def _current_binding(self):
         self.inspection.validate()
@@ -89,6 +126,9 @@ class OperatorApprovalExample:
 
     def _check(self):
         if self._current_binding() != self._binding:
+            raise MockIntegrationError("SETUP_ASSOCIATION_FAILED") from None
+        if self._owned_store and approval_references(self.inspection, retention_nonce=self._retention_nonce) != (
+                self.store.scope_ref, self.store.association_ref):
             raise MockIntegrationError("SETUP_ASSOCIATION_FAILED") from None
         if self._identifier is not None:
             current = self.store.get(self._identifier)
@@ -128,7 +168,7 @@ class OperatorApprovalExample:
             "relationship": "separate_operator_selected_mock_example_not_diagnosis_derived",
             "provider_operation_support": "unverified",
             "identity_source": "isolated_opaque_mock_sessions",
-            "storage": "volatile_in_memory", "clock_source": "synthetic_injected_clock",
+            "storage": "local_sqlite" if self._owned_store else "volatile_in_memory", "clock_source": "synthetic_injected_clock",
             "request_fingerprint": self._binding[0], "diagnosis_binding": self._binding[1],
             "companion_binding": self._binding[2],
             "review": self.review.model_dump(mode="json"),

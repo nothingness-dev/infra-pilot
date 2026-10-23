@@ -10,6 +10,7 @@ def _arguments(argv):
     parser = _Parser(prog="python -B -m integration.workflow_demo", allow_abbrev=False)
     parser.add_argument("--mock", action="store_true", help="Required explicit offline opt-in")
     parser.add_argument("--scenario", default="complete", help="One documented Mock workflow scenario")
+    parser.add_argument("--approval-database", help="Optional local SQLite approval/audit file; parent must exist")
     args = parser.parse_args(argv)
     if not args.mock:
         raise MockIntegrationError("MOCK_OPT_IN_REQUIRED") from None
@@ -33,8 +34,22 @@ def main(argv=None):
     else:
         try:
             from .workflow import run_mock_workflow
-            result = run_mock_workflow(mock=True, scenario=args.scenario)
+            factory = None
+            if args.approval_database is not None:
+                from .approval_store import SQLiteApprovalStore
+                factory = lambda **references: SQLiteApprovalStore(args.approval_database, **references)
+            result = run_mock_workflow(mock=True, scenario=args.scenario, approval_store_factory=factory)
             report, code = result.to_dict(), result.exit_code
+            if factory is not None:
+                # Persistent mode exports summary only, never actor/action IDs,
+                # action parameters, database paths or the full Mock payload.
+                example = report["stages"].get("operator_example")
+                report = {"contract_version": report["contract_version"], "mode": "mock", "state": report["state"],
+                          "error_code": report.get("error_code"), "storage": "local_sqlite",
+                          "storage_recorded": bool(example and example["audit_events"]), "exit_code": code,
+                          "approval_state": example["current_approval"]["state"] if example and example["current_approval"] else None,
+                          "audit_count": len(example["audit_events"]) if example else 0,
+                          "authorization_consumed": False, "execution_authorized": False, "execution_performed": False}
         except ImportError:
             report, code = _failure("DEPENDENCIES_UNAVAILABLE"), 2
         except MockIntegrationError as error:
