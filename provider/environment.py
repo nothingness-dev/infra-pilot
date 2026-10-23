@@ -44,4 +44,6 @@ def _read_live_settings(environment):
             options["timeout"] = float(environment["LIARA_TIMEOUT_SECONDS"])
         except (ValueError, TypeError, OverflowError):
             raise ValueError("Invalid timeout setting.") from None
+    if "LIARA_TEAM_ID" in environment:
+        options["team_id"] = environment["LIARA_TEAM_ID"]
     return LiveSettings(ProviderConfig(api_key=environment.get("LIARA_API_TOKEN"), **options), project, since)

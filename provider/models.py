@@ -52,6 +52,7 @@ class ProviderConfig:
     base_url: str = field(default="https://api.iran.liara.ir", repr=False)
     timeout: float = 10.0
     is_mock: bool = False
+    team_id: str | None = field(default=None, repr=False, kw_only=True)
 
     def __post_init__(self) -> None:
         if type(self.is_mock) is not bool:
@@ -62,6 +63,14 @@ class ProviderConfig:
         if (not token and not self.is_mock) or any(not 33 <= ord(c) <= 126 for c in token):
             raise ValueError("The API key must be a nonblank, printable ASCII token.")
         object.__setattr__(self, "api_key", secret)
+        # Official CLI sends teamID='' for a personal account. None preserves
+        # the existing unscoped request behavior; identifiers are never logged.
+        if self.team_id is not None and (
+            type(self.team_id) is not str or len(self.team_id) > 128
+            or any(not 33 <= ord(c) <= 126 for c in self.team_id)
+            or (token and token in self.team_id)
+        ):
+            raise ValueError("Invalid provider account scope.")
         try:
             valid_timeout = (
                 type(self.timeout) in (int, float)

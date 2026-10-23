@@ -140,6 +140,11 @@ class LiaraClient(ObservabilityMixin):
                 or (params is not None and not isinstance(params, Mapping))
             ):
                 return self._failure(InvalidRequestError())
+            if self.config.team_id is not None:
+                params = dict(params or {})
+                if "teamID" in params and params["teamID"] != self.config.team_id:
+                    return self._failure(InvalidRequestError())
+                params["teamID"] = self.config.team_id
             query = urlencode(params, doseq=True) if params else ""
             body = None if payload is None else json.dumps(payload, allow_nan=False).encode("utf-8")
             if self.config.is_mock:
