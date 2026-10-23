@@ -1,0 +1,182 @@
+[
+  {
+    "page": "dashboard",
+    "heading": "مرکز فرمان زیرساخت",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "dark",
+    "width": 1440
+  },
+  {
+    "page": "services",
+    "heading": "سرویس‌های پروژه",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "dark",
+    "width": 1440
+  },
+  {
+    "page": "service-details",
+    "heading": "جزئیات سرویس",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "dark",
+    "width": 1440
+  },
+  {
+    "page": "incidents",
+    "heading": "مرکز رخدادها",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "dark",
+    "width": 1440
+  },
+  {
+    "page": "incident-details",
+    "heading": "جمع‌آوری ناقص شواهد",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "dark",
+    "width": 1440
+  },
+  {
+    "page": "analysis",
+    "heading": "تحلیل شفاف؛ تصمیم قابل بررسی",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "dark",
+    "width": 1440
+  },
+  {
+    "page": "approvals",
+    "heading": "مرکز تأیید عملیات",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "dark",
+    "width": 1440
+  },
+  {
+    "page": "reports",
+    "heading": "گزارش‌ها و ردپای تصمیم",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "dark",
+    "width": 1440
+  },
+  {
+    "page": "connection",
+    "heading": "اتصال امن به Liara",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "dark",
+    "width": 1440
+  },
+  {
+    "page": "settings",
+    "heading": "تنظیمات فضای کاری",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "dark",
+    "width": 1440
+  },
+  {
+    "page": "dashboard",
+    "heading": "مرکز فرمان زیرساخت",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "light",
+    "width": 1440
+  },
+  {
+    "page": "services",
+    "heading": "سرویس‌های پروژه",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "light",
+    "width": 1440
+  },
+  {
+    "page": "service-details",
+    "heading": "جزئیات سرویس",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "light",
+    "width": 1440
+  },
+  {
+    "page": "incidents",
+    "heading": "مرکز رخدادها",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "light",
+    "width": 1440
+  },
+  {
+    "page": "incident-details",
+    "heading": "جمع‌آوری ناقص شواهد",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "light",
+    "width": 1440
+  },
+  {
+    "page": "analysis",
+    "heading": "تحلیل شفاف؛ تصمیم قابل بررسی",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "light",
+    "width": 1440
+  },
+  {
+    "page": "approvals",
+    "heading": "مرکز تأیید عملیات",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "light",
+    "width": 1440
+  },
+  {
+    "page": "reports",
+    "heading": "گزارش‌ها و ردپای تصمیم",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "light",
+    "width": 1440
+  },
+  {
+    "page": "connection",
+    "heading": "اتصال امن به Liara",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "light",
+    "width": 1440
+  },
+  {
+    "page": "settings",
+    "heading": "تنظیمات فضای کاری",
+    "height": 960,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "light",
+    "width": 1440
+  }
+]
