@@ -157,6 +157,35 @@ def inspect_prepared(request: OperationRequest, prepared: PreparedCollection, *,
         return ReadOnlyInspection(request, expected_binding, stage, error, prepared, companion, presentation)
 
 
+def _inspection_request(expected):
+    return OperationRequest("readonly-" + uuid4().hex, "inspect_service", {
+        "service_target": expected.service_id, "goal": "Inspect supplied read-only observations",
+    })
+
+
+def inspect_with_client(client, settings) -> ReadOnlyInspection:
+    """Trusted composition continuation using the same validated live transport.
+
+    Callers own opt-in/configuration. No second client or diagnosis is created.
+    This is not a JSON/public intake or an authenticated ownership assertion.
+    """
+    expected = settings.binding
+    request = _inspection_request(expected)
+    try:
+        if client.config is not settings.live.config or client.config.is_mock is not False:
+            raise ValueError()
+        adapter = CollectionContextAdapter(client, provider_scope=expected.provider_scope)
+        collected = adapter.collect(expected, logs_since=settings.live.logs_since)
+        if (not isinstance(collected, ProviderResult) or collected.is_mock is not False
+                or type(collected.data) is not PreparedCollection):
+            return ReadOnlyInspection(request, expected, "collection", "COLLECTION_FAILED")
+        return inspect_prepared(request, collected.data, expected_binding=expected)
+    except KeyboardInterrupt:
+        raise
+    except Exception:
+        return ReadOnlyInspection(request, expected, "collection", "COLLECTION_FAILED")
+
+
 def run_readonly_inspection(*, live_read_only=False, environment=None) -> ReadOnlyInspection:
     """Explicit operator-local entry point; credentials are process-env only.
 
@@ -169,19 +198,10 @@ def run_readonly_inspection(*, live_read_only=False, environment=None) -> ReadOn
         import os
         environment = os.environ
     settings = read_inspection_settings(environment)
-    expected = settings.binding  # independently selected before collection
-    request = OperationRequest("readonly-" + uuid4().hex, "inspect_service", {
-        "service_target": expected.service_id, "goal": "Inspect supplied read-only observations",
-    })
     try:
         client = LiaraClient(settings.live.config)
-        adapter = CollectionContextAdapter(client, provider_scope=expected.provider_scope)
-        collected = adapter.collect(expected, logs_since=settings.live.logs_since)
-        if (not isinstance(collected, ProviderResult) or collected.is_mock is not False
-                or type(collected.data) is not PreparedCollection):
-            return ReadOnlyInspection(request, expected, "collection", "COLLECTION_FAILED")
-        return inspect_prepared(request, collected.data, expected_binding=expected)
+        return inspect_with_client(client, settings)
     except KeyboardInterrupt:
         raise
     except Exception:
-        return ReadOnlyInspection(request, expected, "collection", "COLLECTION_FAILED")
+        return ReadOnlyInspection(_inspection_request(settings.binding), settings.binding, "collection", "COLLECTION_FAILED")
