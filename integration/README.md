@@ -1,5 +1,10 @@
 # Mock backend integration profile
 
+The separate [local read-only Liara inspection](READONLY_INSPECTION.md) now
+connects the real adapter to Diagnosis/Setup behind explicit opt-in and validated
+environment configuration. Its CLI exports a data-free summary. Live account
+verification has not been performed; existing Mock profiles below stay offline.
+
 Latest non-UI continuation: [outcome evaluation](OUTCOMES.md) compares retained
 observations independently of action-performance claims. The original Mock and
 request/approval commands keep their existing behavior.

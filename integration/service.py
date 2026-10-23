@@ -22,6 +22,7 @@ from setup.triage import DiagnosisPresentation, SetupIntegrationError, SnapshotE
 from setup.validation import validate_request
 
 from .errors import MockIntegrationError
+from .composition import validate_retained_inspection
 
 
 INTEGRATION_PROFILE = "infrapilot-mock-backend/1"
@@ -59,12 +60,14 @@ class CompletedInspection:
     source_binding: ServiceBinding
 
     def validate(self) -> None:
-        validate_presentation(self.request, self.presentation)
-        current = self.companion.to_dict()
-        envelope = self.prepared.verify_request(self.prepared.to_request(), expected_binding=self.source_binding)
-        if (current != self.result.to_dict()["presentation"]
-                or current["diagnosis"] != self.presentation.to_dict()
-                or envelope != {"snapshot": current["snapshot"], "collection_context": current["collection_context"]}):
+        try:
+            current = validate_retained_inspection(
+                self.request, self.prepared, self.source_binding, self.companion, self.presentation,
+            )
+            if (current != self.result.to_dict()["presentation"]
+                    or current["diagnosis"] != self.presentation.to_dict()):
+                raise ValueError()
+        except Exception:
             raise MockIntegrationError("SETUP_ASSOCIATION_FAILED") from None
 
     def __repr__(self):

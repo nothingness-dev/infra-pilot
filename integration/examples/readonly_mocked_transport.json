@@ -1,0 +1,223 @@
+{
+  "example_provenance": "offline_mocked_urllib_transport_not_live_evidence",
+  "examples": {
+    "complete_skipped_logs": {
+      "authorization_consumed": false,
+      "capabilities": [
+        {
+          "availability": "available",
+          "capability": "service",
+          "error_code": null,
+          "http_status": null,
+          "retryable": null
+        },
+        {
+          "availability": "available",
+          "capability": "deployment",
+          "error_code": null,
+          "http_status": null,
+          "retryable": null
+        },
+        {
+          "availability": "not_collected",
+          "capability": "logs",
+          "error_code": null,
+          "http_status": null,
+          "retryable": null
+        },
+        {
+          "availability": "available",
+          "capability": "metrics",
+          "error_code": null,
+          "http_status": null,
+          "retryable": null
+        }
+      ],
+      "collection_outcome": "complete",
+      "data_source": "real",
+      "diagnosis": {
+        "associated": true,
+        "available": true,
+        "counts": {
+          "actions": 1,
+          "evidence": 1,
+          "hypotheses": 0,
+          "limitations": 4,
+          "missing_information": 7
+        }
+      },
+      "error_code": null,
+      "execution_authorized": false,
+      "execution_performed": false,
+      "exit_code": 0,
+      "freshness_evaluated": false,
+      "identity_verified": false,
+      "integration_profile": "infrapilot-readonly-inspection/1",
+      "limitations": [
+        "HEALTH_STATUS_UNVERIFIED",
+        "APPLICATION_HTTP_NOT_MEASURED",
+        "CPU_RAM_UNITS_UNVERIFIED",
+        "SOURCE_TIMESTAMPS_UNVERIFIED",
+        "LOG_WINDOW_COMPLETENESS_UNVERIFIED",
+        "DEPLOYMENT_RELEASE_FIELDS_NOT_IN_DRAFT"
+      ],
+      "logs": {
+        "exported": 0,
+        "received": null,
+        "state": "not_collected",
+        "withheld": 0
+      },
+      "post_action_evaluation": "not_performed",
+      "production_readiness": "unresolved",
+      "remediation_verified": false,
+      "stage": "complete",
+      "status": "complete"
+    },
+    "complete_withheld_logs": {
+      "authorization_consumed": false,
+      "capabilities": [
+        {
+          "availability": "available",
+          "capability": "service",
+          "error_code": null,
+          "http_status": null,
+          "retryable": null
+        },
+        {
+          "availability": "available",
+          "capability": "deployment",
+          "error_code": null,
+          "http_status": null,
+          "retryable": null
+        },
+        {
+          "availability": "available",
+          "capability": "logs",
+          "error_code": null,
+          "http_status": null,
+          "retryable": null
+        },
+        {
+          "availability": "available",
+          "capability": "metrics",
+          "error_code": null,
+          "http_status": null,
+          "retryable": null
+        }
+      ],
+      "collection_outcome": "complete",
+      "data_source": "real",
+      "diagnosis": {
+        "associated": true,
+        "available": true,
+        "counts": {
+          "actions": 1,
+          "evidence": 1,
+          "hypotheses": 0,
+          "limitations": 4,
+          "missing_information": 7
+        }
+      },
+      "error_code": null,
+      "execution_authorized": false,
+      "execution_performed": false,
+      "exit_code": 0,
+      "freshness_evaluated": false,
+      "identity_verified": false,
+      "integration_profile": "infrapilot-readonly-inspection/1",
+      "limitations": [
+        "HEALTH_STATUS_UNVERIFIED",
+        "APPLICATION_HTTP_NOT_MEASURED",
+        "CPU_RAM_UNITS_UNVERIFIED",
+        "SOURCE_TIMESTAMPS_UNVERIFIED",
+        "LOG_WINDOW_COMPLETENESS_UNVERIFIED",
+        "DEPLOYMENT_RELEASE_FIELDS_NOT_IN_DRAFT",
+        "LOG_TEXT_WITHHELD"
+      ],
+      "logs": {
+        "exported": 0,
+        "received": 1,
+        "state": "withheld",
+        "withheld": 1
+      },
+      "post_action_evaluation": "not_performed",
+      "production_readiness": "unresolved",
+      "remediation_verified": false,
+      "stage": "complete",
+      "status": "complete"
+    },
+    "partial_metrics_timeout": {
+      "authorization_consumed": false,
+      "capabilities": [
+        {
+          "availability": "available",
+          "capability": "service",
+          "error_code": null,
+          "http_status": null,
+          "retryable": null
+        },
+        {
+          "availability": "available",
+          "capability": "deployment",
+          "error_code": null,
+          "http_status": null,
+          "retryable": null
+        },
+        {
+          "availability": "not_collected",
+          "capability": "logs",
+          "error_code": null,
+          "http_status": null,
+          "retryable": null
+        },
+        {
+          "availability": "failed",
+          "capability": "metrics",
+          "error_code": "TIMEOUT",
+          "http_status": null,
+          "retryable": true
+        }
+      ],
+      "collection_outcome": "partial",
+      "data_source": "real",
+      "diagnosis": {
+        "associated": true,
+        "available": true,
+        "counts": {
+          "actions": 1,
+          "evidence": 1,
+          "hypotheses": 0,
+          "limitations": 4,
+          "missing_information": 7
+        }
+      },
+      "error_code": null,
+      "execution_authorized": false,
+      "execution_performed": false,
+      "exit_code": 1,
+      "freshness_evaluated": false,
+      "identity_verified": false,
+      "integration_profile": "infrapilot-readonly-inspection/1",
+      "limitations": [
+        "HEALTH_STATUS_UNVERIFIED",
+        "APPLICATION_HTTP_NOT_MEASURED",
+        "CPU_RAM_UNITS_UNVERIFIED",
+        "SOURCE_TIMESTAMPS_UNVERIFIED",
+        "LOG_WINDOW_COMPLETENESS_UNVERIFIED",
+        "DEPLOYMENT_RELEASE_FIELDS_NOT_IN_DRAFT"
+      ],
+      "logs": {
+        "exported": 0,
+        "received": null,
+        "state": "not_collected",
+        "withheld": 0
+      },
+      "post_action_evaluation": "not_performed",
+      "production_readiness": "unresolved",
+      "remediation_verified": false,
+      "stage": "complete",
+      "status": "partial"
+    }
+  },
+  "live_verification_performed": false
+}

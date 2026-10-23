@@ -5,7 +5,6 @@ Configuration is environment-only. Importing this module has no side effects.
 """
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import json
 import os
@@ -14,7 +13,7 @@ import time
 from typing import Any
 
 from provider import LiaraClient, ProviderConfig, ProviderResult, StructuredError
-from provider.observability import _service_path
+from provider.environment import LiveSettings as _Settings, read_live_settings
 
 
 EXIT_SUCCESS = 0
@@ -31,30 +30,9 @@ _ERROR_CODES = frozenset({
 })
 
 
-@dataclass(frozen=True)
-class _Settings:
-    config: ProviderConfig
-    project: str = field(repr=False)
-    logs_since: str | None = field(repr=False)
-
-
 def _settings(environment: Mapping[str, str]) -> _Settings:
-    """Validate everything before constructing a client or making requests."""
-    token = environment.get("LIARA_API_TOKEN")
-    project = environment.get("LIARA_PROJECT_NAME")
-    # Reuse the adapter's name validation and path encoding, without transport.
-    _service_path(project)
-    since = environment.get("LIARA_LOGS_SINCE")
-    if since is not None:
-        if not isinstance(since, str) or not since.strip():
-            raise ValueError("Invalid log window setting.")
-        since.encode("utf-8")
-    options = {}
-    if "LIARA_API_BASE_URL" in environment:
-        options["base_url"] = environment["LIARA_API_BASE_URL"]
-    if "LIARA_TIMEOUT_SECONDS" in environment:
-        options["timeout"] = float(environment["LIARA_TIMEOUT_SECONDS"])
-    return _Settings(ProviderConfig(api_key=token, **options), project, since)
+    """Backward-compatible smoke wrapper over the shared public validator."""
+    return read_live_settings(environment)
 
 
 def _now() -> str:
