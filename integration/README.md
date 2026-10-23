@@ -18,6 +18,11 @@ connects the real adapter to Diagnosis/Setup behind explicit opt-in and validate
 environment configuration. Its CLI exports a data-free summary. Live account
 verification has not been performed; existing Mock profiles below stay offline.
 
+The additive [live verification procedure](LIVE_VERIFICATION.md) checks exact
+project visibility before that inspection, checks releases separately, and can
+archive the original result in existing summary history. Missing credentials
+currently block live evidence; offline tests do not establish account access.
+
 Latest non-UI continuation: [outcome evaluation](OUTCOMES.md) compares retained
 observations independently of action-performance claims. The original Mock and
 request/approval commands keep their existing behavior.

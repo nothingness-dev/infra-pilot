@@ -1,6 +1,6 @@
 # Liara PaaS observation capabilities
 
-Reviewed on **2026-10-22**. This is a documentation-backed implementation report,
+Reviewed on **2026-10-23** (original implementation: 2026-10-22). This is a documentation-backed implementation report,
 not proof of access to a live account. No live credential/service was supplied
 for this task; no authenticated live requests were performed.
 
@@ -153,3 +153,50 @@ uses actual Task 05A and Setup code; see
 unit interpretation or live support conclusion is introduced. Current coordination
 keeps testing Mock, and no authenticated live request was made. Service health,
 metric units, permissions and source-window uncertainties remain as above.
+
+## Project access investigation (2026-10-23)
+
+Official upstream revisions were checked again: OpenAPI remains
+`338325a42cd28d12dcee10c088840d2098504a8b`; CLI master was
+`14ec35f79d703a09a5e3abbb22ba59239cdde80d`. These are documentation/source
+observations, not authenticated API results.
+
+- The [Projects schema](https://github.com/liara-cloud/openapi/blob/338325a42cd28d12dcee10c088840d2098504a8b/spec/paas.yaml#L1689-L1720)
+  distinguishes database `_id` from project name `project_id`. The official
+  [list command](https://github.com/liara-cloud/cli/blob/14ec35f79d703a09a5e3abbb22ba59239cdde80d/src/commands/app/list.ts#L18-L28)
+  reads the `projects` envelope and displays `project_id`. The existing adapter
+  already validates that envelope and rejects an absent/malformed array rather
+  than substituting `[]`; no such parser bug was reproduced. Its legacy bare-list
+  tolerance is preserved, without claiming that shape is officially documented.
+- The official [CLI request setup](https://github.com/liara-cloud/cli/blob/14ec35f79d703a09a5e3abbb22ba59239cdde80d/src/base.ts#L269-L311)
+  explicitly supplies a `teamID` query parameter: empty for personal scope, a
+  selected identifier for a team. This detail is evidenced by official client
+  source; it is not a permission guarantee or a requirement stated in the reviewed
+  PaaS OpenAPI operation. Optional `ProviderConfig(team_id=...)` /
+  `LIARA_TEAM_ID` now forwards this scope consistently on existing read requests.
+  Unset preserves prior behavior; empty explicitly selects personal scope.
+  Identifiers are URL-encoded, omitted from config repr/safe config export and
+  never printed by diagnostics. The printable-ASCII/128-character bound is a
+  local input policy, not a verified Liara identifier-format specification.
+- The [CLI host constants](https://github.com/liara-cloud/cli/blob/14ec35f79d703a09a5e3abbb22ba59239cdde80d/src/constants.ts#L9-L14)
+  currently map its Iran/Germany REST choices to `api.liara.ir`. This corroborates
+  the OpenAPI server; it does not establish account-region equivalence with the
+  legacy adapter default `api.iran.liara.ir`. No automatic fallback was added.
+  The focused verification command permits only these two exact API hosts,
+  HTTPS root paths and the default/443 port. Other existing Provider callers
+  retain their validated configurable transport behavior.
+
+The public [developer overview](https://developers.liara.ir/) and its
+[documentation index](https://developers.liara.ir/llms.txt) were accessible;
+individual indexed Markdown endpoint pages were not retrievable in this review.
+The pinned official specification and CLI source above supplied the substantive
+endpoint, shape and query evidence. Scope names, accepted account roles, metric
+units and actual account visibility remain unverified.
+
+The historical user-reported zero-project lists and subsequent 404s do not
+establish a root cause. Current process settings contain neither token nor
+target/binding configuration. **No authenticated live list, exact target
+resolution, service, deployment, logs, metrics, releases or end-to-end inspection
+was performed.** No account, region, permission or API-support conclusion follows.
+Explicit scope support is a documented diagnostic option, not a proven fix for
+the earlier result. See [operator procedure and verification record](../integration/LIVE_VERIFICATION.md).

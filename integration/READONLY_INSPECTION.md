@@ -10,6 +10,12 @@ inspection has not been performed in this delivery.** `data_source=real` describ
 the selected adapter path; it is not independently authenticated provenance or
 proof that a checked-in example contacted Liara.
 
+The additive [live access verification mode](LIVE_VERIFICATION.md) first checks
+the documented project list, requires an exact target match, reuses this same
+composition once, checks one release page and optionally archives the original
+typed result in existing allowlisted summary history. Authenticated live access
+remains unverified; the linked record distinguishes offline checks from live work.
+
 ## Run safely
 
 Use the existing root environment from [README](../README.md). No dependencies
@@ -27,6 +33,7 @@ Required process environment settings:
 | `LIARA_LOGS_SINCE` | Optional opaque API window string; absent means no log request |
 | `LIARA_API_BASE_URL` | Optional existing HTTPS API base; Provider validation is unchanged |
 | `LIARA_TIMEOUT_SECONDS` | Optional positive finite timeout; default 10 seconds per request |
+| `LIARA_TEAM_ID` | Optional account selection: unset preserves prior requests; empty selects personal scope; nonempty selects a team |
 
 Service/scope aliases use the existing `ServiceBinding` grammar: 1–128 ASCII
 characters, beginning with an alphanumeric character and then alphanumerics or
@@ -63,7 +70,11 @@ try {
 $inspectionExit
 ```
 
-Only the literal `--live-read-only` argument is accepted. `--help` is static and
+The literal `--live-read-only` opt-in is required. Optional `--verify-access`
+adds exact listing verification and a release check; `--history-database PATH`
+is allowed only with that mode and takes a local summary-storage path.
+See its [separate output/exit documentation](LIVE_VERIFICATION.md).
+Duplicate flags are rejected. `--help` is static and
 constructs nothing. Tokens, URLs, aliases, requests and identity claims cannot be
 passed as arguments. Missing/invalid settings fail before client construction or
 network access. Importing the module never collects data. Existing Mock, workflow
