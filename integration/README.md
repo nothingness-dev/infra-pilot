@@ -1,5 +1,9 @@
 # Mock backend integration profile
 
+[Protected Mock request access](ACCESS.md) adds a trusted resolver boundary,
+operation/service permissions and persistent ownership checks. It stays offline,
+denies unconfigured identity, and restores neither sessions nor evidence after restart.
+
 [Persistent local Mock requests](REQUESTS.md) add versioned accepted briefs,
 information completion, lifecycle events and safe continuation across separate
 processes. This uses a dedicated SQLite database; prior evidence remains
