@@ -7,6 +7,7 @@ no callback runs collection, diagnosis, history writes or arbitrary caller code.
 from datetime import datetime, timezone
 import json
 import math
+import os
 from pathlib import Path
 import sqlite3
 
@@ -123,6 +124,18 @@ class SQLiteRequestStore:
             raise RequestError("STORE_CLOSED") from None
         return self._connection
 
+    def storage_reference(self):
+        """Local path association for companion storage, never identity/authentication.
+
+        Moving a request database requires an explicit companion-storage decision.
+        The raw filesystem path is neither returned nor logged.
+        """
+        try:
+            name = self._db().execute("PRAGMA database_list").fetchone()[2]
+            return digest({"request_storage_path_v1": os.path.normcase(str(Path(name).resolve()))})
+        except Exception as error:
+            self._raise(error)
+
     @staticmethod
     def _raise(error):
         code = error.code if isinstance(error, RequestError) else "STORAGE_FAILED"
@@ -220,7 +233,7 @@ class SQLiteRequestStore:
         db.execute("INSERT INTO events VALUES(?,?,?,?,?,?)", (value["request_id"], value["revision"], kind, datetime.now(timezone.utc).isoformat(), payload, checksum))
         return value
 
-    def _mutate(self, *, key, command, request_id, expected_revision, transition, kind, pending=False):
+    def _mutate(self, *, key, command, request_id, expected_revision, transition, kind, pending=False, checkpoint=None):
         identifier(key)
         if request_id is not None:
             identifier(request_id)
@@ -229,8 +242,12 @@ class SQLiteRequestStore:
         try:
             with self._db() as db:
                 db.execute("BEGIN IMMEDIATE")
+                if checkpoint is not None:
+                    checkpoint()
                 replay = self._receipt(key, command_digest)
                 if replay is not None:
+                    if checkpoint is not None:
+                        checkpoint()
                     return replay
                 old = None if request_id is None else self._get(request_id)
                 if old is not None and old["revision"] != expected_revision:
@@ -245,11 +262,13 @@ class SQLiteRequestStore:
                     if updated.rowcount != 1:
                         raise RequestError("RECORD_CORRUPTED")
                 db.execute("INSERT INTO receipts VALUES(?,?,?,?,?)", (key, command_digest, int(pending), canonical(value), digest(value)))
+                if checkpoint is not None:
+                    checkpoint()
                 return value
         except Exception as error:
             self._raise(error)
 
-    def _advance_attempt(self, request_id, *, revision, attempt_id, state, history_id=None, error=None):
+    def _advance_attempt(self, request_id, *, revision, attempt_id, state, history_id=None, error=None, checkpoint=None):
         """Internal CAS handoff; collection/history are deliberately outside this transaction."""
         identifier(request_id)
         positive(revision)
@@ -257,6 +276,8 @@ class SQLiteRequestStore:
         try:
             with self._db() as db:
                 db.execute("BEGIN IMMEDIATE")
+                if checkpoint is not None:
+                    checkpoint()
                 old = self._get(request_id)
                 if old["revision"] != revision or old["attempt_id"] != attempt_id:
                     raise RequestError("REVISION_CONFLICT")
@@ -268,6 +289,8 @@ class SQLiteRequestStore:
                 cursor = db.execute("UPDATE receipts SET pending=?,payload=?,digest=? WHERE key=? AND pending=1", (int(state == "awaiting_history"), canonical(value), digest(value), attempt_id))
                 if cursor.rowcount != 1:
                     raise RequestError("RECORD_CORRUPTED")
+                if checkpoint is not None:
+                    checkpoint()
                 return value
         except Exception as error:
             self._raise(error)

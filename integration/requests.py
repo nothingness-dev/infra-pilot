@@ -24,18 +24,27 @@ class PersistentMockRequests:
     ``expected_revision`` is required even for read-only current-evidence use.
     """
 
-    def __init__(self, store, *, mock=False):
+    def __init__(self, store, *, mock=False, checkpoint=None):
         if mock is not True:
             raise RequestError("MOCK_OPT_IN_REQUIRED") from None
         if type(store) is not SQLiteRequestStore:
             raise RequestError("INVALID_DATABASE") from None
+        if checkpoint is not None and not callable(checkpoint):
+            raise RequestError("INVALID_ARGUMENTS") from None
         self._store = store
         self._retained = {}
+        self._checkpoint = checkpoint
+
+    def _check(self):
+        # Trusted composition hook, never supplied through public JSON/CLI.
+        if self._checkpoint is not None:
+            self._checkpoint()
 
     def __repr__(self):
         return "PersistentMockRequests(mode='mock', authority='none')"
 
     def _view(self, value):
+        self._check()
         # No stored flags, identity claims, prose or reports participate here.
         is_current = self._store.get(value["request_id"]) == value
         present = is_current and (value["request_id"], value["attempt_id"]) in self._retained
@@ -65,7 +74,7 @@ class PersistentMockRequests:
                     "attempt_id": None, "scenario": None, "history_id": None, "error_code": None}
 
         value = self._store._mutate(key=idempotency_key, command=["create", brief], request_id=None,
-                                    expected_revision=None, transition=transition, kind="created")
+                                    expected_revision=None, transition=transition, kind="created", checkpoint=self._checkpoint)
         return self._view(value)
 
     def supply_information(self, request_id, additional_information, *, expected_revision, idempotency_key):
@@ -89,7 +98,7 @@ class PersistentMockRequests:
 
         value = self._store._mutate(key=idempotency_key, command=["supply", request_id, expected_revision, brief],
                                     request_id=request_id, expected_revision=expected_revision,
-                                    transition=transition, kind="information_supplied")
+                                    transition=transition, kind="information_supplied", checkpoint=self._checkpoint)
         # Invalidate all old process-local associations when the accepted brief changed.
         current = self._store.get(request_id)
         for key, (brief_revision, _, _) in tuple(self._retained.items()):
@@ -148,7 +157,7 @@ class PersistentMockRequests:
 
         value = self._store._mutate(key=idempotency_key, command=["inspect", request_id, expected_revision, scenario],
                                     request_id=request_id, expected_revision=expected_revision,
-                                    transition=transition, kind="inspection_started", pending=True)
+                                    transition=transition, kind="inspection_started", pending=True, checkpoint=self._checkpoint)
         if value["state"] not in ("inspecting", "awaiting_history"):
             if value["state"] == "inspection_failed":
                 raise RequestError("COLLECTION_FAILED")
@@ -165,24 +174,32 @@ class PersistentMockRequests:
                 if not started:
                     raise RequestError("RECOVERY_REQUIRED")
                 try:
-                    inspection = MockSession(mock=True, scenario=scenario,
-                                             request=operation(request_id, value["details"])).inspect()
+                    session = MockSession(mock=True, scenario=scenario,
+                                          request=operation(request_id, value["details"]))
+                    self._check()  # Collection completed; verify access before diagnosis.
+                    inspection = session.inspect()
                     self._retained[key] = (value["brief_revision"], value["fingerprint"], inspection)
                     self._validate(value)
                 except KeyboardInterrupt:
                     raise
-                except Exception:
+                except Exception as error:
+                    if isinstance(error, RequestError) and error.code in (
+                        "ACCESS_DENIED", "STORAGE_BUSY", "STORAGE_FAILED", "STORE_CLOSED",
+                    ):
+                        raise
                     self._retained.pop(key, None)
                     self._store._advance_attempt(request_id, revision=value["revision"], attempt_id=idempotency_key,
-                                                  state="inspection_failed", error="COLLECTION_FAILED")
+                                                  state="inspection_failed", error="COLLECTION_FAILED", checkpoint=self._checkpoint)
                     raise RequestError("COLLECTION_FAILED") from None
             else:
                 self._validate(value)
+            self._check()
             value = self._store._advance_attempt(request_id, revision=value["revision"], attempt_id=idempotency_key,
-                                                  state="awaiting_history")
+                                                  state="awaiting_history", checkpoint=self._checkpoint)
         elif key not in self._retained:
             raise RequestError("RECOVERY_REQUIRED")
         inspection = self._validate(value)
+        self._check()
         try:
             saved = history.save(inspection)
             if history.get(saved.record_id, expected_binding=mock_context_binding()) != saved:
@@ -194,7 +211,7 @@ class PersistentMockRequests:
             raise RequestError("HISTORY_FAILED") from None
         # If interrupted here, re-saving the SAME retained inspection is idempotent.
         value = self._store._advance_attempt(request_id, revision=value["revision"], attempt_id=idempotency_key,
-                                              state="inspection_recorded", history_id=saved.record_id)
+                                              state="inspection_recorded", history_id=saved.record_id, checkpoint=self._checkpoint)
         return {**self._view(value), "historical_summary": saved.to_dict()}
 
     def recover(self, request_id, *, expected_revision, idempotency_key):
@@ -209,7 +226,7 @@ class PersistentMockRequests:
 
         value = self._store._mutate(key=idempotency_key, command=["recover", request_id, expected_revision],
                                     request_id=request_id, expected_revision=expected_revision,
-                                    transition=transition, kind="recovered")
+                                    transition=transition, kind="recovered", checkpoint=self._checkpoint)
         for attempt in abandoned:
             self._retained.pop((request_id, attempt), None)
         return self._view(value)
