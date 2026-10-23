@@ -131,8 +131,9 @@ Retrieved `HistoricalInspection` values are detached historical DTOs. They canno
 be passed to `save` as new trusted inspections, reconstructed into
 `PreparedCollection`, substituted for a current Setup companion, used to revive
 an approval or fed into the Mock-only outcome evaluator as retained references.
-Full request editing/resume, raw evidence/report persistence and durable
-approval/audit storage are separate work. Existing in-memory Approval behavior
+The separate [local Mock request store](REQUESTS.md) now supports controlled-brief
+completion/resume without changing this schema. Raw evidence/report persistence
+and durable approval/audit storage remain separate work. Existing in-memory Approval behavior
 and its production trust blockers remain unchanged.
 
 See [verification](HISTORY_VERIFICATION.md) for executed checks and delivery scope.

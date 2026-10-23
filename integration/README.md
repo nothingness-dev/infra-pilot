@@ -1,5 +1,10 @@
 # Mock backend integration profile
 
+[Persistent local Mock requests](REQUESTS.md) add versioned accepted briefs,
+information completion, lifecycle events and safe continuation across separate
+processes. This uses a dedicated SQLite database; prior evidence remains
+historical after restart and cannot restore approvals or trusted references.
+
 [Persistent inspection history](HISTORY.md) adds opt-in local SQLite storage for
 validated summaries, with an offline record/list demo. Historical records do not
 restore current producer references, identity, approvals or execution authority.
