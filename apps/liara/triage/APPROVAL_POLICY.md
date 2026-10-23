@@ -1,5 +1,12 @@
 # Approval Policy and authorization gate (Task 3)
 
+Later backend continuation (2026-10-23): the original gate now supports optional
+UUID4 retry keys and an explicit SQLite store implementation without changing
+shared schemas, default denial, in-memory behavior or HTTP approval restrictions.
+See [durable Approval/Audit](../../../integration/APPROVAL_PERSISTENCE.md) for
+the persistent port, atomicity, identity/association requirements and verification.
+Historical Task 3 scope/results below remain the record of that original task.
+
 **Internal DRAFT integration interfaces. Team approval is required before final
 setup/provider integration. These are not official Liara API schemas.** All six
 Task 1 models, the Task 2 engine, their dependencies, and their 130 tests remain

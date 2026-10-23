@@ -204,6 +204,12 @@ blocked. A shortened illustration of its top-level fields is:
 
 ## Verification and remaining work
 
+Optional [durable Approval/Audit](APPROVAL_PERSISTENCE.md) now uses the same gate
+through a backend-owned store factory. The existing CLI accepts
+`--approval-database PATH`; this mode exports a summary, keeps Mock opt-in and
+never consumes authorization. Fresh workflows cannot reconstruct original
+evidence/sessions from persisted decisions.
+
 ```powershell
 .\.venv\Scripts\python.exe -B -m pytest -p no:cacheprovider -q
 python -B -m unittest discover -s provider/tests -t . -v
@@ -212,7 +218,7 @@ python -B -m unittest discover -s provider/tests -t . -v
 See [executed workflow verification](WORKFLOW_VERIFICATION.md).
 
 Remaining work: real read-only account/service verification, production identity
-and target ACLs, durable association/approval/audit storage, freshness/replay and
+and target ACLs, production association/recovery and protected audit retention, freshness/replay and
 live-log sharing policies, reviewed provider action capabilities, separately
 authorized execution, and actual before/after evaluation. Online deployment,
 frontend and video delivery are outside this change. No real API call, operation,
