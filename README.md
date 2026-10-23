@@ -1,9 +1,15 @@
-# InfraPilot: executable offline Mock backend workflows
+# InfraPilot: backend inspection and offline Mock workflows
 
 This repository assembles the existing Provider, Triage and Setup into
 one **explicitly Mock** Python flow. The actual Provider collector/normalizer,
 Triage diagnosis engine and Setup companion/presentation execute in-process.
-It needs no Liara account, token, external API, listener or infrastructure tool.
+The Mock flows need no Liara account, token, external API, listener or infrastructure tool.
+
+The separate [read-only Liara inspection](integration/READONLY_INSPECTION.md)
+connects the actual adapter to local Diagnosis and Setup. It requires explicit
+`--live-read-only` opt-in and validated environment settings, emits only a data-free
+summary, and performs no infrastructure mutations. Authenticated live verification
+has not been performed; see [its verification record](integration/READONLY_VERIFICATION.md).
 
 The [request-to-approval workflow](integration/WORKFLOW.md) adds request intake,
 information completion, preparation, actual evidence/diagnosis, action review,
@@ -126,8 +132,12 @@ The request-to-approval continuation added 30 behavioral/CLI tests. That
 suite passed **691 tests**; see the separately recorded
 [workflow verification](integration/WORKFLOW_VERIFICATION.md).
 
-The outcome milestone adds 39 tests. The current suite passed **730 tests**;
+The outcome milestone added 39 tests. Its checkpoint passed **730 tests**;
 see [outcome verification](integration/OUTCOME_VERIFICATION.md).
+
+The read-only composition adds 35 tests across integration and Provider. The
+current suite passes **765 tests**; see
+[read-only verification](integration/READONLY_VERIFICATION.md).
 
 Provider remains usable and testable with the standard library alone:
 
@@ -148,7 +158,8 @@ schemas and the Provider/Triage/Setup contextual proposals keep their original
 Draft/proposal labels. No contextual HTTP route or production trust backend is
 enabled. Both existing diagnosis and approval behavior are preserved.
 
-Remaining backend work includes separately reviewed real read-only collection,
+The local read-only composition is implemented and tested with mocked HTTP.
+Remaining backend work includes authenticated live verification,
 trusted service/account identity and ACLs, durable current
 associations/approval/audit storage, and freshness/replay policies. A future
 infrastructure executor is a separate task. CPU/RAM units, application health and
