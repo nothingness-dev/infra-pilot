@@ -1,0 +1,540 @@
+{
+  "version": "infrapilot-ui/1-mock",
+  "source": "mock",
+  "real_available": false,
+  "service": {
+    "id": "MOCK-service",
+    "name": "\u0633\u0631\u0648\u06cc\u0633 \u0622\u0632\u0645\u0627\u06cc\u0634\u06cc",
+    "project": "mock-project"
+  },
+  "records": [
+    {
+      "id": "INC-024",
+      "title": "\u062c\u0645\u0639\u200c\u0622\u0648\u0631\u06cc \u0646\u0627\u0642\u0635 \u0634\u0648\u0627\u0647\u062f",
+      "lifecycle": "active",
+      "lifecycle_is_demo": true,
+      "revision": "1eb95292-b4a9-4abf-8524-e593cff8171a",
+      "scenario": "partial_failure",
+      "created_at": "2026-10-23T16:34:26.703936+00:00",
+      "history_id": "sha256:cf229fe9f718ff4ea7be3b0638644656864fb32db697ed3053d4c4e8da1f09ab",
+      "snapshot": {
+        "cpu_usage_percent": null,
+        "data_source": "mock",
+        "http_status": null,
+        "ram_usage_mib": null,
+        "response_time_ms": null,
+        "service_id": "MOCK-service",
+        "status": "unknown",
+        "timestamp": null
+      },
+      "report": {
+        "actions": [
+          {
+            "action_id": "collect_observability",
+            "description": "Ask the observability adapter for available missing metrics, health details, and relevant logs; do not invent unavailable values.",
+            "requires_approval": false,
+            "risk_level": "low",
+            "status": "not_executed",
+            "title": "Collect missing observations"
+          }
+        ],
+        "data_source": "mock",
+        "evidence": [
+          {
+            "description": "Reported service status: unknown.",
+            "evidence_id": "service-status",
+            "kind": "status"
+          }
+        ],
+        "hypotheses": [],
+        "limitations": [
+          "Confidence scores are deterministic heuristics, not calibrated probabilities.",
+          "This report uses one supplied snapshot; it does not establish causality or verify data provenance.",
+          "Configured heuristic thresholds: CPU >= 85 %, RAM >= 1024 MiB, response time >= 1000 ms.",
+          "RAM usage is an absolute MiB value; memory limit and utilization are unavailable.",
+          "Mock observations cannot establish the state of a real service."
+        ],
+        "missing_information": [
+          "Service health is unknown.",
+          "HTTP status is unavailable.",
+          "CPU usage measurement is unavailable.",
+          "RAM usage measurement is unavailable.",
+          "Response time measurement is unavailable.",
+          "Service logs are unavailable (not collected or not supplied).",
+          "Snapshot timestamp is unavailable; observation freshness cannot be assessed."
+        ],
+        "service_id": "MOCK-service",
+        "summary": "Insufficient failure evidence to identify a cause from the supplied observations."
+      },
+      "context": {
+        "capabilities": [
+          {
+            "availability": "available",
+            "capability": "service",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "deployment",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "permission_denied",
+            "capability": "logs",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": "AUTHENTICATION_ERROR",
+            "http_status": 403,
+            "retryable": false
+          },
+          {
+            "availability": "failed",
+            "capability": "metrics",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": "RATE_LIMITED",
+            "http_status": 429,
+            "retryable": true
+          }
+        ],
+        "collection_finished_at": "2026-10-22T00:00:00+00:00",
+        "collection_started_at": "2026-10-22T00:00:00+00:00",
+        "contract_version": "provider-collection-context/0.2-draft",
+        "data_source": "mock",
+        "limitations": [
+          "HEALTH_STATUS_UNVERIFIED",
+          "APPLICATION_HTTP_NOT_MEASURED",
+          "CPU_RAM_UNITS_UNVERIFIED",
+          "SOURCE_TIMESTAMPS_UNVERIFIED",
+          "LOG_WINDOW_COMPLETENESS_UNVERIFIED",
+          "DEPLOYMENT_RELEASE_FIELDS_NOT_IN_DRAFT"
+        ],
+        "log_export": {
+          "exported": 0,
+          "received": null,
+          "state": "collection_failed",
+          "withheld": 0
+        },
+        "service_id": "MOCK-service",
+        "snapshot_digest": "sha256:f809af869a16d4ba232fdd7842e22496fc8b9c6edc78dfa3d648a598282e38fb"
+      },
+      "source": "mock",
+      "authorization_consumed": false,
+      "execution_authorized": false,
+      "execution_performed": false,
+      "remediation_verified": false,
+      "identity_verified": false
+    },
+    {
+      "id": "INC-023",
+      "title": "\u0628\u0627\u0632\u0628\u06cc\u0646\u06cc \u0634\u0648\u0627\u0647\u062f \u0645\u0648\u062c\u0648\u062f",
+      "lifecycle": "review",
+      "lifecycle_is_demo": true,
+      "revision": "79046df7-ec9f-4329-8e53-dcf579f3af90",
+      "scenario": "exported",
+      "created_at": "2026-10-23T16:34:26.712743+00:00",
+      "history_id": "sha256:640f840cd0718059ab3a22779b88d0f349801d8cd018c180715d278b15950c39",
+      "snapshot": {
+        "cpu_usage_percent": null,
+        "data_source": "mock",
+        "http_status": null,
+        "ram_usage_mib": null,
+        "response_time_ms": null,
+        "service_id": "MOCK-service",
+        "status": "unknown",
+        "timestamp": null
+      },
+      "report": {
+        "actions": [
+          {
+            "action_id": "collect_observability",
+            "description": "Ask the observability adapter for available missing metrics, health details, and relevant logs; do not invent unavailable values.",
+            "requires_approval": false,
+            "risk_level": "low",
+            "status": "not_executed",
+            "title": "Collect missing observations"
+          }
+        ],
+        "data_source": "mock",
+        "evidence": [
+          {
+            "description": "Reported service status: unknown.",
+            "evidence_id": "service-status",
+            "kind": "status"
+          },
+          {
+            "description": "Log entry 1 (unknown): \"Synthetic application started\"",
+            "evidence_id": "log-0001",
+            "kind": "log"
+          }
+        ],
+        "hypotheses": [],
+        "limitations": [
+          "Confidence scores are deterministic heuristics, not calibrated probabilities.",
+          "This report uses one supplied snapshot; it does not establish causality or verify data provenance.",
+          "Configured heuristic thresholds: CPU >= 85 %, RAM >= 1024 MiB, response time >= 1000 ms.",
+          "Log window and completeness are unknown; supplied entries may be partial or historical.",
+          "RAM usage is an absolute MiB value; memory limit and utilization are unavailable.",
+          "Mock observations cannot establish the state of a real service."
+        ],
+        "missing_information": [
+          "Service health is unknown.",
+          "HTTP status is unavailable.",
+          "CPU usage measurement is unavailable.",
+          "RAM usage measurement is unavailable.",
+          "Response time measurement is unavailable.",
+          "Snapshot timestamp is unavailable; observation freshness cannot be assessed."
+        ],
+        "service_id": "MOCK-service",
+        "summary": "Insufficient failure evidence to identify a cause from the supplied observations."
+      },
+      "context": {
+        "capabilities": [
+          {
+            "availability": "available",
+            "capability": "service",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "deployment",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "logs",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "metrics",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          }
+        ],
+        "collection_finished_at": "2026-10-22T00:00:00+00:00",
+        "collection_started_at": "2026-10-22T00:00:00+00:00",
+        "contract_version": "provider-collection-context/0.2-draft",
+        "data_source": "mock",
+        "limitations": [
+          "HEALTH_STATUS_UNVERIFIED",
+          "APPLICATION_HTTP_NOT_MEASURED",
+          "CPU_RAM_UNITS_UNVERIFIED",
+          "SOURCE_TIMESTAMPS_UNVERIFIED",
+          "LOG_WINDOW_COMPLETENESS_UNVERIFIED",
+          "DEPLOYMENT_RELEASE_FIELDS_NOT_IN_DRAFT",
+          "LOG_TIME_AND_LEVEL_UNVERIFIED"
+        ],
+        "log_export": {
+          "exported": 1,
+          "received": 1,
+          "state": "exported",
+          "withheld": 0
+        },
+        "service_id": "MOCK-service",
+        "snapshot_digest": "sha256:b2c860ea8cf0d4dcf52d23b74fd66d0f7a0e661309b50f7a35cb6b6186e11d9a"
+      },
+      "source": "mock",
+      "authorization_consumed": false,
+      "execution_authorized": false,
+      "execution_performed": false,
+      "remediation_verified": false,
+      "identity_verified": false
+    },
+    {
+      "id": "INC-022",
+      "title": "\u0645\u062a\u0646 \u0644\u0627\u06af \u0645\u0646\u062a\u0634\u0631 \u0646\u0634\u062f\u0647 \u0627\u0633\u062a",
+      "lifecycle": "review",
+      "lifecycle_is_demo": true,
+      "revision": "af9dfbcb-3609-450b-aead-517d076e274f",
+      "scenario": "withheld",
+      "created_at": "2026-10-23T16:34:26.720739+00:00",
+      "history_id": "sha256:c91303a43fb983c5ec634e742d01f13f7cd940242bd8cafe4ec3775b3710f36a",
+      "snapshot": {
+        "cpu_usage_percent": null,
+        "data_source": "mock",
+        "http_status": null,
+        "ram_usage_mib": null,
+        "response_time_ms": null,
+        "service_id": "MOCK-service",
+        "status": "unknown",
+        "timestamp": null
+      },
+      "report": {
+        "actions": [
+          {
+            "action_id": "collect_observability",
+            "description": "Ask the observability adapter for available missing metrics, health details, and relevant logs; do not invent unavailable values.",
+            "requires_approval": false,
+            "risk_level": "low",
+            "status": "not_executed",
+            "title": "Collect missing observations"
+          }
+        ],
+        "data_source": "mock",
+        "evidence": [
+          {
+            "description": "Reported service status: unknown.",
+            "evidence_id": "service-status",
+            "kind": "status"
+          }
+        ],
+        "hypotheses": [],
+        "limitations": [
+          "Confidence scores are deterministic heuristics, not calibrated probabilities.",
+          "This report uses one supplied snapshot; it does not establish causality or verify data provenance.",
+          "Configured heuristic thresholds: CPU >= 85 %, RAM >= 1024 MiB, response time >= 1000 ms.",
+          "RAM usage is an absolute MiB value; memory limit and utilization are unavailable.",
+          "Mock observations cannot establish the state of a real service."
+        ],
+        "missing_information": [
+          "Service health is unknown.",
+          "HTTP status is unavailable.",
+          "CPU usage measurement is unavailable.",
+          "RAM usage measurement is unavailable.",
+          "Response time measurement is unavailable.",
+          "Service logs are unavailable (not collected or not supplied).",
+          "Snapshot timestamp is unavailable; observation freshness cannot be assessed."
+        ],
+        "service_id": "MOCK-service",
+        "summary": "Insufficient failure evidence to identify a cause from the supplied observations."
+      },
+      "context": {
+        "capabilities": [
+          {
+            "availability": "available",
+            "capability": "service",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "deployment",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "logs",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "metrics",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          }
+        ],
+        "collection_finished_at": "2026-10-22T00:00:00+00:00",
+        "collection_started_at": "2026-10-22T00:00:00+00:00",
+        "contract_version": "provider-collection-context/0.2-draft",
+        "data_source": "mock",
+        "limitations": [
+          "HEALTH_STATUS_UNVERIFIED",
+          "APPLICATION_HTTP_NOT_MEASURED",
+          "CPU_RAM_UNITS_UNVERIFIED",
+          "SOURCE_TIMESTAMPS_UNVERIFIED",
+          "LOG_WINDOW_COMPLETENESS_UNVERIFIED",
+          "DEPLOYMENT_RELEASE_FIELDS_NOT_IN_DRAFT",
+          "LOG_TEXT_WITHHELD"
+        ],
+        "log_export": {
+          "exported": 0,
+          "received": 1,
+          "state": "withheld",
+          "withheld": 1
+        },
+        "service_id": "MOCK-service",
+        "snapshot_digest": "sha256:f809af869a16d4ba232fdd7842e22496fc8b9c6edc78dfa3d648a598282e38fb"
+      },
+      "source": "mock",
+      "authorization_consumed": false,
+      "execution_authorized": false,
+      "execution_performed": false,
+      "remediation_verified": false,
+      "identity_verified": false
+    },
+    {
+      "id": "INC-021",
+      "title": "\u0645\u062c\u0645\u0648\u0639\u0647\u0654 \u0644\u0627\u06af \u062e\u0627\u0644\u06cc",
+      "lifecycle": "closed",
+      "lifecycle_is_demo": true,
+      "revision": "0385caaf-75d7-4377-baa1-8303cb15b221",
+      "scenario": "empty",
+      "created_at": "2026-10-23T16:34:26.728666+00:00",
+      "history_id": "sha256:77ac7deebc61d6a04cdf256626975b62afb19879e2451aa021bafca76e08e188",
+      "snapshot": {
+        "cpu_usage_percent": null,
+        "data_source": "mock",
+        "http_status": null,
+        "ram_usage_mib": null,
+        "response_time_ms": null,
+        "service_id": "MOCK-service",
+        "status": "unknown",
+        "timestamp": null
+      },
+      "report": {
+        "actions": [
+          {
+            "action_id": "collect_observability",
+            "description": "Ask the observability adapter for available missing metrics, health details, and relevant logs; do not invent unavailable values.",
+            "requires_approval": false,
+            "risk_level": "low",
+            "status": "not_executed",
+            "title": "Collect missing observations"
+          }
+        ],
+        "data_source": "mock",
+        "evidence": [
+          {
+            "description": "Reported service status: unknown.",
+            "evidence_id": "service-status",
+            "kind": "status"
+          }
+        ],
+        "hypotheses": [],
+        "limitations": [
+          "Confidence scores are deterministic heuristics, not calibrated probabilities.",
+          "This report uses one supplied snapshot; it does not establish causality or verify data provenance.",
+          "Configured heuristic thresholds: CPU >= 85 %, RAM >= 1024 MiB, response time >= 1000 ms.",
+          "The collected log collection is empty; no application failure details are available.",
+          "RAM usage is an absolute MiB value; memory limit and utilization are unavailable.",
+          "Mock observations cannot establish the state of a real service."
+        ],
+        "missing_information": [
+          "Service health is unknown.",
+          "HTTP status is unavailable.",
+          "CPU usage measurement is unavailable.",
+          "RAM usage measurement is unavailable.",
+          "Response time measurement is unavailable.",
+          "Snapshot timestamp is unavailable; observation freshness cannot be assessed."
+        ],
+        "service_id": "MOCK-service",
+        "summary": "Insufficient failure evidence to identify a cause from the supplied observations."
+      },
+      "context": {
+        "capabilities": [
+          {
+            "availability": "available",
+            "capability": "service",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "deployment",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "logs",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          },
+          {
+            "availability": "available",
+            "capability": "metrics",
+            "collected_at": "2026-10-22T00:00:00+00:00",
+            "error_code": null,
+            "http_status": null,
+            "retryable": null
+          }
+        ],
+        "collection_finished_at": "2026-10-22T00:00:00+00:00",
+        "collection_started_at": "2026-10-22T00:00:00+00:00",
+        "contract_version": "provider-collection-context/0.2-draft",
+        "data_source": "mock",
+        "limitations": [
+          "HEALTH_STATUS_UNVERIFIED",
+          "APPLICATION_HTTP_NOT_MEASURED",
+          "CPU_RAM_UNITS_UNVERIFIED",
+          "SOURCE_TIMESTAMPS_UNVERIFIED",
+          "LOG_WINDOW_COMPLETENESS_UNVERIFIED",
+          "DEPLOYMENT_RELEASE_FIELDS_NOT_IN_DRAFT"
+        ],
+        "log_export": {
+          "exported": 0,
+          "received": 0,
+          "state": "empty",
+          "withheld": 0
+        },
+        "service_id": "MOCK-service",
+        "snapshot_digest": "sha256:38c0459be00e5e3e165cdb68b064086c3551b21c10ab4600482d31f39abf5e22"
+      },
+      "source": "mock",
+      "authorization_consumed": false,
+      "execution_authorized": false,
+      "execution_performed": false,
+      "remediation_verified": false,
+      "identity_verified": false
+    }
+  ],
+  "approvals": [
+    {
+      "id": "APR-23A55A56",
+      "record_id": "INC-024",
+      "revision": "1eb95292-b4a9-4abf-8524-e593cff8171a",
+      "state": "pending",
+      "created_at": "2026-10-23T16:34:26.729838+00:00",
+      "expires_at": "2026-10-23T16:39:26.729838+00:00",
+      "historical": false,
+      "operation": "restart_service",
+      "separate_demo": true,
+      "grace_period_seconds": 30,
+      "policy_category": "sensitive_service_operation",
+      "can_decide": true,
+      "audit": [
+        {
+          "kind": "approval_requested",
+          "reason": "approval_pending",
+          "occurred_at": "2026-10-23T16:34:26.729838+00:00"
+        }
+      ],
+      "authorization_consumed": false,
+      "execution_authorized": false,
+      "execution_performed": false,
+      "remediation_verified": false,
+      "identity_verified": false
+    }
+  ],
+  "connection": {
+    "state": "not_verified",
+    "logs_window": "not_configured"
+  },
+  "authorization_consumed": false,
+  "execution_authorized": false,
+  "execution_performed": false,
+  "remediation_verified": false,
+  "identity_verified": false
+}

@@ -1,6 +1,10 @@
 """Explicit loopback MOCK UI adapter. No default app, live provider or executor."""
 
 from contextlib import asynccontextmanager
+import asyncio
+from contextlib import suppress
+import time
+import math
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -19,6 +23,7 @@ from .approval_store import SQLiteApprovalStore
 from .history import SQLiteInspectionHistory
 from .mock_approval import MockClock, OperatorApprovalExample
 from .service import MockSession
+from .ui_setup import SetupInput, SetupPlans
 
 CATALOG = (("INC-024", "partial_failure", "جمع‌آوری ناقص شواهد", "active"),
            ("INC-023", "exported", "بازبینی شواهد موجود", "review"),
@@ -70,6 +75,7 @@ class UiSession:
         self.directory, self.csrf = directory, secrets.token_urlsafe(32)
         self.records, self.approvals = {}, {}
         self.clock = MockClock()
+        self.setup = SetupPlans(directory / "setup.sqlite")
         try:
             with SQLiteInspectionHistory(directory / "history.sqlite") as history:
                 for identifier, scenario, title, lifecycle in CATALOG:
@@ -128,8 +134,9 @@ class UiSession:
             "operation": "restart_service", "separate_demo": True,
             "grace_period_seconds": parameters["grace_period_seconds"], "policy_category": policy["category"],
             "can_decide": current["state"].value == "pending", "audit": [
-                {"kind": event["kind"].value, "reason": event["reason"].value,
-                 "occurred_at": event["occurred_at"].isoformat()} for event in raw["audit_events"]], **FLAGS}
+                {"kind": event.kind.value, "reason": event.reason.value,
+                 "occurred_at": event.occurred_at.isoformat()}
+                for event in entry["operator"].store.events_for(current["request_id"])], **FLAGS}
 
     def decide(self, identifier, body):
         entry = self.approvals.get(identifier)
@@ -172,23 +179,47 @@ class UiSession:
         return {"version": "infrapilot-ui/1-mock", "source": "mock", "real_available": False,
             "service": {"id": "MOCK-service", "name": "سرویس آزمایشی", "project": "mock-project"},
             "records": records, "approvals": [self.approval_view(key, value) for key, value in self.approvals.items()],
-            "connection": {"state": "not_verified", "logs_window": "not_configured"}, **FLAGS}
+            "connection": {"state": "not_verified", "logs_window": "not_configured"},
+            "setup_requests": self.setup.list(), **FLAGS}
 
 
-def create_ui_app(*, mock=False, data_directory=None, origins=None, static_directory=None):
+def create_ui_app(*, mock=False, data_directory=None, origins=None, static_directory=None, clock=time.monotonic, session_ttl=3600):
     if mock is not True or data_directory is None:
         raise ValueError("Explicit Mock UI configuration required.") from None
+    if not callable(clock) or type(session_ttl) not in (int, float) or not 0 < session_ttl <= 3600:
+        raise ValueError("Invalid session expiry configuration.")
     directory = Path(data_directory)
     if directory.is_symlink() or not directory.is_dir():
         raise ValueError("Invalid UI data directory.") from None
     allowed = frozenset(origins or ("http://127.0.0.1:4173", "http://localhost:4173", "http://127.0.0.1:8787", "http://localhost:8787"))
     sessions, lock = {}, RLock()
 
+    def prune_sessions():
+        with lock:
+            stamp = clock()
+            for key, session in tuple(sessions.items()):
+                if not session.started_at <= stamp < session.expires_at:
+                    session.close()
+                    del sessions[key]
+
+    async def reap_sessions():
+        while True:
+            await asyncio.sleep(min(60, session_ttl))
+            await asyncio.to_thread(prune_sessions)
+
     @asynccontextmanager
     async def lifespan(app):
-        yield
-        for session in sessions.values():
-            session.close()
+        reaper = asyncio.create_task(reap_sessions())
+        try:
+            yield
+        finally:
+            reaper.cancel()
+            with suppress(asyncio.CancelledError):
+                await reaper
+            with lock:
+                for session in sessions.values():
+                    session.close()
+                sessions.clear()
 
     app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1"])
@@ -198,18 +229,24 @@ def create_ui_app(*, mock=False, data_directory=None, origins=None, static_direc
         if request.url.path.startswith("/api/") and request.method not in ("GET", "HEAD"):
             if request.headers.get("origin") not in allowed or request.headers.get("content-type", "").split(";")[0] != "application/json":
                 return error_response("ORIGIN_DENIED", 403)
+            body_limit = 4096 if request.url.path == "/api/ui/setup-requests" else 1024
             length = request.headers.get("content-length", "")
-            if not length.isascii() or not length.isdigit() or len(length) > 6 or int(length) > 1024:
+            if not length.isascii() or not length.isdigit() or len(length) > 6 or int(length) > body_limit:
                 return error_response("INVALID_REQUEST", 413)
-            if len(await request.body()) > 1024:
-                return error_response("INVALID_REQUEST", 413)
+            chunks, received = [], 0
+            async for chunk in request.stream():
+                received += len(chunk)
+                if received > body_limit:
+                    return error_response("INVALID_REQUEST", 413)
+                chunks.append(chunk)
+            request._body = b"".join(chunks)  # Starlette's cached request for downstream JSON validation.
         response = await call_next(request)
         response.headers.update(SAFE_HEADERS)
         return response
 
     @app.exception_handler(HTTPException)
     async def http_error(request, error):
-        codes = {"NOT_FOUND", "STALE_REVISION", "DECISION_FINAL", "APPROVAL_UNAVAILABLE", "SESSION_REQUIRED", "CSRF_DENIED", "SESSION_LIMIT"}
+        codes = {"NOT_FOUND", "STALE_REVISION", "DECISION_FINAL", "APPROVAL_UNAVAILABLE", "SESSION_REQUIRED", "CSRF_DENIED", "SESSION_LIMIT", "IDEMPOTENCY_CONFLICT", "SETUP_POLICY_CHANGED"}
         return error_response(error.detail if error.detail in codes else "INVALID_REQUEST", error.status_code)
 
     @app.exception_handler(RequestValidationError)
@@ -221,6 +258,7 @@ def create_ui_app(*, mock=False, data_directory=None, origins=None, static_direc
         return error_response("UI_UNAVAILABLE", 503)
 
     def current(request, *, mutation=False):
+        prune_sessions()
         session = sessions.get(request.cookies.get("infrapilot_mock"))
         if session is None:
             raise HTTPException(401, "SESSION_REQUIRED")
@@ -231,6 +269,7 @@ def create_ui_app(*, mock=False, data_directory=None, origins=None, static_direc
     @app.post("/api/ui/session")
     def bootstrap(request: Request, body: EmptyInput):
         with lock:
+            prune_sessions()
             key = request.cookies.get("infrapilot_mock")
             if key not in sessions:
                 if len(sessions) >= 8:
@@ -238,11 +277,19 @@ def create_ui_app(*, mock=False, data_directory=None, origins=None, static_direc
                 folder = directory / uuid4().hex
                 folder.mkdir()
                 session = UiSession(folder)
+                session.started_at = clock()
+                session.expires_at = session.started_at + session_ttl
                 key = secrets.token_urlsafe(32)
                 sessions[key] = session
             response = JSONResponse({"csrf": sessions[key].csrf, "source": "mock"})
-            response.set_cookie("infrapilot_mock", key, httponly=True, samesite="strict", max_age=3600)
+            response.set_cookie("infrapilot_mock", key, httponly=True, samesite="strict", max_age=max(1, math.ceil(sessions[key].expires_at - clock())))
             return response
+
+    @app.post("/api/ui/setup-requests")
+    def setup_request(request: Request, body: SetupInput):
+        with lock:
+            session = current(request, mutation=True)
+            return session.setup.create(body, now())
 
     @app.get("/api/ui/state")
     def state(request: Request):

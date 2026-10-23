@@ -1,0 +1,38 @@
+[
+  {
+    "page": "dashboard",
+    "heading": "مرکز فرمان زیرساخت",
+    "height": 844,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "light",
+    "width": 390
+  },
+  {
+    "page": "incidents",
+    "heading": "مرکز رخدادها",
+    "height": 844,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "light",
+    "width": 390
+  },
+  {
+    "page": "incident-details",
+    "heading": "جمع‌آوری ناقص شواهد",
+    "height": 844,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "light",
+    "width": 390
+  },
+  {
+    "page": "services",
+    "heading": "سرویس‌های پروژه",
+    "height": 900,
+    "overflow": false,
+    "realDisabled": true,
+    "theme": "light",
+    "width": 1024
+  }
+]

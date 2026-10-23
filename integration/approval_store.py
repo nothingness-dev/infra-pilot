@@ -373,13 +373,20 @@ class SQLiteApprovalStore:
         with self.transaction() as transaction:
             return transaction.get(request_id)
 
-    def read_events(self, *, after_sequence=0, limit=100):
+    def read_events(self, *, after_sequence=0, limit=100, request_id=None):
         try:
             if type(after_sequence) is not int or not 0 <= after_sequence <= 2**63 - 1 or type(limit) is not int or not 1 <= limit <= 1000:
                 _fail()
+            if request_id is not None:
+                _uuid(request_id)
+            condition = " AND request_id=?" if request_id is not None else ""
+            parameters = [_LIMIT, self.association_ref, after_sequence]
+            if request_id is not None:
+                parameters.append(request_id)
+            parameters.append(limit)
             with self._lock:
-                rows = self._db().execute("SELECT sequence,CASE WHEN length(payload)<=? THEN payload END,digest,event_id,request_id,occurred_at FROM audits WHERE association_ref=? AND sequence>? ORDER BY sequence LIMIT ?",
-                                          (_LIMIT, self.association_ref, after_sequence, limit)).fetchall()
+                rows = self._db().execute("SELECT sequence,CASE WHEN length(payload)<=? THEN payload END,digest,event_id,request_id,occurred_at FROM audits WHERE association_ref=? AND sequence>?" + condition + " ORDER BY sequence LIMIT ?",
+                                          parameters).fetchall()
                 result = []
                 for sequence, payload, checksum, event_id, request_id, occurred_at in rows:
                     event = _decode_event(self._value(payload, checksum))
@@ -389,6 +396,13 @@ class SQLiteApprovalStore:
                 return tuple(result)
         except Exception:
             _fail()
+
+    def events_for(self, request_id):
+        """Only request-associated events; unassociated denials are excluded."""
+        page = self.read_events(request_id=request_id, limit=1000)
+        if page and self.read_events(request_id=request_id, after_sequence=page[-1][0], limit=1):
+            _fail()
+        return tuple(event for _, event in page)
 
     @property
     def events(self):

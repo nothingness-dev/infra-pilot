@@ -1,5 +1,16 @@
 # InfraPilot: backend inspection and offline Mock workflows
 
+The [Persian RTL web application](apps/web/README.md) now provides ten connected
+pages, dark/light/system themes and an explicit local Mock UI bridge. After
+installing the existing Python environment, run `npm --prefix apps/web ci`,
+`npm --prefix apps/web run build`, then
+`.\.venv\Scripts\python.exe -B -m integration.ui_server --mock` and open
+http://127.0.0.1:8787/. Approval decisions use the actual gate/store; live Liara,
+production identity and infrastructure execution remain unavailable in the UI.
+The additional [Mock setup wizard](apps/web/docs/SETUP_VERIFICATION.md) collects
+a proposal, reuses Setup's planner and saves it idempotently for review. Unsupported
+setup operations stay blocked; DNS, SSL and infrastructure are never changed.
+
 [Persistent inspection history](integration/HISTORY.md) now saves validated,
 allowlisted inspection summaries to local SQLite and reads them after a process
 restart. It archives errors and missing-data states without storing tokens, log
@@ -18,7 +29,8 @@ has not been performed; see [its verification record](integration/READONLY_VERIF
 
 The [request-to-approval workflow](integration/WORKFLOW.md) adds request intake,
 information completion, preparation, actual evidence/diagnosis, action review,
-and a separate explicit Mock approval example. It has no UI or executor.
+and a separate explicit Mock approval example. Its CLI remains available alongside
+the new local UI; neither enables an infrastructure executor.
 
 ## Setup and run
 

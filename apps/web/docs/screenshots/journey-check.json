@@ -1,0 +1,24 @@
+{
+  "source": "mock",
+  "profile": "infrapilot-ui-export/1",
+  "historical": true,
+  "exportKeys": [
+    "profile",
+    "source",
+    "historical",
+    "report_id",
+    "created_at",
+    "counts",
+    "capabilities",
+    "authorization_consumed",
+    "execution_authorized",
+    "execution_performed",
+    "remediation_verified",
+    "identity_verified"
+  ],
+  "authorizationConsumed": false,
+  "executionAuthorized": false,
+  "executionPerformed": false,
+  "journey": "incident search and filter -> evidence -> acknowledged gate decision -> audit -> allowlisted export",
+  "result": "passed"
+}
