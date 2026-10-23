@@ -1,5 +1,9 @@
 # Persistent local Mock requests
 
+For untrusted callers, use the new [protected Mock facade](ACCESS.md). The
+lower-level request interface below remains a trusted Python composition API;
+its standalone command does not authenticate an operating-system user.
+
 Profile: `infrapilot-persistent-request/1`. This backend persists **controlled
 Mock `inspect_service` briefs**, their revisions, lifecycle events and mutation
 receipts. Separate processes can complete the same accepted brief and run the
